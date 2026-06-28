@@ -4,8 +4,9 @@
  */
 
 import React, { useState } from 'react';
-import { Mail, Clock, MapPin, Phone, Send, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Mail, Clock, MapPin, Phone, Send, ShieldCheck } from 'lucide-react';
 import { contactDetails } from '../utils/landingData.ts';
+import { Input, Textarea, Button, SuccessState, Card } from './ui/index.ts';
 
 export const Contact: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -48,11 +49,11 @@ export const Contact: React.FC = () => {
             </div>
 
             {/* List Details Card */}
-            <div className="bg-white border border-gray-100 p-6 rounded-3xl shadow-sm space-y-6" id="contact-details-card">
+            <Card hoverEffect={false} id="contact-details-card" className="space-y-6">
               
               {/* Working Hours */}
               <div className="flex items-start space-x-4">
-                <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
+                <div className="p-2.5 rounded-2xl bg-white border border-gray-100/80 text-blue-600 shadow-xs">
                   <Clock className="w-5 h-5" />
                 </div>
                 <div className="space-y-0.5">
@@ -65,7 +66,7 @@ export const Contact: React.FC = () => {
 
               {/* Support Email */}
               <div className="flex items-start space-x-4">
-                <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
+                <div className="p-2.5 rounded-2xl bg-white border border-gray-100/80 text-blue-600 shadow-xs">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div className="space-y-0.5">
@@ -76,9 +77,9 @@ export const Contact: React.FC = () => {
                 </div>
               </div>
 
-              {/* Business Email */}
+              {/* Business Mail */}
               <div className="flex items-start space-x-4">
-                <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
+                <div className="p-2.5 rounded-2xl bg-white border border-gray-100/80 text-blue-600 shadow-xs">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div className="space-y-0.5">
@@ -91,7 +92,7 @@ export const Contact: React.FC = () => {
 
               {/* Telephone */}
               <div className="flex items-start space-x-4">
-                <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
+                <div className="p-2.5 rounded-2xl bg-white border border-gray-100/80 text-blue-600 shadow-xs">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div className="space-y-0.5">
@@ -104,7 +105,7 @@ export const Contact: React.FC = () => {
 
               {/* Physical Office Placeholder */}
               <div className="flex items-start space-x-4">
-                <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
+                <div className="p-2.5 rounded-2xl bg-white border border-gray-100/80 text-blue-600 shadow-xs">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div className="space-y-0.5">
@@ -115,81 +116,70 @@ export const Contact: React.FC = () => {
                 </div>
               </div>
 
-            </div>
+            </Card>
           </div>
 
           {/* Right Column: Visual Enquiry Form */}
-          <div className="lg:col-span-7 bg-white rounded-3xl p-8 border border-gray-100 shadow-lg text-left w-full">
+          <div className="lg:col-span-7 bg-white rounded-[32px] p-8 border border-gray-100/80 shadow-[0_24px_60px_rgba(0,0,0,0.03)] hover:shadow-[0_24px_60px_rgba(0,0,0,0.05)] transition-all duration-300 text-left w-full">
             <h3 className="font-display font-bold text-gray-950 text-lg mb-2">Corporate Inquiry Portal</h3>
             <p className="text-xs text-gray-500 mb-6 font-sans">
               Submit your specific investment constraints or referral questions below to initiate secure communications.
             </p>
 
             {formSubmitted ? (
-              <div className="p-8 bg-emerald-50 border border-emerald-100 rounded-2xl text-center space-y-3" id="contact-success-alert">
-                <div className="w-12 h-12 rounded-full bg-emerald-500 text-white flex items-center justify-center mx-auto shadow-md">
-                  <CheckCircle2 className="w-6 h-6" />
-                </div>
-                <h4 className="font-display font-bold text-emerald-800 text-sm">Inquiry Transmitted Successfully</h4>
-                <p className="text-[11px] text-emerald-600 max-w-sm mx-auto leading-relaxed">
-                  We have successfully registered your ticket under a secure hashing envelope. A priority partner manager will email you shortly.
-                </p>
-              </div>
+              <SuccessState
+                title="Inquiry Transmitted Successfully"
+                description="We have successfully registered your ticket under a secure hashing envelope. A priority partner manager will email you shortly."
+              />
             ) : (
               <form onSubmit={handleFormSubmit} className="space-y-4" id="contact-form">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Name field */}
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-medium text-gray-700 block font-sans">Corporate Representative Name</label>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. Alexander Mercer"
-                      className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 bg-gray-50/30"
-                      required
-                    />
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
                   
-                  {/* Email field */}
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-medium text-gray-700 block font-sans">Corporate Email Address</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. mercer@capstone-funds.com"
-                      className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 bg-gray-50/30"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Message field */}
-                <div className="space-y-1">
-                  <label className="text-[11px] font-medium text-gray-700 block font-sans">Specific Inquiry details</label>
-                  <textarea
-                    rows={4}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Provide details on target investment scale, regional licensing requirements, or partnership team plans..."
-                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 bg-gray-50/30 resize-none"
+                  <Input
+                    label="Corporate Representative Name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Alexander Mercer"
+                    id="contact-name"
                     required
                   />
+
+                  <Input
+                    label="Corporate Email Address"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="mercer@capstone-funds.com"
+                    id="contact-email"
+                    required
+                  />
+                  
                 </div>
 
-                {/* Submit button */}
-                <button
+                <Textarea
+                  label="Specific Inquiry Details"
+                  rows={4}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Provide details on target investment scale, regional licensing requirements, or partnership team plans..."
+                  id="contact-message"
+                  required
+                />
+
+                <Button
                   type="submit"
-                  className="w-full inline-flex items-center justify-center space-x-2 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs sm:text-sm transition-all duration-150 shadow-md shadow-blue-500/10 cursor-pointer active:scale-98"
+                  variant="primary"
+                  size="lg"
+                  className="w-full"
+                  rightIcon={<Send className="w-4 h-4" />}
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Transmit Encrypted Inquiry</span>
-                </button>
+                  Transmit Encrypted Inquiry
+                </Button>
 
                 {/* Guarantee badge */}
                 <div className="flex items-center justify-center space-x-1.5 text-[10px] font-mono text-gray-400 font-semibold pt-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
                   <span>Your communications are fully encrypted and confidential. No marketing solicitation is sent.</span>
                 </div>
               </form>

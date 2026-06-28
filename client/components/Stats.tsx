@@ -32,8 +32,10 @@ export const Stats: React.FC = () => {
         
         {/* Statistics Grid */}
         <div 
-          className="grid grid-cols-2 lg:grid-cols-5 gap-8 bg-gray-50/50 border border-gray-100 rounded-3xl p-8 shadow-sm"
+          className="grid grid-cols-2 lg:grid-cols-5 gap-8 bg-white border border-gray-100/80 rounded-[32px] p-8 shadow-[0_16px_40px_rgba(0,0,0,0.02)]"
           id="statistics-display-grid"
+          role="region"
+          aria-label="Platform Statistics Overview"
         >
           {platformStats.map((stat, idx) => {
             const Icon = getStatIcon(stat.id);
@@ -44,11 +46,11 @@ export const Stats: React.FC = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="text-center space-y-2 flex flex-col justify-between items-center"
+                className="text-center space-y-2 flex flex-col justify-between items-center group"
                 id={`stat-card-${stat.id}`}
               >
                 {/* Visual Icon Accent */}
-                <div className="p-2.5 rounded-xl bg-white border border-gray-100 text-blue-600 shadow-xs">
+                <div className="p-2.5 rounded-2xl bg-gray-50 border border-gray-100 text-blue-600 shadow-xs group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
                   <Icon className="w-5 h-5" />
                 </div>
 

@@ -5,8 +5,9 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Compass, Eye, Map, Lightbulb, ShieldAlert } from 'lucide-react';
+import { Compass, Eye, Map, ShieldAlert } from 'lucide-react';
 import { companyInfo } from '../utils/landingData.ts';
+import { InfoCard } from './ui/index.ts';
 
 export const About: React.FC = () => {
   return (
@@ -34,7 +35,7 @@ export const About: React.FC = () => {
               <ShieldAlert className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
               <div className="space-y-0.5">
                 <span className="text-[11px] font-mono font-bold text-amber-800 uppercase block">Reserve Declaration</span>
-                <p className="text-[11px] text-gray-600 leading-normal">
+                <p className="text-[11px] text-gray-600 leading-normal font-sans">
                   Our core policies forbid unbacked asset-lending or leverage models. Your capital stays protected inside segregated ledger nodes.
                 </p>
               </div>
@@ -42,7 +43,7 @@ export const About: React.FC = () => {
           </div>
 
           {/* Column 2: Bento Grid Cards (Mission, Vision, etc.) */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6" id="about-bento-grid">
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6" id="about-bento-grid" role="list">
             
             {/* Card 1: Our Mission */}
             <motion.div
@@ -50,15 +51,15 @@ export const About: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.4 }}
-              className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+              role="listitem"
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-4">
-                <Compass className="w-4.5 h-4.5" />
-              </div>
-              <h3 className="font-display font-semibold text-gray-900 mb-2 text-sm sm:text-base">Our Mission</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <InfoCard
+                title="Our Mission"
+                icon={<Compass className="w-5 h-5" />}
+                className="h-full"
+              >
                 {companyInfo.mission}
-              </p>
+              </InfoCard>
             </motion.div>
 
             {/* Card 2: Our Vision */}
@@ -67,15 +68,15 @@ export const About: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+              role="listitem"
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 mb-4">
-                <Eye className="w-4.5 h-4.5" />
-              </div>
-              <h3 className="font-display font-semibold text-gray-900 mb-2 text-sm sm:text-base">Our Vision</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <InfoCard
+                title="Our Vision"
+                icon={<Eye className="w-5 h-5" />}
+                className="h-full"
+              >
                 {companyInfo.vision}
-              </p>
+              </InfoCard>
             </motion.div>
 
             {/* Card 3: Financial Transparency */}
@@ -84,15 +85,17 @@ export const About: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.4, delay: 0.15 }}
-              className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+              role="listitem"
             >
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-4">
-                <ShieldAlert className="w-4.5 h-4.5" />
-              </div>
-              <h3 className="font-display font-semibold text-gray-900 mb-2 text-sm sm:text-base">Financial Transparency</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <InfoCard
+                title="Financial Transparency"
+                icon={<ShieldAlert className="w-5 h-5" />}
+                badge="Policy"
+                badgeVariant="emerald"
+                className="h-full"
+              >
                 {companyInfo.transparencyPolicy}
-              </p>
+              </InfoCard>
             </motion.div>
 
             {/* Card 4: Global Expansion & Innovation */}
@@ -101,15 +104,17 @@ export const About: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+              role="listitem"
             >
-              <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 mb-4">
-                <Map className="w-4.5 h-4.5" />
-              </div>
-              <h3 className="font-display font-semibold text-gray-900 mb-2 text-sm sm:text-base">Global Expansion & Tech</h3>
-              <p className="text-xs text-gray-500 leading-relaxed">
+              <InfoCard
+                title="Global Expansion & Tech"
+                icon={<Map className="w-5 h-5" />}
+                badge="Innovation"
+                badgeVariant="amber"
+                className="h-full"
+              >
                 {companyInfo.globalExpansionPlan} {companyInfo.innovationFocus}
-              </p>
+              </InfoCard>
             </motion.div>
 
           </div>

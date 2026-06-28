@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth.ts';
 import { Shield, Menu, X, ArrowUpRight, LogOut, LayoutDashboard } from 'lucide-react';
+import { Button } from './ui/index.ts';
 
 interface NavbarProps {
   onOpenAuth: (mode: 'login' | 'register') => void;
@@ -79,7 +80,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onNavigateToSection,
               <button
                 key={link.id}
                 onClick={() => handleLinkClick(link.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer ${
+                aria-current={activeSection === link.id ? 'page' : undefined}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
                   activeSection === link.id
                     ? 'text-blue-600 bg-blue-50/50'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -96,45 +98,51 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onNavigateToSection,
               <div className="flex items-center space-x-3">
                 {/* Logged in state info */}
                 <div className="text-right">
-                  <p className="text-[10px] font-mono text-gray-400 font-bold leading-none uppercase">Synced Account</p>
+                  <p className="text-[10px] font-mono text-gray-400 font-bold leading-none uppercase font-sans">Synced Account</p>
                   <p className="text-xs font-semibold text-gray-900 truncate max-w-[140px]">{user.email}</p>
                 </div>
 
                 {/* Dashboard Shortcut link */}
-                <button
+                <Button
                   onClick={() => handleLinkClick('dashboard-dev')}
-                  className="inline-flex items-center space-x-1.5 px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-900 text-xs font-semibold rounded-xl border border-gray-200 shadow-sm transition-all duration-150 cursor-pointer"
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<LayoutDashboard className="w-3.5 h-3.5 text-blue-600" />}
                 >
-                  <LayoutDashboard className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Dashboard</span>
-                </button>
+                  Dashboard
+                </Button>
 
                 {/* Logout Button */}
-                <button
+                <Button
                   onClick={logout}
-                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-150 cursor-pointer border border-transparent hover:border-red-100"
+                  variant="ghost"
+                  size="icon"
+                  className="text-gray-500 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100"
                   title="Sign Out Session"
                 >
                   <LogOut className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             ) : (
               <>
-                <button
+                <Button
                   onClick={() => onOpenAuth('login')}
-                  className="px-4 py-2 text-xs font-bold text-gray-700 hover:text-gray-900 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors duration-150"
+                  variant="ghost"
+                  size="md"
                   id="navbar-login-btn"
                 >
                   Sign In
-                </button>
-                <button
+                </Button>
+                
+                <Button
                   onClick={() => onOpenAuth('register')}
-                  className="inline-flex items-center space-x-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 active:scale-95 transition-all duration-150 shadow-md shadow-blue-500/10 cursor-pointer"
+                  variant="primary"
+                  size="md"
+                  rightIcon={<ArrowUpRight className="w-3.5 h-3.5" />}
                   id="navbar-register-btn"
                 >
-                  <span>Start Investing</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
+                  Start Investing
+                </Button>
               </>
             )}
           </div>
@@ -181,41 +189,48 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onNavigateToSection,
                   <p className="text-[10px] font-mono text-gray-400 uppercase font-bold">Synced Session</p>
                   <p className="text-xs font-semibold text-gray-800 break-all">{user.email}</p>
                 </div>
-                <button
+                
+                <Button
                   onClick={() => handleLinkClick('dashboard-dev')}
-                  className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-gray-50 hover:bg-gray-100 text-gray-900 text-xs font-bold rounded-xl border border-gray-200 transition-colors"
+                  variant="secondary"
+                  className="w-full justify-center"
+                  leftIcon={<LayoutDashboard className="w-4 h-4 text-blue-600" />}
                 >
-                  <LayoutDashboard className="w-4 h-4 text-blue-600" />
-                  <span>Go to Core Dashboard</span>
-                </button>
-                <button
+                  Go to Core Dashboard
+                </Button>
+
+                <Button
                   onClick={logout}
-                  className="w-full inline-flex items-center justify-center space-x-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold rounded-xl border border-red-100 transition-colors"
+                  variant="danger"
+                  className="w-full justify-center"
+                  leftIcon={<LogOut className="w-4 h-4" />}
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span>Terminate Session</span>
-                </button>
+                  Terminate Session
+                </Button>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3 px-2">
-                <button
+                <Button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     onOpenAuth('login');
                   }}
-                  className="py-3 text-center text-xs font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all"
+                  variant="secondary"
+                  size="md"
                 >
                   Sign In
-                </button>
-                <button
+                </Button>
+
+                <Button
                   onClick={() => {
                     setIsMobileMenuOpen(false);
                     onOpenAuth('register');
                   }}
-                  className="py-3 text-center text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition-all"
+                  variant="primary"
+                  size="md"
                 >
                   Get Started
-                </button>
+                </Button>
               </div>
             )}
           </div>

@@ -7,6 +7,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { UserPlus, LogIn, Coins, CalendarDays, Users2, ShieldCheck, ArrowRight } from 'lucide-react';
 import { timelineSteps } from '../utils/landingData.ts';
+import { SectionHeader } from './ui/index.ts';
 
 const getStepIcon = (step: number) => {
   switch (step) {
@@ -36,20 +37,15 @@ export const HowItWorks: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center space-y-3 mb-16 max-w-2xl mx-auto">
-          <span className="text-[10px] font-mono text-blue-600 uppercase font-bold tracking-widest block">
-            Seamless Onboarding Protocol
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-gray-950 tracking-tight leading-none">
-            Your Wealth Journey in Six Steps
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-500 leading-relaxed font-sans">
-            Follow our clean, automated onboarding pipeline to establish secure assets and participate in our global referral yield matrix.
-          </p>
-        </div>
+        <SectionHeader
+          badge="Seamless Onboarding Protocol"
+          title="Your Wealth Journey in Six Steps"
+          description="Follow our clean, automated onboarding pipeline to establish secure assets and participate in our global referral yield matrix."
+          className="mb-16"
+        />
 
         {/* Timeline Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 relative" id="how-it-works-timeline">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 relative" id="how-it-works-timeline" role="list">
           {timelineSteps.map((item, idx) => {
             const Icon = getStepIcon(item.step);
             return (
@@ -59,11 +55,12 @@ export const HowItWorks: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="relative bg-white border border-gray-100 p-6 rounded-3xl shadow-sm hover:shadow-md transition-shadow text-center flex flex-col justify-between items-center group"
+                className="relative bg-white border border-gray-100/80 p-6 rounded-[32px] shadow-xs hover:border-blue-100/80 hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.06)] transition-all duration-300 text-center flex flex-col justify-between items-center group"
                 id={`step-card-${item.step}`}
+                role="listitem"
               >
                 {/* Numeric Tag */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-50 text-blue-700 border border-blue-100 px-3 py-0.5 rounded-full text-[10px] font-mono font-extrabold shadow-sm">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-50 text-blue-700 border border-blue-100 px-3 py-0.5 rounded-full text-[10px] font-mono font-extrabold shadow-xs">
                   Step 0{item.step}
                 </div>
 
@@ -76,13 +73,13 @@ export const HowItWorks: React.FC = () => {
 
                 <div className="space-y-4 pt-2">
                   {/* Icon Node */}
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 text-blue-600 flex items-center justify-center mx-auto shadow-sm group-hover:scale-105 group-hover:from-blue-600 group-hover:to-blue-700 group-hover:text-white transition-all duration-200">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/60 text-blue-600 flex items-center justify-center mx-auto shadow-xs group-hover:scale-105 group-hover:from-blue-600 group-hover:to-blue-700 group-hover:text-white transition-all duration-300">
                     <Icon className="w-5 h-5" />
                   </div>
 
                   {/* Text descriptions */}
-                  <div className="space-y-1">
-                    <h3 className="font-display font-semibold text-gray-900 text-xs sm:text-sm group-hover:text-blue-600 transition-colors">
+                  <div className="space-y-1.5">
+                    <h3 className="font-display font-semibold text-gray-900 text-xs sm:text-sm group-hover:text-blue-600 transition-colors duration-200">
                       {item.title}
                     </h3>
                     <p className="text-[11px] text-gray-500 leading-relaxed font-sans">
@@ -92,7 +89,7 @@ export const HowItWorks: React.FC = () => {
                 </div>
 
                 {/* Minimalist marker at the bottom */}
-                <div className="mt-4 w-1.5 h-1.5 rounded-full bg-blue-600/30 group-hover:bg-amber-400 group-hover:scale-125 transition-all" />
+                <div className="mt-4 w-1.5 h-1.5 rounded-full bg-blue-600/30 group-hover:bg-amber-400 group-hover:scale-125 transition-all duration-200" />
               </motion.div>
             );
           })}

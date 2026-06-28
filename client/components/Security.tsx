@@ -7,6 +7,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import * as Icons from 'lucide-react';
 import { securityHighlights } from '../utils/landingData.ts';
+import { InfoCard } from './ui/index.ts';
 
 const getSecurityIcon = (name: string): React.ComponentType<any> => {
   switch (name) {
@@ -47,9 +48,9 @@ export const Security: React.FC = () => {
 
           {/* Secure Audit Certificate visual representation */}
           <div className="lg:col-span-6 flex justify-center lg:justify-end">
-            <div className="bg-blue-600 text-white rounded-3xl p-6 max-w-sm w-full shadow-lg shadow-blue-500/15 relative overflow-hidden text-left border border-blue-500/30">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white rounded-[32px] p-6 max-w-sm w-full shadow-[0_24px_50px_rgba(37,99,235,0.18)] relative overflow-hidden text-left border border-blue-500/30 group hover:scale-[1.01] transition-transform duration-300">
               {/* Overlay art */}
-              <div className="absolute top-0 right-0 p-6 opacity-10">
+              <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500">
                 <Icons.Shield className="w-40 h-40" />
               </div>
               <div className="space-y-4">
@@ -58,7 +59,7 @@ export const Security: React.FC = () => {
                   <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-blue-100">Audit Status: A+ Rated</span>
                 </div>
                 <h4 className="text-lg font-display font-bold leading-snug">Continuous Real-time Ledger Verification</h4>
-                <p className="text-xs text-blue-100 leading-relaxed">
+                <p className="text-xs text-blue-100/90 leading-relaxed font-sans">
                   Third-party cybersecurity leaders perform weekly automated penetration sweeps and constant integrity monitoring of our Postgres databases.
                 </p>
                 <div className="pt-2 flex items-center space-x-3 border-t border-blue-500/50 text-[10px] font-mono text-blue-200">
@@ -76,8 +77,8 @@ export const Security: React.FC = () => {
           </div>
         </div>
 
-        {/* 5-Column layout grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="security-pillar-grid">
+        {/* 3-Column layout grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="security-pillar-grid" role="list">
           {securityHighlights.map((pillar, idx) => {
             const Icon = getSecurityIcon(pillar.iconName);
             return (
@@ -87,20 +88,16 @@ export const Security: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs hover:shadow-md transition-shadow text-left space-y-4"
-                id={`security-${pillar.id}`}
+                role="listitem"
+                className="h-full"
               >
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="space-y-1.5">
-                  <h3 className="font-display font-semibold text-gray-950 text-sm sm:text-base">
-                    {pillar.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 leading-relaxed font-sans">
-                    {pillar.description}
-                  </p>
-                </div>
+                <InfoCard
+                  title={pillar.title}
+                  icon={<Icon className="w-5 h-5" />}
+                  className="h-full"
+                >
+                  {pillar.description}
+                </InfoCard>
               </motion.div>
             );
           })}

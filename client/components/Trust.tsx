@@ -7,6 +7,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import * as Icons from 'lucide-react';
 import { trustIndicators } from '../utils/landingData.ts';
+import { SectionHeader } from './ui/index.ts';
 
 // Helper to look up Lucide icons safely
 const getIconComponent = (name: string): React.ComponentType<any> => {
@@ -34,20 +35,15 @@ export const Trust: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Subtle Title Header */}
-        <div className="text-center space-y-2 mb-12">
-          <span className="text-[10px] font-mono text-blue-600 uppercase font-bold tracking-widest block">
-            Institutional Trust Pillars
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-display font-bold text-gray-950 tracking-tight">
-            Engineered for Security, Certified for Stability
-          </h2>
-          <p className="text-xs sm:text-sm text-gray-400 max-w-xl mx-auto leading-relaxed">
-            Our infrastructure combines bank-grade cryptographic architecture with rigorous physical and digital compliance.
-          </p>
-        </div>
+        <SectionHeader
+          badge="Institutional Trust Pillars"
+          title="Engineered for Security, Certified for Stability"
+          description="Our infrastructure combines bank-grade cryptographic architecture with rigorous physical and digital compliance."
+          className="mb-12"
+        />
 
         {/* 6-Column Trust Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="trust-indicator-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="trust-indicator-grid" role="list">
           {trustIndicators.map((indicator, idx) => {
             const IconComponent = getIconComponent(indicator.iconName);
             return (
@@ -57,16 +53,17 @@ export const Trust: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="bg-gray-50/50 hover:bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg hover:shadow-gray-100/50 transition-all duration-200 text-left group"
+                className="bg-gray-50/50 hover:bg-white rounded-3xl p-6 border border-gray-100/80 hover:border-blue-100/80 hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.06)] transition-all duration-300 text-left group"
                 id={`trust-${indicator.id}`}
+                role="listitem"
               >
                 <div className="flex items-start space-x-4">
                   {/* Icon wrap */}
-                  <div className="p-3 rounded-xl bg-white border border-gray-100 text-blue-600 shadow-sm group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all duration-200">
+                  <div className="p-3 rounded-2xl bg-white border border-gray-100 text-blue-600 shadow-xs group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all duration-300">
                     <IconComponent className="w-5 h-5" />
                   </div>
-                  <div className="space-y-1">
-                    <h3 className="font-display font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-150 text-sm sm:text-base">
+                  <div className="space-y-1.5">
+                    <h3 className="font-display font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200 text-sm sm:text-base">
                       {indicator.title}
                     </h3>
                     <p className="text-xs text-gray-500 leading-relaxed font-sans">
