@@ -35,6 +35,7 @@ import { Faq } from './components/Faq.tsx';
 import { Contact } from './components/Contact.tsx';
 import { Footer } from './components/Footer.tsx';
 import { AuthModal } from './components/AuthModal.tsx';
+import { UserDashboard } from './components/Dashboard/index.tsx';
 
 /**
  * ORIGINAL CORE DASHBOARD VIEW (Preserved exactly as requested)
@@ -311,12 +312,10 @@ function MainAppContent() {
     }, 50);
   };
 
-  // Switch between public high-end landing page and core developer test view
+  // Switch between public high-end landing page and premium enterprise user dashboard
   if (currentView === 'dashboard') {
     return (
-      <BaseLayout>
-        <DashboardContent onBackToLanding={() => setCurrentView('landing')} />
-      </BaseLayout>
+      <UserDashboard onBackToLanding={() => setCurrentView('landing')} />
     );
   }
 

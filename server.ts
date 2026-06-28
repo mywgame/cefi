@@ -17,12 +17,14 @@ async function bootstrap() {
   const app = express();
   const PORT = config.port;
 
+  // Enable trust proxy so Express resolves the client's real IP behind Cloud Run reverse proxies
+  app.set('trust proxy', true);
+
   logger.info(`Starting CeFi Platform Foundation in [${config.nodeEnv}] mode...`);
 
   // 1. Core Security Middlewares
   app.use(helmetMiddleware);
   app.use(corsMiddleware);
-  app.use(rateLimiter(15 * 60 * 1000, 150)); // Global rate limiting
 
   // 2. Body Parsers & Cookie Parser
   app.use(express.json());
@@ -30,7 +32,8 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // 3. API Routes mounted FIRST (Required to prevent Vite SPA routing collision)
-  app.use('/api', apiRoutes);
+  // Apply rate limiting specifically on API endpoints to prevent static resource/chunk loads from exhausting limits
+  app.use('/api', rateLimiter(15 * 60 * 1000, 300), apiRoutes);
 
   // 4. Vite Dev Middleware / Production Static Asset Handling
   if (config.nodeEnv !== 'production') {
