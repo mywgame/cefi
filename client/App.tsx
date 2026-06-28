@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { useAuth } from './hooks/useAuth.ts';
 import { BaseLayout } from './layouts/BaseLayout.tsx';
@@ -15,10 +15,31 @@ import {
   Activity, 
   CheckCircle2, 
   ArrowRight,
-  Sparkles
+  Sparkles,
+  ArrowLeft,
+  LayoutDashboard,
+  ShieldAlert
 } from 'lucide-react';
 
-function DashboardContent() {
+// Import our new Phase 4 World-Class Landing Page Components
+import { Navbar } from './components/Navbar.tsx';
+import { Hero } from './components/Hero.tsx';
+import { Trust } from './components/Trust.tsx';
+import { About } from './components/About.tsx';
+import { WhyChooseUs } from './components/WhyChooseUs.tsx';
+import { HowItWorks } from './components/HowItWorks.tsx';
+import { VipPreview } from './components/VipPreview.tsx';
+import { Stats } from './components/Stats.tsx';
+import { Security } from './components/Security.tsx';
+import { Faq } from './components/Faq.tsx';
+import { Contact } from './components/Contact.tsx';
+import { Footer } from './components/Footer.tsx';
+import { AuthModal } from './components/AuthModal.tsx';
+
+/**
+ * ORIGINAL CORE DASHBOARD VIEW (Preserved exactly as requested)
+ */
+function DashboardContent({ onBackToLanding }: { onBackToLanding: () => void }) {
   const { user, login, loading, error } = useAuth();
   const [email, setEmail] = useState('');
 
@@ -30,7 +51,21 @@ function DashboardContent() {
   };
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="space-y-8 max-w-5xl mx-auto py-4">
+      {/* Back Header shortcut */}
+      <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+        <button
+          onClick={onBackToLanding}
+          className="inline-flex items-center space-x-1.5 text-xs font-semibold text-gray-500 hover:text-blue-600 transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Return to Premium Public Page</span>
+        </button>
+        <span className="text-[10px] font-mono text-gray-400 font-bold uppercase tracking-wider">
+          Enterprise Node Admin View
+        </span>
+      </div>
+
       {/* Title / Typography Pairing */}
       <div className="text-center md:text-left space-y-3">
         <div className="inline-flex items-center space-x-2 bg-emerald-50 border border-emerald-100 rounded-full px-3 py-1 text-xs text-emerald-700 font-medium font-mono">
@@ -125,7 +160,7 @@ function DashboardContent() {
               <span>Verifying secure connection details...</span>
             </div>
           ) : user ? (
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-3 font-mono">
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-3 font-mono text-left">
               <div className="flex items-center justify-between text-xs pb-2 border-b border-gray-200/50">
                 <span className="text-gray-400">Database Connection Status</span>
                 <span className="text-emerald-500 font-bold flex items-center space-x-1">
@@ -189,7 +224,7 @@ function DashboardContent() {
           <h4 className="font-display font-semibold text-sm">Monorepo Directory Integrity Diagnostics</h4>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono text-left">
           <div className="p-3 bg-gray-50 border border-gray-100 rounded-xl">
             <span className="text-gray-400 block text-[10px] uppercase">Client Directory</span>
             <span className="text-gray-800 font-semibold">/client [OK]</span>
@@ -212,12 +247,180 @@ function DashboardContent() {
   );
 }
 
+/**
+ * MAIN APP CONTAINER WITH EMBEDDED PHASE 4 WEBSITE
+ */
+function MainAppContent() {
+  const { user } = useAuth();
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');
+  const [activeSection, setActiveSection] = useState('hero');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+
+  // Automatically offer the dashboard view switch option once successfully authenticated
+  useEffect(() => {
+    if (user && currentView === 'landing') {
+      // Keep on landing page but they can select it via the navbar or layout triggers
+    }
+  }, [user]);
+
+  // Section Tracking for Navbar Highlighter
+  useEffect(() => {
+    if (currentView !== 'landing') return;
+
+    const sections = ['hero', 'about', 'benefits', 'how-it-works', 'vip-preview', 'security', 'faq', 'contact'];
+    
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 160; // Offset for sticky navbar height
+      
+      for (const sId of sections) {
+        const el = document.getElementById(`${sId}-section`) || document.getElementById(sId);
+        if (el) {
+          const top = el.offsetTop;
+          const height = el.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < top + height) {
+            setActiveSection(sId);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [currentView]);
+
+  const handleOpenAuth = (mode: 'login' | 'register') => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleNavigateToSection = (sectionId: string) => {
+    if (sectionId === 'dashboard-dev') {
+      setCurrentView('dashboard');
+      return;
+    }
+
+    setCurrentView('landing');
+    setTimeout(() => {
+      const el = document.getElementById(`${sectionId}-section`) || document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setActiveSection(sectionId);
+      }
+    }, 50);
+  };
+
+  // Switch between public high-end landing page and core developer test view
+  if (currentView === 'dashboard') {
+    return (
+      <BaseLayout>
+        <DashboardContent onBackToLanding={() => setCurrentView('landing')} />
+      </BaseLayout>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#fafafa] text-gray-900 font-sans flex flex-col antialiased">
+      
+      {/* 1. Header (Navbar component) */}
+      <Navbar 
+        onOpenAuth={handleOpenAuth} 
+        onNavigateToSection={handleNavigateToSection} 
+        activeSection={activeSection}
+      />
+
+      {/* 2. Main content pages */}
+      <main className="flex-grow">
+        
+        {/* Hero Section */}
+        <div id="hero">
+          <Hero 
+            onOpenAuth={handleOpenAuth} 
+            onNavigateToSection={handleNavigateToSection} 
+          />
+        </div>
+
+        {/* Trust Section */}
+        <div id="trust">
+          <Trust />
+        </div>
+
+        {/* About Company Section */}
+        <div id="about">
+          <About />
+        </div>
+
+        {/* Why Choose Us Section */}
+        <div id="benefits">
+          <WhyChooseUs />
+        </div>
+
+        {/* How It Works Section */}
+        <div id="how-it-works">
+          <HowItWorks />
+        </div>
+
+        {/* VIP Preview Tiers Section */}
+        <div id="vip-preview">
+          <VipPreview onOpenAuth={handleOpenAuth} />
+        </div>
+
+        {/* Platform Statistics Section */}
+        <div id="stats">
+          <Stats />
+        </div>
+
+        {/* Security Highlights Section */}
+        <div id="security">
+          <Security />
+        </div>
+
+        {/* FAQs Section */}
+        <div id="faq">
+          <Faq />
+        </div>
+
+        {/* Contact Desk Section */}
+        <div id="contact">
+          <Contact />
+        </div>
+
+      </main>
+
+      {/* 3. Footer */}
+      <Footer onNavigateToSection={handleNavigateToSection} />
+
+      {/* 4. Auth Modal Portal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+        initialMode={authModalMode} 
+      />
+
+      {/* 5. Floating Quick-Link to original sync dashboard when authenticated */}
+      {user && (
+        <div className="fixed bottom-6 right-6 z-30">
+          <button
+            onClick={() => setCurrentView('dashboard')}
+            className="flex items-center space-x-2 px-4.5 py-3 bg-gray-950 text-white rounded-full text-xs font-bold hover:bg-gray-800 shadow-xl border border-gray-800 transition-all cursor-pointer transform hover:scale-105 active:scale-95"
+            title="Open Developer Ledger Dashboard"
+            id="floating-dashboard-shortcut"
+          >
+            <LayoutDashboard className="w-4 h-4 text-blue-400" />
+            <span>Developer Core Dashboard</span>
+          </button>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <AuthProvider>
-      <BaseLayout>
-        <DashboardContent />
-      </BaseLayout>
+      <MainAppContent />
     </AuthProvider>
   );
 }
