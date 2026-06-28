@@ -34,20 +34,43 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
       return;
     }
 
-    if (password.length < 8) {
-      setValidationError('Password must be at least 8 characters long for platform security.');
-      return;
+    if (isRegister) {
+      if (password.length < 8) {
+        setValidationError('Password must be at least 8 characters long.');
+        return;
+      }
+      if (!/[A-Z]/.test(password)) {
+        setValidationError('Password must contain at least one uppercase letter.');
+        return;
+      }
+      if (!/[a-z]/.test(password)) {
+        setValidationError('Password must contain at least one lowercase letter.');
+        return;
+      }
+      if (!/\d/.test(password)) {
+        setValidationError('Password must contain at least one number.');
+        return;
+      }
+      if (!/[@$!%*?&()_+\-=\[\]{};':"\\|,.<>\/?#^]/.test(password)) {
+        setValidationError('Password must contain at least one special character (e.g., ! @ # $ % & *).');
+        return;
+      }
+    } else {
+      if (password.length < 8) {
+        setValidationError('Password must be at least 8 characters long for platform security.');
+        return;
+      }
     }
 
     try {
       if (isRegister) {
-        await login(email.trim());
+        await login(email.trim(), password, true, referralCode.trim() || undefined);
         setSuccessMsg('Account created and verified. Synchronizing security credentials...');
         setTimeout(() => {
           onClose();
         }, 1500);
       } else {
-        await login(email.trim());
+        await login(email.trim(), password, false);
         setSuccessMsg('Authentication successful. Loading corporate dashboard...');
         setTimeout(() => {
           onClose();

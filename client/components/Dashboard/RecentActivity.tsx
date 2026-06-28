@@ -77,59 +77,61 @@ export const RecentActivity: React.FC = () => {
       <TableContainer>
         <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
           <thead>
-            <tr className="bg-gray-50/80 border-b border-gray-100/60">
-              <th className="py-4.5 px-6 font-semibold text-gray-500 font-display text-[11px] tracking-wider uppercase text-left w-1/4">
+            <tr className="bg-gray-50/60 border-b border-gray-100/80">
+              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/4">
                 Transaction ID
               </th>
-              <th className="py-4.5 px-6 font-semibold text-gray-500 font-display text-[11px] tracking-wider uppercase text-left w-1/5">
+              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/5">
                 Type
               </th>
-              <th className="py-4.5 px-6 font-semibold text-gray-500 font-display text-[11px] tracking-wider uppercase text-left w-1/5">
+              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/5">
                 Amount
               </th>
-              <th className="py-4.5 px-6 font-semibold text-gray-500 font-display text-[11px] tracking-wider uppercase text-left w-1/6">
+              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/6">
                 Status
               </th>
-              <th className="py-4.5 px-6 font-semibold text-gray-500 font-display text-[11px] tracking-wider uppercase text-left w-1/4">
+              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/4">
                 Timestamp
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50 text-gray-700">
+          <tbody className="divide-y divide-gray-100/50 text-gray-700 bg-white">
             {activities.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50/40 transition-colors">
+              <tr key={item.id} className="hover:bg-gray-50/40 transition-colors duration-150">
                 {/* ID with simulated hex hash */}
-                <td className="py-4 px-6 text-left">
+                <td className="py-3 px-5 text-left">
                   <div className="space-y-0.5">
-                    <span className="font-bold text-gray-950 font-mono block">{item.id}</span>
-                    <span className="text-[10px] font-mono text-gray-400 font-medium select-all block">{item.txHash}</span>
+                    <span className="font-bold text-gray-950 font-mono block text-xs">{item.id}</span>
+                    <span className="text-[9px] font-mono text-gray-400 font-medium select-all block leading-none">{item.txHash}</span>
                   </div>
                 </td>
 
                 {/* Type block with custom visual icons */}
-                <td className="py-4 px-6 text-left">
-                  <div className="flex items-center space-x-2.5">
-                    <div className="p-2 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center">
-                      {getTxIcon(item.type)}
+                <td className="py-3 px-5 text-left">
+                  <div className="flex items-center space-x-2">
+                    <div className="p-1.5 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
+                      {React.isValidElement(getTxIcon(item.type)) ? React.cloneElement(getTxIcon(item.type) as React.ReactElement, { className: 'w-3.5 h-3.5' }) : getTxIcon(item.type)}
                     </div>
-                    <span className="font-semibold text-gray-800 font-display">{item.type}</span>
+                    <span className="font-bold text-gray-800 font-display text-xs">{item.type}</span>
                   </div>
                 </td>
 
                 {/* Amount */}
-                <td className="py-4 px-6 text-left font-mono font-bold text-gray-950">
+                <td className="py-3 px-5 text-left font-mono font-bold text-xs">
                   <span className={item.amount.startsWith('-') ? 'text-red-600' : 'text-emerald-600'}>
                     {item.amount}
                   </span>
                 </td>
 
                 {/* Status Badges */}
-                <td className="py-4 px-6 text-left">
-                  {getStatusBadge(item.status)}
+                <td className="py-3 px-5 text-left align-middle">
+                  <div className="inline-flex">
+                    {getStatusBadge(item.status)}
+                  </div>
                 </td>
 
                 {/* Date */}
-                <td className="py-4 px-6 text-left text-gray-400 font-mono text-[11px] font-semibold">
+                <td className="py-3 px-5 text-left text-gray-400 font-mono text-[10px] font-semibold">
                   {item.timestamp}
                 </td>
               </tr>

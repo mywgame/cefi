@@ -24,6 +24,8 @@ export const validateRequest = (schema: ZodSchema) => {
           message: err.message,
         }));
         
+        console.error('Validation failed for request:', req.originalUrl, 'Payload:', req.body, 'Issues:', JSON.stringify(issues));
+        
         return next(
           new ApiError(
             400,

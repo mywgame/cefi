@@ -56,13 +56,33 @@ export const Announcements: React.FC = () => {
   const getCatBadge = (category: string) => {
     switch (category) {
       case 'Audit':
-        return 'bg-blue-50 text-blue-700 border border-blue-100';
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100/50">
+            <span className="w-1 h-1 rounded-full bg-blue-500" />
+            <span>{category}</span>
+          </span>
+        );
       case 'Security':
-        return 'bg-red-50 text-red-700 border border-red-100';
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-red-50 text-red-700 border border-red-100/50">
+            <span className="w-1 h-1 rounded-full bg-red-500 animate-pulse" />
+            <span>{category}</span>
+          </span>
+        );
       case 'Release':
-        return 'bg-emerald-50 text-emerald-700 border border-emerald-100';
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100/50">
+            <span className="w-1 h-1 rounded-full bg-emerald-500" />
+            <span>{category}</span>
+          </span>
+        );
       default:
-        return 'bg-gray-50 text-gray-700 border border-gray-100';
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-gray-50 text-gray-700 border border-gray-100">
+            <span className="w-1 h-1 rounded-full bg-gray-400" />
+            <span>{category}</span>
+          </span>
+        );
     }
   };
 
@@ -73,8 +93,8 @@ export const Announcements: React.FC = () => {
       <div className="space-y-4 mb-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="p-2 rounded-xl bg-blue-50 border border-blue-100 text-blue-600">
-              <Megaphone className="w-4 h-4 text-blue-600 animate-bounce" />
+            <div className="p-2 rounded-xl bg-blue-50 border border-blue-100/60 text-blue-600">
+              <Megaphone className="w-4 h-4 text-blue-600" />
             </div>
             <h3 className="text-base font-display font-extrabold text-gray-950 tracking-tight">
               Corporate Bulletin Desk
@@ -88,14 +108,14 @@ export const Announcements: React.FC = () => {
       </div>
 
       {/* Scrollable list content */}
-      <div className="space-y-3.5 max-h-80 overflow-y-auto pr-1 flex-grow" role="feed">
+      <div className="space-y-3 max-h-80 overflow-y-auto pr-1 flex-grow" role="feed">
         {announcements.map((item) => (
           <article
             key={item.id}
-            className={`p-3.5 rounded-2xl border transition-all text-left relative group ${
+            className={`p-3.5 rounded-xl border transition-all text-left relative group ${
               item.important 
-                ? 'bg-amber-50/20 border-amber-200/50 hover:border-amber-400' 
-                : 'bg-white border-gray-50 hover:border-blue-100 hover:bg-gray-50/30'
+                ? 'bg-amber-50/10 border-amber-200/40 hover:border-amber-400/60' 
+                : 'bg-white border-gray-100 hover:border-blue-100/60 hover:bg-gray-50/20'
             }`}
           >
             {/* Highlight ribbon for vital releases */}
@@ -108,9 +128,7 @@ export const Announcements: React.FC = () => {
 
             <div className="space-y-2 pt-1.5">
               <div className="flex items-center justify-between">
-                <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-mono font-extrabold uppercase tracking-wider ${getCatBadge(item.category)}`}>
-                  {item.category}
-                </span>
+                {getCatBadge(item.category)}
                 <span className="text-[9px] font-mono text-gray-400 font-semibold flex items-center">
                   <Calendar className="w-3 h-3 mr-1" /> {item.date}
                 </span>

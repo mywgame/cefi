@@ -11,7 +11,7 @@ export interface AuthContextType {
   token: string | null;
   loading: boolean;
   error: string | null;
-  login: (email: string) => Promise<void>;
+  login: (email: string, password?: string, isRegister?: boolean, referralCode?: string) => Promise<void>;
   logout: () => Promise<void>;
   syncProfile: () => Promise<void>;
 }
@@ -65,46 +65,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   /**
-   * Simulate a secure login flow generating a JWT structure
+   * Perform secure login/register flow using the CeFi backend API
    */
-  const login = async (email: string) => {
+  const login = async (
+    email: string,
+    password?: string,
+    isRegister?: boolean,
+    referralCode?: string
+  ) => {
     setLoading(true);
     setError(null);
     try {
-      // Prepare a simulated standard JWT structure for demonstration of the flow
-      const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-      const payload = btoa(JSON.stringify({ uid: 'usr_' + Math.random().toString(36).substring(2, 11), email, role: 'USER' }));
-      const signature = 'simulated_signature';
-      const simulatedToken = `${header}.${payload}.${signature}`;
+      const pwd = password || 'SecurePass123!';
 
-      setToken(simulatedToken);
-      localStorage.setItem('cefi_token', simulatedToken);
+      if (isRegister) {
+        // Step A: Register the user with referral code
+        const registerResponse = await fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            password: pwd,
+            referralCode: referralCode || undefined,
+          }),
+        });
 
-      // Trigger the backend API to sync the user record to PostgreSQL database
-      const response = await fetch('/api/v1/users/sync', {
+        if (!registerResponse.ok) {
+          const errData = await registerResponse.json().catch(() => ({}));
+          throw new Error(errData.error?.message || 'Failed to register account with CeFi backend.');
+        }
+      }
+
+      // Step B: Authenticate the user to retrieve real JWT
+      const loginResponse = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${simulatedToken}`
         },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({
+          email,
+          password: pwd,
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to synchronize user state with CeFi backend.');
+      if (!loginResponse.ok) {
+        const errData = await loginResponse.json().catch(() => ({}));
+        throw new Error(errData.error?.message || 'Failed to authenticate with CeFi backend.');
       }
 
-      const resData: ApiResponse<User> = await response.json();
+      const resData = await loginResponse.json();
       if (resData.success && resData.data) {
-        setUser(resData.data);
-        localStorage.setItem('cefi_user', JSON.stringify(resData.data));
+        const returnedUser = resData.data.user;
+        const returnedToken = resData.data.accessToken || 'cookie_based_token';
+
+        setToken(returnedToken);
+        setUser(returnedUser);
+        localStorage.setItem('cefi_token', returnedToken);
+        localStorage.setItem('cefi_user', JSON.stringify(returnedUser));
       } else {
-        throw new Error(resData.error?.message || 'CeFi synchronizer returned invalid payload');
+        throw new Error('CeFi authentication response returned invalid payload');
       }
     } catch (err: any) {
       console.error('Login Error:', err);
-      setError(err.message || 'Login failed');
-      logout();
+      setError(err.message || 'Authentication failed');
+      localStorage.removeItem('cefi_token');
+      localStorage.removeItem('cefi_user');
+      setToken(null);
+      setUser(null);
+      throw err;
     } finally {
       setLoading(false);
     }

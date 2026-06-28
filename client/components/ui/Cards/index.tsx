@@ -3,9 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { TOKENS } from '../theme.ts';
+import { Copy, Check } from 'lucide-react';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   hoverEffect?: boolean;
@@ -19,8 +20,8 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white border border-gray-100/80 rounded-[32px] p-6 shadow-[0_16px_40px_rgba(0,0,0,0.02)] ${
-        hoverEffect ? 'hover:border-blue-100/80 hover:shadow-[0_24px_48px_rgba(37,99,235,0.04)] transition-all duration-300' : ''
+      className={`bg-white border border-gray-100/80 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.015)] ${
+        hoverEffect ? 'hover:border-blue-100/80 hover:shadow-[0_12px_32px_rgba(37,99,235,0.035)] transition-all duration-300' : ''
       } ${className}`}
       {...props}
     >
@@ -37,6 +38,11 @@ interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   trendDirection?: 'up' | 'down' | 'neutral';
 }
 
+const truncateId = (str: string) => {
+  if (str.length <= 15) return str;
+  return `${str.slice(0, 9)}...${str.slice(-4)}`;
+};
+
 export const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
@@ -46,44 +52,71 @@ export const StatCard: React.FC<StatCardProps> = ({
   className = '',
   ...props
 }) => {
+  const [copied, setCopied] = useState(false);
+  const isUserId = title.toLowerCase().includes('user id') || title.toLowerCase().includes('operator');
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(String(value));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const displayValue = isUserId ? truncateId(String(value)) : value;
+
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
-      className={`bg-white border border-gray-100/80 rounded-[32px] p-6 shadow-[0_16px_40px_rgba(0,0,0,0.02)] hover:border-blue-100/80 hover:shadow-[0_24px_48px_rgba(37,99,235,0.05)] text-center sm:text-left flex flex-col justify-between items-center sm:items-start group ${className}`}
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.15 }}
+      className={`bg-white border border-gray-100/90 rounded-2xl p-4.5 shadow-[0_4px_16px_rgba(0,0,0,0.01)] hover:border-blue-100/80 hover:shadow-[0_12px_24px_rgba(37,99,235,0.03)] flex flex-col justify-between h-full w-full min-h-[135px] relative overflow-hidden group ${className}`}
       {...props}
     >
-      <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 w-full">
+      <div className="flex items-start justify-between w-full gap-2 mb-2.5">
+        <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block truncate">
+          {title}
+        </span>
         {icon && (
-          <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100 text-blue-600 shadow-xs group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 flex-shrink-0">
-            {icon}
+          <div className="p-2 rounded-xl bg-gray-50/80 border border-gray-100/50 text-gray-400 group-hover:scale-105 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all duration-300 flex-shrink-0">
+            {React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement, { className: 'w-4 h-4' }) : icon}
           </div>
         )}
-        <div className="space-y-1 text-center sm:text-left flex-grow">
-          <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider block">
-            {title}
-          </span>
-          <span className="text-2xl sm:text-3xl font-display font-extrabold text-gray-950 block leading-tight">
-            {value}
-          </span>
-        </div>
       </div>
-      {trend && (
-        <div className="mt-4 pt-3 border-t border-gray-50/80 w-full flex items-center justify-center sm:justify-start space-x-1.5 text-[10px] font-mono">
-          <span
-            className={`font-bold ${
-              trendDirection === 'up'
-                ? 'text-emerald-600'
-                : trendDirection === 'down'
-                ? 'text-red-600'
-                : 'text-gray-400'
-            }`}
+
+      <div className="space-y-1 text-left w-full flex-grow flex flex-col justify-end">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span 
+            className="text-base sm:text-lg font-display font-extrabold text-gray-950 tracking-tight leading-none truncate flex-grow"
+            title={String(value)}
           >
-            {trend}
+            {displayValue}
           </span>
-          <span className="text-gray-400">vs Last Period</span>
+          {isUserId && (
+            <button
+              onClick={handleCopy}
+              className="p-1 rounded bg-gray-50 hover:bg-blue-50 text-gray-400 hover:text-blue-600 border border-gray-100 transition-colors flex-shrink-0 cursor-pointer"
+              title="Copy ID"
+            >
+              {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+            </button>
+          )}
         </div>
-      )}
+        
+        {trend && (
+          <div className="pt-2 border-t border-gray-100/40 w-full flex items-center space-x-1.5 text-[9px] font-mono leading-none mt-1.5">
+            <span
+              className={`font-bold ${
+                trendDirection === 'up'
+                  ? 'text-emerald-600'
+                  : trendDirection === 'down'
+                  ? 'text-red-600'
+                  : 'text-gray-400'
+              }`}
+            >
+              {trend}
+            </span>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 };
@@ -112,12 +145,12 @@ export const InfoCard: React.FC<InfoCardProps> = ({
 
   return (
     <div
-      className={`bg-white border border-gray-100/80 rounded-[32px] p-6 shadow-[0_16px_40px_rgba(0,0,0,0.02)] hover:border-blue-100/80 hover:shadow-[0_24px_48px_rgba(37,99,235,0.04)] transition-all duration-300 text-left space-y-4 group ${className}`}
+      className={`bg-white border border-gray-100/80 rounded-2xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.015)] hover:border-blue-100/80 hover:shadow-[0_12px_32px_rgba(37,99,235,0.035)] transition-all duration-300 text-left space-y-4 group ${className}`}
       {...props}
     >
       <div className="flex items-center justify-between">
         {icon && (
-          <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-xs group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-xs group-hover:scale-105 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
             {icon}
           </div>
         )}
@@ -147,8 +180,8 @@ export const GlassCard: React.FC<CardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white/90 backdrop-blur-xl border border-white/80 rounded-[32px] p-6 sm:p-8 shadow-[0_24px_60px_rgba(0,0,0,0.03)] relative overflow-hidden ${
-        hoverEffect ? 'hover:shadow-[0_24px_60px_rgba(0,0,0,0.06)] transition-all duration-300' : ''
+      className={`bg-white/90 backdrop-blur-xl border border-white/80 rounded-2xl p-5 sm:p-6 shadow-[0_12px_40px_rgba(0,0,0,0.02)] relative overflow-hidden ${
+        hoverEffect ? 'hover:shadow-[0_16px_48px_rgba(0,0,0,0.04)] transition-all duration-300' : ''
       } ${className}`}
       {...props}
     >
@@ -164,7 +197,7 @@ export const TableContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
 }) => {
   return (
     <div
-      className={`bg-white border border-gray-100 rounded-3xl shadow-xs overflow-hidden ${className}`}
+      className={`bg-white border border-gray-100 rounded-2xl shadow-xs overflow-hidden ${className}`}
       {...props}
     >
       <div className="overflow-x-auto">

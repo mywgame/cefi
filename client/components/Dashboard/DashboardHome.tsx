@@ -125,7 +125,7 @@ export const DashboardHome: React.FC = () => {
         </div>
 
         {/* 10 Stats cards arranged in a beautiful fluid responsive grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {statsList.map((stat, idx) => (
             <StatCard
               key={idx}
@@ -134,7 +134,7 @@ export const DashboardHome: React.FC = () => {
               icon={stat.icon}
               trend={stat.trend}
               trendDirection={stat.trendDirection}
-              className="min-h-[140px]"
+              className="h-full"
             />
           ))}
         </div>

@@ -258,12 +258,12 @@ function MainAppContent() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
 
-  // Automatically offer the dashboard view switch option once successfully authenticated
+  // Automatically navigate to the dashboard once successfully authenticated
   useEffect(() => {
     if (user && currentView === 'landing') {
-      // Keep on landing page but they can select it via the navbar or layout triggers
+      setCurrentView('dashboard');
     }
-  }, [user]);
+  }, [user, currentView]);
 
   // Section Tracking for Navbar Highlighter
   useEffect(() => {

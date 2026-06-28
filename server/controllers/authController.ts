@@ -90,6 +90,8 @@ export class AuthController {
         message: 'Authentication successful.',
         data: {
           user: result.user,
+          accessToken: result.tokens.accessToken,
+          refreshToken: result.tokens.refreshToken,
         },
       });
     } catch (error: any) {
