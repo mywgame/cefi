@@ -1,0 +1,105 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { eq } from 'drizzle-orm';
+import { db } from '../../src/db/index.ts';
+import { users } from '../../src/db/schema.ts';
+import { UserRole } from '../../shared/types/index.ts';
+
+export class AuthRepository {
+  /**
+   * Find user by email
+   */
+  async findByEmail(email: string) {
+    try {
+      const result = await db.select().from(users).where(eq(users.email, email.toLowerCase().trim()));
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database query (findByEmail) failed:', error);
+      throw new Error('Failed to query repository state.');
+    }
+  }
+
+  /**
+   * Find user by unique public/visible User ID (e.g. DS322256)
+   */
+  async findByUserId(userId: string) {
+    try {
+      const result = await db.select().from(users).where(eq(users.userId, userId));
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database query (findByUserId) failed:', error);
+      throw new Error('Failed to query repository state.');
+    }
+  }
+
+  /**
+   * Find user by referral code
+   */
+  async findByReferralCode(referralCode: string) {
+    try {
+      const result = await db.select().from(users).where(eq(users.referralCode, referralCode.toUpperCase().trim()));
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database query (findByReferralCode) failed:', error);
+      throw new Error('Failed to query repository state.');
+    }
+  }
+
+  /**
+   * Create and persist a new user record
+   */
+  async createUser(data: {
+    uid: string;
+    email: string;
+    passwordHash: string;
+    role: UserRole;
+    userId: string;
+    referralCode: string;
+    parentReferralId?: string | null;
+  }) {
+    try {
+      const result = await db
+        .insert(users)
+        .values({
+          uid: data.uid,
+          email: data.email.toLowerCase().trim(),
+          passwordHash: data.passwordHash,
+          role: data.role,
+          userId: data.userId,
+          referralCode: data.referralCode,
+          parentReferralId: data.parentReferralId || null,
+        })
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Database insertion (createUser) failed:', error);
+      throw new Error('Failed to persist credentials state in database.');
+    }
+  }
+
+  /**
+   * Update password hash of a user
+   */
+  async updatePassword(uid: string, passwordHash: string) {
+    try {
+      const result = await db
+        .update(users)
+        .set({
+          passwordHash,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.uid, uid))
+        .returning();
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database update (updatePassword) failed:', error);
+      throw new Error('Failed to update credentials state in database.');
+    }
+  }
+}
+
+export const authRepository = new AuthRepository();
+export default authRepository;

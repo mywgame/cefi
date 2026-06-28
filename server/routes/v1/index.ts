@@ -5,8 +5,12 @@
 
 import { Router } from 'express';
 import userRoutes from './userRoutes.ts';
+import authRoutes from './authRoutes.ts';
 
 const router = Router();
+
+// Mount auth routes
+router.use('/auth', authRoutes);
 
 // Mount user routes
 router.use('/users', userRoutes);

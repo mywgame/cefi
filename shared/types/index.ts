@@ -11,7 +11,7 @@ export enum UserRole {
 }
 
 export interface User {
-  id: number;
+  id: string;
   uid: string; // Unique authentication identifier (e.g. standard user ID or JWT subject)
   email: string;
   role: UserRole;
