@@ -5,6 +5,7 @@
 
 import express from 'express';
 import path from 'path';
+import cookieParser from 'cookie-parser';
 import { createServer as createViteServer } from 'vite';
 import { config } from './server/config/index.ts';
 import { logger } from './server/utils/logger.ts';
@@ -23,9 +24,10 @@ async function bootstrap() {
   app.use(corsMiddleware);
   app.use(rateLimiter(15 * 60 * 1000, 150)); // Global rate limiting
 
-  // 2. Body Parsers
+  // 2. Body Parsers & Cookie Parser
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
 
   // 3. API Routes mounted FIRST (Required to prevent Vite SPA routing collision)
   app.use('/api', apiRoutes);

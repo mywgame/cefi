@@ -32,3 +32,4 @@ export * from './support.ts';
 export * from './audit.ts';
 export * from './activities.ts';
 export * from './settings.ts';
+export * from './sessions.ts';

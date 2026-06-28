@@ -7,6 +7,33 @@ import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/authService.ts';
 import { ApiError } from '../middlewares/errorHandler.ts';
 import { authRepository } from '../repositories/authRepository.ts';
+import { parseUserAgent } from '../utils/ua.ts';
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+// Central secure Cookie configurations for enterprise-grade protection
+export const cookieOptions = {
+  accessToken: {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'lax' as const,
+    maxAge: 15 * 60 * 1000, // 15 minutes
+    path: '/',
+  },
+  refreshToken: {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'lax' as const,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: '/',
+  },
+  clear: {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'lax' as const,
+    path: '/',
+  },
+};
 
 export class AuthController {
   /**
@@ -28,7 +55,6 @@ export class AuthController {
         data: { user },
       });
     } catch (error: any) {
-      // Never expose raw database or repository errors
       const userMessage = error.message.includes('Database') || error.message.includes('repository') || error.message.includes('persist')
         ? 'A system error occurred during registration. Please try again.'
         : error.message;
@@ -38,21 +64,33 @@ export class AuthController {
   }
 
   /**
-   * Login a user
+   * Login a user and attach secure HttpOnly cookies
    */
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { email, password } = req.body;
+      const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip || req.socket.remoteAddress || null;
+      const userAgent = req.headers['user-agent'];
+      const { browser, device } = parseUserAgent(userAgent);
 
       const result = await authService.loginUser({
         email,
         passwordPlain: password,
+        ipAddress,
+        device,
+        browser,
       });
+
+      // Issue tokens strictly inside secure HttpOnly cookies (neutralizes XSS extraction)
+      res.cookie('accessToken', result.tokens.accessToken, cookieOptions.accessToken);
+      res.cookie('refreshToken', result.tokens.refreshToken, cookieOptions.refreshToken);
 
       return res.status(200).json({
         success: true,
         message: 'Authentication successful.',
-        data: result,
+        data: {
+          user: result.user,
+        },
       });
     } catch (error: any) {
       const userMessage = error.message.includes('Database') || error.message.includes('query')
@@ -64,39 +102,52 @@ export class AuthController {
   }
 
   /**
-   * Refresh the access and refresh tokens
+   * Refresh the access and refresh tokens (Rotation-enabled)
    */
   async refresh(req: Request, res: Response, next: NextFunction) {
     try {
-      const { refreshToken } = req.body;
+      // Extract refresh token from secure HttpOnly cookies, or fall back to payload body
+      const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
       if (!refreshToken) {
         throw new ApiError(400, 'Refresh token is required.', 'BAD_REQUEST');
       }
 
-      const result = await authService.refreshSession(refreshToken);
+      const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip || req.socket.remoteAddress || null;
+      const userAgent = req.headers['user-agent'];
+      const { browser, device } = parseUserAgent(userAgent);
+
+      // Perform cryptographic validation and database rotation
+      const result = await authService.refreshSession(refreshToken, ipAddress, device, browser);
+
+      // Issue brand new rotated tokens inside secure HttpOnly cookies
+      res.cookie('accessToken', result.accessToken, cookieOptions.accessToken);
+      res.cookie('refreshToken', result.refreshToken, cookieOptions.refreshToken);
 
       return res.status(200).json({
         success: true,
         message: 'Tokens refreshed successfully.',
-        data: result,
+        data: {},
       });
     } catch (error: any) {
-      const isRevoked = error.message.includes('revoked') || error.message.includes('validation') || error.message.includes('revocation');
+      const isRevoked = error.message.includes('revoked') || error.message.includes('validation') || error.message.includes('revocation') || error.message.includes('terminated');
       return next(new ApiError(isRevoked ? 401 : 400, error.message, 'SESSION_REFRESH_FAILED'));
     }
   }
 
   /**
-   * Logout a user (invalidate refresh token)
+   * Logout a user and clear secure session cookies
    */
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
-      const { refreshToken } = req.body;
+      const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
       
-      // Logout is idempotent and safe even if token is missing/invalid
       if (refreshToken) {
         await authService.logoutUser(refreshToken);
       }
+
+      // Evict secure session cookies from client browser
+      res.clearCookie('accessToken', cookieOptions.clear);
+      res.clearCookie('refreshToken', cookieOptions.clear);
 
       return res.status(200).json({
         success: true,
@@ -120,7 +171,6 @@ export class AuthController {
         success: true,
         message: result.message,
         data: {
-          // Only expose plain token in non-production environments for verification/dev purposes
           debugToken: process.env.NODE_ENV !== 'production' ? result.debugToken : undefined,
         },
       });
@@ -135,11 +185,21 @@ export class AuthController {
   async resetPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const { token, password } = req.body;
+      const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip || req.socket.remoteAddress || null;
+      const userAgent = req.headers['user-agent'];
+      const { browser, device } = parseUserAgent(userAgent);
 
       const result = await authService.resetPassword({
         tokenPlain: token,
         passwordPlain: password,
+        ipAddress,
+        device,
+        browser,
       });
+
+      // Clear cookies to invalidate any active session upon password reset
+      res.clearCookie('accessToken', cookieOptions.clear);
+      res.clearCookie('refreshToken', cookieOptions.clear);
 
       return res.status(200).json({
         success: true,

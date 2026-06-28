@@ -4,10 +4,10 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import { config } from '../config/index.ts';
 import { ApiError } from './errorHandler.ts';
 import { UserRole } from '../../shared/types/index.ts';
+import { verifyAccessToken } from '../utils/jwt.ts';
 
 // Extend Express Request type to attach the authenticated user
 export interface AuthRequest extends Request {
@@ -19,26 +19,31 @@ export interface AuthRequest extends Request {
 }
 
 /**
- * Authentication Middleware: Validates Bearer Access Tokens using jsonwebtoken
+ * Authentication Middleware: Validates Bearer Access Tokens or HttpOnly Cookies
  */
 export const requireAuth = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next(new ApiError(401, 'Unauthorized: Missing or malformed Bearer token', 'MISSING_TOKEN'));
+  // 1. Try to read token from HttpOnly cookie first
+  let token = req.cookies?.accessToken || null;
+
+  // 2. Fall back to Authorization Bearer header to preserve API-based or simulated client access
+  if (!token) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split('Bearer ')[1];
+    }
   }
 
-  const token = authHeader.split('Bearer ')[1];
+  if (!token) {
+    return next(new ApiError(401, 'Unauthorized: Missing or malformed access token', 'MISSING_TOKEN'));
+  }
+
   try {
-    // Verify standard JWT token with config secret
-    const decoded = jwt.verify(token, config.jwt.secret) as {
-      uid: string;
-      email: string;
-      role?: UserRole;
-    };
+    // Verify standard JWT token with configure secrets, issuer, and audience
+    const decoded = verifyAccessToken(token);
     
     req.user = {
       uid: decoded.uid,

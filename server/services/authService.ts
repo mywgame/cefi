@@ -4,8 +4,13 @@
  */
 
 import crypto from 'crypto';
+import { eq } from 'drizzle-orm';
+import { db } from '../../src/db/index.ts';
+import { users } from '../../src/db/schema.ts';
 import { authRepository } from '../repositories/authRepository.ts';
+import { sessionRepository } from '../repositories/sessionRepository.ts';
 import { hashPassword, comparePassword } from '../utils/password.ts';
+import { SecurityLogger } from '../utils/securityLogger.ts';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -14,8 +19,10 @@ import {
 } from '../utils/jwt.ts';
 import { UserRole } from '../../shared/types/index.ts';
 
-// In-memory store for active refresh tokens to support proper invalidation (logout)
-const activeRefreshTokens = new Set<string>();
+// Helper to hash refresh tokens for secure storage
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
 
 // In-memory store for secure hashed reset tokens with expiration mapping:
 // key: string (hashed reset token) -> value: { uid: string, expiresAt: Date }
@@ -118,32 +125,79 @@ export class AuthService {
   async loginUser(data: {
     email: string;
     passwordPlain: string;
+    ipAddress?: string | null;
+    device?: string | null;
+    browser?: string | null;
   }) {
     const trimmedEmail = data.email.trim().toLowerCase();
 
     // 1. Retrieve the user record
     const user = await authRepository.findByEmail(trimmedEmail);
     if (!user) {
-      // Use generic error for security to prevent username harvest
+      // Use generic error for security to prevent username harvesting
       throw new Error('Invalid email address or password.');
     }
 
-    // 2. Prevent inactive/suspended user login
+    // 2. Lockout protection check
+    if (user.lockUntil && user.lockUntil > new Date()) {
+      const minutesRemaining = Math.ceil((user.lockUntil.getTime() - Date.now()) / 60000);
+      throw new Error(`This account is temporarily locked due to multiple failed login attempts. Please try again in ${minutesRemaining} minutes.`);
+    }
+
+    // If lockout has expired, reset attempts
+    if (user.lockUntil && user.lockUntil <= new Date()) {
+      await authRepository.resetFailedLoginAttempts(user.id);
+      user.failedLoginAttempts = 0;
+      user.lockUntil = null;
+    }
+
+    // 3. Prevent inactive/suspended user login
     if (user.status !== 'ACTIVE') {
       throw new Error('This user account has been suspended or is pending verification.');
     }
 
-    // 3. Verify user password securely
+    // 4. Verify user password securely
     if (!user.passwordHash) {
       throw new Error('Invalid email address or password.');
     }
 
     const isMatch = await comparePassword(data.passwordPlain, user.passwordHash);
     if (!isMatch) {
+      // Increment failed attempts and track
+      const updatedUser = await authRepository.incrementFailedLoginAttempts(user.id, user.failedLoginAttempts);
+      
+      // Log failed login event
+      await SecurityLogger.logActivity({
+        userId: user.id,
+        event: 'LOGIN',
+        status: 'FAILED',
+        ipAddress: data.ipAddress,
+        device: data.device ? `${data.browser || ''} on ${data.device}` : null,
+        details: `Incorrect password. Failed attempt count: ${updatedUser.failedLoginAttempts}`,
+      });
+
+      if (updatedUser.failedLoginAttempts >= 5) {
+        // Log account lock event
+        await SecurityLogger.logActivity({
+          userId: user.id,
+          event: 'SECURITY_EVENT',
+          status: 'FAILED',
+          ipAddress: data.ipAddress,
+          device: data.device ? `${data.browser || ''} on ${data.device}` : null,
+          details: `Account temporarily locked due to 5 consecutive failed login attempts.`,
+        });
+        throw new Error('This account has been temporarily locked due to too many failed login attempts. Please try again in 15 minutes.');
+      }
+
       throw new Error('Invalid email address or password.');
     }
 
-    // 4. Generate Access and Refresh tokens
+    // Reset attempts on successful login
+    if (user.failedLoginAttempts > 0) {
+      await authRepository.resetFailedLoginAttempts(user.id);
+    }
+
+    // 5. Generate Access and Refresh tokens
     const payload: TokenPayload = {
       uid: user.uid,
       email: user.email,
@@ -153,8 +207,28 @@ export class AuthService {
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
-    // 5. Add refresh token to active in-memory list
-    activeRefreshTokens.add(refreshToken);
+    // 6. Persist session with refresh token hash in Postgres
+    const tokenHash = hashToken(refreshToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    await sessionRepository.createSession({
+      userId: user.id,
+      tokenHash,
+      device: data.device,
+      browser: data.browser,
+      ipAddress: data.ipAddress,
+      expiresAt,
+    });
+
+    // 7. Log successful login
+    await SecurityLogger.logActivity({
+      userId: user.id,
+      event: 'LOGIN',
+      status: 'SUCCESS',
+      ipAddress: data.ipAddress,
+      device: data.device ? `${data.browser || ''} on ${data.device}` : null,
+      details: 'Successful credentials authentication.',
+    });
 
     const { passwordHash: _, ...safeUser } = user;
     return {
@@ -167,50 +241,96 @@ export class AuthService {
   }
 
   /**
-   * Refresh token rotation logic
+   * Refresh token rotation logic (DB-backed and multi-device safe)
    */
-  async refreshSession(refreshToken: string) {
-    // 1. Verify existence in in-memory whitelist
-    if (!activeRefreshTokens.has(refreshToken)) {
+  async refreshSession(refreshToken: string, ipAddress?: string | null, device?: string | null, browser?: string | null) {
+    // 1. Verify and decode token structure
+    let decoded: TokenPayload;
+    try {
+      decoded = verifyRefreshToken(refreshToken);
+    } catch (err) {
+      throw new Error('Session validation failed. Please sign in again.');
+    }
+
+    // 2. Hash incoming token and query Postgres
+    const tokenHash = hashToken(refreshToken);
+    const session = await sessionRepository.findByTokenHash(tokenHash);
+
+    if (!session) {
       throw new Error('Refresh token is invalid or has been revoked.');
     }
 
-    try {
-      // 2. Parse and verify token structure and expiration
-      const decoded = verifyRefreshToken(refreshToken);
-
-      // 3. Remove old refresh token to achieve rotation
-      activeRefreshTokens.delete(refreshToken);
-
-      // 4. Generate brand new token pair
-      const payload: TokenPayload = {
-        uid: decoded.uid,
-        email: decoded.email,
-        role: decoded.role,
-      };
-
-      const newAccessToken = generateAccessToken(payload);
-      const newRefreshToken = generateRefreshToken(payload);
-
-      // 5. Register new refresh token
-      activeRefreshTokens.add(newRefreshToken);
-
-      return {
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-      };
-    } catch (error) {
-      activeRefreshTokens.delete(refreshToken); // Invalidate potentially compromised token
-      throw new Error('Session validation failed. Please sign in again.');
+    // 3. Reject if revoked or expired
+    if (session.revoked) {
+      throw new Error('This session has been terminated or the token is revoked.');
     }
+
+    if (session.expiresAt < new Date()) {
+      throw new Error('The secure session has expired. Please log in again.');
+    }
+
+    // 4. Invalidate the previous refresh token (Rotation)
+    await sessionRepository.revokeSession(tokenHash);
+
+    // 5. Generate brand new token pair
+    const payload: TokenPayload = {
+      uid: decoded.uid,
+      email: decoded.email,
+      role: decoded.role,
+    };
+
+    const newAccessToken = generateAccessToken(payload);
+    const newRefreshToken = generateRefreshToken(payload);
+
+    // 6. Persist the new rotated session
+    const newHash = hashToken(newRefreshToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    await sessionRepository.createSession({
+      userId: session.userId,
+      tokenHash: newHash,
+      device: device || session.device,
+      browser: browser || session.browser,
+      ipAddress: ipAddress || session.ipAddress,
+      expiresAt,
+    });
+
+    // 7. Log token rotation activity
+    await SecurityLogger.logActivity({
+      userId: session.userId,
+      event: 'SECURITY_EVENT',
+      status: 'SUCCESS',
+      ipAddress: ipAddress || session.ipAddress,
+      device: device ? `${browser || ''} on ${device}` : (session.device ? `${session.browser || ''} on ${session.device}` : null),
+      details: 'Successful refresh token rotation.',
+    });
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
   }
 
   /**
-   * Revoke session upon logout
+   * Revoke session upon logout (DB-backed)
    */
   async logoutUser(refreshToken: string) {
     if (refreshToken) {
-      activeRefreshTokens.delete(refreshToken);
+      const tokenHash = hashToken(refreshToken);
+      const session = await sessionRepository.findByTokenHash(tokenHash);
+      if (session) {
+        await sessionRepository.revokeSession(tokenHash);
+        
+        // Log logout event
+        await SecurityLogger.logActivity({
+          userId: session.userId,
+          event: 'LOGOUT',
+          status: 'SUCCESS',
+          ipAddress: session.ipAddress,
+          device: session.device ? `${session.browser || ''} on ${session.device}` : null,
+          details: 'Session invalidated on user request.',
+        });
+      }
     }
   }
 
@@ -250,6 +370,9 @@ export class AuthService {
   async resetPassword(data: {
     tokenPlain: string;
     passwordPlain: string;
+    ipAddress?: string | null;
+    device?: string | null;
+    browser?: string | null;
   }) {
     const hashedTokenCandidate = this.hashResetToken(data.tokenPlain);
     const tokenRecord = resetTokensStore.get(hashedTokenCandidate);
@@ -264,6 +387,10 @@ export class AuthService {
       throw new Error('The password reset token has expired.');
     }
 
+    // Find user record to obtain user ID for activity logging
+    const user = await db.select().from(users).where(eq(users.uid, tokenRecord.uid));
+    const userRecord = user[0];
+
     // Hash the brand new password
     const newPasswordHash = await hashPassword(data.passwordPlain);
 
@@ -272,6 +399,21 @@ export class AuthService {
 
     // Invalidate the reset token to prevent replay attacks
     resetTokensStore.delete(hashedTokenCandidate);
+
+    if (userRecord) {
+      // Invalidate all active sessions for this user on password change
+      await sessionRepository.revokeAllUserSessions(userRecord.id);
+
+      // Log password change event
+      await SecurityLogger.logActivity({
+        userId: userRecord.id,
+        event: 'PASSWORD_CHANGE',
+        status: 'SUCCESS',
+        ipAddress: data.ipAddress,
+        device: data.device ? `${data.browser || ''} on ${data.device}` : null,
+        details: 'Password successfully updated. All active sessions invalidated.',
+      });
+    }
 
     return {
       message: 'Your account password has been updated successfully.',

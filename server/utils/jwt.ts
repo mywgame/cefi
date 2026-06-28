@@ -13,12 +13,17 @@ export interface TokenPayload {
   role: UserRole;
 }
 
+const JWT_ISSUER = 'cefi-platform-auth';
+const JWT_AUDIENCE = 'cefi-platform-client';
+
 /**
  * Generate a JWT Access Token.
  */
 export function generateAccessToken(payload: TokenPayload): string {
   return jwt.sign(payload, config.jwt.secret, {
     expiresIn: config.jwt.expiresIn as any,
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
   });
 }
 
@@ -28,6 +33,8 @@ export function generateAccessToken(payload: TokenPayload): string {
 export function generateRefreshToken(payload: TokenPayload): string {
   return jwt.sign(payload, config.jwt.refreshSecret, {
     expiresIn: config.jwt.refreshExpiresIn as any,
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
   });
 }
 
@@ -35,12 +42,25 @@ export function generateRefreshToken(payload: TokenPayload): string {
  * Verify a JWT Access Token.
  */
 export function verifyAccessToken(token: string): TokenPayload {
-  return jwt.verify(token, config.jwt.secret) as TokenPayload;
+  if (!token) {
+    throw new Error('Token is undefined or empty');
+  }
+  return jwt.verify(token, config.jwt.secret, {
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
+  }) as TokenPayload;
 }
 
 /**
  * Verify a JWT Refresh Token.
  */
 export function verifyRefreshToken(token: string): TokenPayload {
-  return jwt.verify(token, config.jwt.refreshSecret) as TokenPayload;
+  if (!token) {
+    throw new Error('Token is undefined or empty');
+  }
+  return jwt.verify(token, config.jwt.refreshSecret, {
+    issuer: JWT_ISSUER,
+    audience: JWT_AUDIENCE,
+  }) as TokenPayload;
 }
+

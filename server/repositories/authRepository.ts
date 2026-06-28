@@ -99,6 +99,51 @@ export class AuthRepository {
       throw new Error('Failed to update credentials state in database.');
     }
   }
+
+  /**
+   * Increment failed login attempts. If attempts reach 5, lock the account for 15 minutes.
+   */
+  async incrementFailedLoginAttempts(id: string, currentAttempts: number) {
+    try {
+      const attempts = currentAttempts + 1;
+      const lockUntil = attempts >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null;
+      
+      const result = await db
+        .update(users)
+        .set({
+          failedLoginAttempts: attempts,
+          lockUntil: lockUntil,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Database update (incrementFailedLoginAttempts) failed:', error);
+      throw new Error('Failed to update login attempt tracking.');
+    }
+  }
+
+  /**
+   * Reset failed login attempts and unlock the account.
+   */
+  async resetFailedLoginAttempts(id: string) {
+    try {
+      const result = await db
+        .update(users)
+        .set({
+          failedLoginAttempts: 0,
+          lockUntil: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, id))
+        .returning();
+      return result[0];
+    } catch (error) {
+      console.error('Database update (resetFailedLoginAttempts) failed:', error);
+      throw new Error('Failed to reset login attempt tracking.');
+    }
+  }
 }
 
 export const authRepository = new AuthRepository();

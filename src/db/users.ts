@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { pgTable, uuid, text, timestamp, uniqueIndex, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, uniqueIndex, index, integer } from 'drizzle-orm/pg-core';
 
 export const users = pgTable(
   'users',
@@ -17,6 +17,8 @@ export const users = pgTable(
     userId: text('user_id').notNull().unique(), // Formatted visible ID (e.g., DS322256)
     referralCode: text('referral_code').notNull().unique(), // Shareable referral code
     parentReferralId: uuid('parent_referral_id'), // Self-referencing foreign key for referral tracking
+    failedLoginAttempts: integer('failed_login_attempts').default(0).notNull(), // Lockout tracking
+    lockUntil: timestamp('lock_until'), // Account temporary lockout expiration
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },
