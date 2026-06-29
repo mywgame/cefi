@@ -376,6 +376,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
         isMobileOpen={isMobileSidebarOpen}
         setIsMobileOpen={setIsMobileSidebarOpen}
         onLogout={logout}
+        userRole={user?.role}
       />
 
       {/* 2. Main chassis wrapper */}

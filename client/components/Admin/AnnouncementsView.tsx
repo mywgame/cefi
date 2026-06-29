@@ -31,6 +31,7 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
 }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [announcementToDelete, setAnnouncementToDelete] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent, isDraft: boolean) => {
     e.preventDefault();
@@ -38,6 +39,13 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
     onCreate(title.trim(), content.trim(), isDraft ? 'Draft' : 'Published');
     setTitle('');
     setContent('');
+  };
+
+  const handleConfirmDelete = () => {
+    if (announcementToDelete) {
+      onDelete(announcementToDelete);
+      setAnnouncementToDelete(null);
+    }
   };
 
   return (
@@ -157,7 +165,7 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
                     </button>
                   )}
                   <button
-                    onClick={() => onDelete(ann.id)}
+                    onClick={() => setAnnouncementToDelete(ann.id)}
                     className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 transition-all cursor-pointer"
                     title="Delete permanently"
                   >
@@ -178,6 +186,63 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
           )}
         </div>
       </div>
+
+      {/* Deletion Confirmation Modal */}
+      {announcementToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="fixed inset-0 bg-gray-900/60 backdrop-blur-xs transition-opacity duration-300"
+            onClick={() => setAnnouncementToDelete(null)}
+          />
+          <div className="relative bg-white border border-gray-100 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-fade-in text-left">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-xl flex items-center justify-center bg-red-50 text-red-600">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="space-y-1 flex-grow">
+                <h4 className="text-sm font-display font-extrabold text-gray-950 uppercase tracking-tight">
+                  Confirm Bulletin Deletion
+                </h4>
+                <p className="text-[10px] font-mono text-gray-400 font-bold uppercase tracking-wider">
+                  DESTRUCTIVE OPERATIONAL ACTION
+                </p>
+              </div>
+            </div>
+
+            <div className="my-4 p-3.5 bg-gray-50 rounded-xl space-y-2 border border-gray-100">
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-400 font-mono">Bulletin ID:</span>
+                <span className="font-mono font-bold text-gray-900">{announcementToDelete}</span>
+              </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-400 font-mono">Title:</span>
+                <span className="font-semibold text-gray-900 max-w-[240px] truncate">
+                  {announcements.find(a => a.id === announcementToDelete)?.title}
+                </span>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-500 leading-relaxed mb-6">
+              Are you absolutely sure you want to delete this bulletin announcement permanently? This action cannot be undone and will immediately remove the notice from all customer feeds.
+            </p>
+
+            <div className="flex items-center justify-end gap-2">
+              <button
+                onClick={() => setAnnouncementToDelete(null)}
+                className="px-4 py-2 text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors cursor-pointer"
+              >
+                Cancel Deletion
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-all hover:shadow-md cursor-pointer"
+              >
+                Delete Permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

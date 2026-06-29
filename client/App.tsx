@@ -18,7 +18,8 @@ import {
   Sparkles,
   ArrowLeft,
   LayoutDashboard,
-  ShieldAlert
+  ShieldAlert,
+  Lock
 } from 'lucide-react';
 
 // Import our new Phase 4 World-Class Landing Page Components
@@ -316,6 +317,106 @@ function MainAppContent() {
 
   // Switch between public high-end landing page, user dashboard, and enterprise admin dashboard
   if (currentView === 'admin') {
+    const isAuthorized = user && [
+      'admin', 'superadmin', 'operator', 'support', 'finance', 'auditor'
+    ].includes(user.role.toLowerCase());
+
+    if (!user) {
+      return (
+        <div className="min-h-screen bg-[#fafafa] flex flex-col items-center justify-center p-6 text-center select-none font-sans">
+          <div className="max-w-md w-full bg-white p-8 border border-gray-100 rounded-2xl shadow-xl space-y-6">
+            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+              <Lock className="w-8 h-8" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-lg font-display font-black text-gray-950 uppercase tracking-tight">Authentication Required</h3>
+              <p className="text-xs text-gray-400 font-mono">SECURE OPERATIONS ENCLAVE</p>
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              Access to the CeFi Platform operational console requires active multi-factor cryptographic authentication. Please sign in to verify credentials.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setCurrentView('landing')}
+                className="flex-1 py-2.5 text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors cursor-pointer"
+              >
+                Back to Website
+              </button>
+              <button
+                onClick={() => handleOpenAuth('login')}
+                className="flex-1 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all hover:shadow-md cursor-pointer"
+              >
+                Login to Session
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (!isAuthorized) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none font-sans">
+          <div className="max-w-lg w-full bg-white border border-red-100/80 p-8 rounded-3xl shadow-2xl space-y-6 relative overflow-hidden">
+            {/* Danger Warning Strip */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-red-600" />
+            
+            <div className="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto shadow-xs border border-red-100">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-xl font-display font-black text-gray-950 uppercase tracking-tight">Access Prohibited</h3>
+              <p className="text-[10px] font-mono text-red-600 font-bold tracking-widest uppercase">
+                SECURITY FIREWALL INTERCEPT [ERR_AUTH_DENIED]
+              </p>
+            </div>
+
+            <div className="bg-gray-50 border border-gray-100 p-4 rounded-2xl space-y-2 text-left text-xs font-mono">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Authenticated Identity:</span>
+                <span className="font-semibold text-gray-900">{user.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Current Assigned Role:</span>
+                <span className="font-bold text-red-600 uppercase bg-red-50 border border-red-100/50 px-1.5 py-0.5 rounded text-[10px]">
+                  {user.role}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Required Clearances:</span>
+                <span className="font-semibold text-gray-700">ADMIN, OPERATOR, AUDITOR, etc.</span>
+              </div>
+              <div className="flex justify-between pt-1.5 border-t border-gray-100">
+                <span className="text-gray-400">Telemetry Log Status:</span>
+                <span className="text-red-500 font-bold uppercase animate-pulse">● REPORTED TO SYSTEM AUDIT</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-500 leading-relaxed max-w-sm mx-auto">
+              Your security credentials do not grant access to the root operations console. This unauthorized attempt has been logged along with your active IP address in accordance with standard financial audit policies.
+            </p>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => setCurrentView('landing')}
+                className="flex-1 py-2.5 text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors cursor-pointer"
+              >
+                Back to Landing
+              </button>
+              <button
+                onClick={() => setCurrentView('dashboard')}
+                className="flex-1 py-2.5 text-xs font-bold text-white bg-gray-950 hover:bg-gray-800 rounded-xl transition-all hover:shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <LayoutDashboard className="w-4 h-4 text-blue-400" />
+                <span>Core Dashboard</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <EnterpriseAdminDashboard onBackToLanding={() => setCurrentView('landing')} />
     );

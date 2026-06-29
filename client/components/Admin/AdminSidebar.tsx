@@ -47,7 +47,35 @@ interface AdminSidebarProps {
   isMobileOpen: boolean;
   setIsMobileOpen: (open: boolean) => void;
   onLogout: () => void;
+  userRole?: string;
 }
+
+// Role-Based Access Control mapping for Admin Sidebar items
+const ROLE_PERMISSIONS: Record<string, AdminTab[]> = {
+  admin: [
+    'dashboard', 'users', 'deposits', 'withdrawals', 'vip', 
+    'income', 'rewards', 'salary', 'support', 'announcements', 
+    'audit', 'security', 'settings'
+  ],
+  superadmin: [
+    'dashboard', 'users', 'deposits', 'withdrawals', 'vip', 
+    'income', 'rewards', 'salary', 'support', 'announcements', 
+    'audit', 'security', 'settings'
+  ],
+  operator: [
+    'dashboard', 'users', 'deposits', 'withdrawals', 'announcements', 'audit', 'security'
+  ],
+  support: [
+    'dashboard', 'users', 'support', 'announcements'
+  ],
+  finance: [
+    'dashboard', 'deposits', 'withdrawals', 'income', 'rewards', 'salary'
+  ],
+  auditor: [
+    'dashboard', 'audit', 'security'
+  ],
+  user: [] // Ordinary users have zero permitted tabs (blocked)
+};
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   activeTab,
@@ -56,7 +84,8 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   setIsCollapsed,
   isMobileOpen,
   setIsMobileOpen,
-  onLogout
+  onLogout,
+  userRole = 'user'
 }) => {
   interface MenuItem {
     id: AdminTab;
@@ -80,6 +109,11 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { id: 'security', label: 'System Security', icon: ShieldAlert },
     { id: 'settings', label: 'Console Settings', icon: Settings },
   ];
+
+  // Resolve permitted tabs dynamically from the permissions registry
+  const normalizedRole = userRole.toLowerCase();
+  const allowedTabs = ROLE_PERMISSIONS[normalizedRole] || [];
+  const filteredMenuItems = menuItems.filter(item => allowedTabs.includes(item.id));
 
   const handleTabClick = (tabId: AdminTab) => {
     setActiveTab(tabId);
@@ -122,7 +156,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
 
       {/* Scrollable Navigation List */}
       <nav className="flex-grow overflow-y-auto px-3 py-4 space-y-0.5 scrollbar-thin">
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
