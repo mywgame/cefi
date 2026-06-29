@@ -36,6 +36,8 @@ import { Contact } from './components/Contact.tsx';
 import { Footer } from './components/Footer.tsx';
 import { AuthModal } from './components/AuthModal.tsx';
 import { UserDashboard } from './components/Dashboard/index.tsx';
+import { EnterpriseAdminDashboard } from './components/Admin/index.tsx';
+
 
 /**
  * ORIGINAL CORE DASHBOARD VIEW (Preserved exactly as requested)
@@ -253,7 +255,7 @@ function DashboardContent({ onBackToLanding }: { onBackToLanding: () => void }) 
  */
 function MainAppContent() {
   const { user } = useAuth();
-  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'admin'>('landing');
   const [activeSection, setActiveSection] = useState('hero');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
@@ -312,12 +314,19 @@ function MainAppContent() {
     }, 50);
   };
 
-  // Switch between public high-end landing page and premium enterprise user dashboard
+  // Switch between public high-end landing page, user dashboard, and enterprise admin dashboard
+  if (currentView === 'admin') {
+    return (
+      <EnterpriseAdminDashboard onBackToLanding={() => setCurrentView('landing')} />
+    );
+  }
+
   if (currentView === 'dashboard') {
     return (
       <UserDashboard onBackToLanding={() => setCurrentView('landing')} />
     );
   }
+
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-gray-900 font-sans flex flex-col antialiased">
@@ -399,10 +408,20 @@ function MainAppContent() {
 
       {/* 5. Floating Quick-Link to original sync dashboard when authenticated */}
       {user && (
-        <div className="fixed bottom-6 right-6 z-30">
+        <div className="fixed bottom-6 right-6 z-30 flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setCurrentView('admin')}
+            className="flex items-center space-x-2 px-5 py-3.5 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 shadow-xl border border-blue-500 transition-all cursor-pointer transform hover:scale-105 active:scale-95"
+            title="Open Enterprise Operations Console"
+            id="floating-admin-shortcut"
+          >
+            <ShieldAlert className="w-4 h-4 text-white" />
+            <span>Enterprise Operations Console</span>
+          </button>
+
           <button
             onClick={() => setCurrentView('dashboard')}
-            className="flex items-center space-x-2 px-4.5 py-3 bg-gray-950 text-white rounded-full text-xs font-bold hover:bg-gray-800 shadow-xl border border-gray-800 transition-all cursor-pointer transform hover:scale-105 active:scale-95"
+            className="flex items-center space-x-2 px-5 py-3.5 bg-gray-950 text-white rounded-full text-xs font-bold hover:bg-gray-800 shadow-xl border border-gray-800 transition-all cursor-pointer transform hover:scale-105 active:scale-95"
             title="Open Developer Ledger Dashboard"
             id="floating-dashboard-shortcut"
           >
