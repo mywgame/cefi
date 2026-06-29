@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 import { ShieldCheck, ArrowRight, Activity, TrendingUp, Cpu, Globe } from 'lucide-react';
 import { companyInfo } from '../utils/landingData.ts';
 import { Button, GlassCard } from './ui/index.ts';
+import heroBg from '../../assets/hero-background.mp4';
 
 interface HeroProps {
   onOpenAuth: (mode: 'login' | 'register') => void;
@@ -18,13 +19,28 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAuth, onNavigateToSection }) =
   return (
     <section
       id="hero-section"
-      className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden bg-gradient-to-b from-blue-50/20 via-white to-gray-50/30"
+      className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden bg-gradient-to-b from-blue-50/20 via-white to-gray-50/30 isolate"
     >
-      {/* Subtle Background Art Elements */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-100/30 rounded-full filter blur-[120px] pointer-events-none -z-10 animate-pulse duration-10000" />
-      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-amber-50/40 rounded-full filter blur-[100px] pointer-events-none -z-10" />
+      {/* Background Video */}
+      <video
+        src={heroBg}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      {/* Subtle Dark Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/8 via-transparent to-black/12 pointer-events-none z-10" />
+
+      {/* Subtle Background Art Elements */}
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-100/30 rounded-full filter blur-[120px] pointer-events-none z-5 animate-pulse duration-10000" />
+      <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-amber-50/40 rounded-full filter blur-[100px] pointer-events-none z-5" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
           {/* Hero Content Left Block */}
