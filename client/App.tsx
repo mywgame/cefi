@@ -261,12 +261,64 @@ function MainAppContent() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
 
-  // Automatically navigate to the dashboard once successfully authenticated
+  // 1. Client-Side Pathname Routing Sync
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const path = window.location.pathname;
+      if (path === '/admin') {
+        setCurrentView('admin');
+      } else if (path === '/dashboard') {
+        setCurrentView('dashboard');
+      } else {
+        setCurrentView('landing');
+      }
+    };
+
+    // Run once on initial mount
+    handleLocationChange();
+
+    // Listen to browser forward/back popstate events
+    window.addEventListener('popstate', handleLocationChange);
+    return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
+
+  // Update window.location.pathname dynamically when currentView state changes
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    if (currentView === 'admin' && currentPath !== '/admin') {
+      window.history.pushState(null, '', '/admin');
+    } else if (currentView === 'dashboard' && currentPath !== '/dashboard') {
+      window.history.pushState(null, '', '/dashboard');
+    } else if (currentView === 'landing' && currentPath !== '/') {
+      window.history.pushState(null, '', '/');
+    }
+  }, [currentView]);
+
+  // 2. Automatically navigate to correct destination after successful login
   useEffect(() => {
     if (user && currentView === 'landing') {
-      setCurrentView('dashboard');
+      const role = user.role.toLowerCase();
+      if (['admin', 'superadmin', 'operator', 'support', 'finance', 'auditor'].includes(role)) {
+        setCurrentView('admin');
+      } else {
+        setCurrentView('dashboard');
+      }
     }
   }, [user, currentView]);
+
+  // 3. Clear session and return to landing view on logout
+  useEffect(() => {
+    if (!user && (currentView === 'admin' || currentView === 'dashboard')) {
+      setCurrentView('landing');
+    }
+  }, [user, currentView]);
+
+  // 4. Automatically trigger login popup if unauthenticated visitor tries to access /admin
+  useEffect(() => {
+    if (currentView === 'admin' && !user) {
+      handleOpenAuth('login');
+    }
+  }, [currentView, user]);
 
   // Section Tracking for Navbar Highlighter
   useEffect(() => {
@@ -509,17 +561,7 @@ function MainAppContent() {
 
       {/* 5. Floating Quick-Link to original sync dashboard when authenticated */}
       {user && (
-        <div className="fixed bottom-6 right-6 z-30 flex flex-col sm:flex-row gap-3">
-          <button
-            onClick={() => setCurrentView('admin')}
-            className="flex items-center space-x-2 px-5 py-3.5 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 shadow-xl border border-blue-500 transition-all cursor-pointer transform hover:scale-105 active:scale-95"
-            title="Open Enterprise Operations Console"
-            id="floating-admin-shortcut"
-          >
-            <ShieldAlert className="w-4 h-4 text-white" />
-            <span>Enterprise Operations Console</span>
-          </button>
-
+        <div className="fixed bottom-6 right-6 z-30">
           <button
             onClick={() => setCurrentView('dashboard')}
             className="flex items-center space-x-2 px-5 py-3.5 bg-gray-950 text-white rounded-full text-xs font-bold hover:bg-gray-800 shadow-xl border border-gray-800 transition-all cursor-pointer transform hover:scale-105 active:scale-95"
