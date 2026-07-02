@@ -41,10 +41,14 @@ export class AuthController {
    */
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password, referralCode } = req.body;
+      const { email, username, name, phone, country, password, referralCode } = req.body;
 
       const user = await authService.registerUser({
         email,
+        username,
+        name,
+        phone,
+        country,
         passwordPlain: password,
         parentReferralCode: referralCode,
       });
@@ -68,13 +72,13 @@ export class AuthController {
    */
   async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email, password } = req.body;
+      const { email, emailOrUsername, password } = req.body;
       const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip || req.socket.remoteAddress || null;
       const userAgent = req.headers['user-agent'];
       const { browser, device } = parseUserAgent(userAgent);
 
       const result = await authService.loginUser({
-        email,
+        emailOrUsername: emailOrUsername || email,
         passwordPlain: password,
         ipAddress,
         device,

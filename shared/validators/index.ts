@@ -23,8 +23,12 @@ export const RegisterSchema = z.object({
 
 // User login validation schema
 export const LoginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().optional(),
+  emailOrUsername: z.string().optional(),
   password: z.string().min(1, 'Password is required'),
+}).refine((data) => data.email !== undefined || data.emailOrUsername !== undefined, {
+  message: 'Username or Email is required',
+  path: ['emailOrUsername'],
 });
 
 // Forgot password validation schema

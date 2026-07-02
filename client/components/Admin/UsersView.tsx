@@ -16,26 +16,37 @@ import {
   ChevronRight,
   Sparkles,
   Check,
-  X
+  X,
+  KeyRound,
+  Lock,
+  UserX,
+  User,
+  Shield,
+  Activity
 } from 'lucide-react';
 import { Card, TableContainer } from '../ui/Cards/index.tsx';
 import { Button } from '../ui/Buttons/index.tsx';
 
 export interface AdminUser {
-  id: string;
+  id: string; // backend uid
   name: string;
   email: string;
   vipTier: 'None' | 'Level 1' | 'Level 2' | 'Level 3';
   status: 'Active' | 'Suspended' | 'Flagged';
+  role: string;
   registrationDate: string;
 }
 
 interface UsersViewProps {
   users: AdminUser[];
-  onUpdateUser: (userId: string, fields: Partial<AdminUser>) => void;
+  onAdminAction: (
+    userId: string, 
+    action: 'RESET_PASSWORD' | 'FORCE_PASSWORD_CHANGE' | 'SUSPEND' | 'UNLOCK' | 'CHANGE_VIP' | 'CHANGE_ROLE', 
+    extraData?: any
+  ) => Promise<void>;
 }
 
-export const UsersView: React.FC<UsersViewProps> = ({ users, onUpdateUser }) => {
+export const UsersView: React.FC<UsersViewProps> = ({ users, onAdminAction }) => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Suspended' | 'Flagged'>('All');
   const [vipFilter, setVipFilter] = useState<'All' | 'None' | 'Level 1' | 'Level 2' | 'Level 3'>('All');
@@ -99,7 +110,7 @@ export const UsersView: React.FC<UsersViewProps> = ({ users, onUpdateUser }) => 
           </div>
           <input
             type="text"
-            placeholder="Search by ID, Full Name, Email address..."
+            placeholder="Search by UID, Name, Email..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -158,17 +169,17 @@ export const UsersView: React.FC<UsersViewProps> = ({ users, onUpdateUser }) => 
         <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-100">
+              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/4">
+                User / Email
+              </th>
               <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/5">
-                User ID
-              </th>
-              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/4">
-                Full Name
-              </th>
-              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/4">
-                Email Address
+                Authentication UID
               </th>
               <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-center w-[12%]">
                 VIP Tier
+              </th>
+              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-center w-[12%]">
+                System Role
               </th>
               <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-center w-[12%]">
                 Status
@@ -186,19 +197,21 @@ export const UsersView: React.FC<UsersViewProps> = ({ users, onUpdateUser }) => 
               paginatedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50/50 transition-colors duration-150 relative">
                   
-                  {/* User ID block */}
-                  <td className="py-3.5 px-5 text-left font-mono text-xs text-gray-900 font-bold select-all">
+                  {/* User Profile Info */}
+                  <td className="py-3.5 px-5 text-left">
+                    <div className="space-y-0.5">
+                      <span className="font-display font-bold text-gray-950 block">
+                        {user.name}
+                      </span>
+                      <span className="text-gray-400 font-mono text-[10px] block">
+                        {user.email}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* User UID */}
+                  <td className="py-3.5 px-5 text-left font-mono text-xs text-gray-500 font-bold select-all">
                     {user.id}
-                  </td>
-
-                  {/* Name */}
-                  <td className="py-3.5 px-5 text-left font-display font-bold text-gray-900">
-                    {user.name}
-                  </td>
-
-                  {/* Email */}
-                  <td className="py-3.5 px-5 text-left text-gray-500 font-mono text-[11px]">
-                    {user.email}
                   </td>
 
                   {/* VIP Level badge */}
@@ -207,6 +220,11 @@ export const UsersView: React.FC<UsersViewProps> = ({ users, onUpdateUser }) => 
                       <Award className="w-2.5 h-2.5" />
                       {user.vipTier}
                     </span>
+                  </td>
+
+                  {/* System Role */}
+                  <td className="py-3.5 px-5 text-center font-mono text-[11px] font-bold text-blue-600 bg-blue-50/30 rounded-lg px-2 py-0.5 border border-blue-100/50">
+                    {user.role}
                   </td>
 
                   {/* Status Badge */}
@@ -222,7 +240,7 @@ export const UsersView: React.FC<UsersViewProps> = ({ users, onUpdateUser }) => 
                     {user.registrationDate}
                   </td>
 
-                  {/* Actions Dropdown desk */}
+                  {/* Actions Dropdown menu */}
                   <td className="py-3.5 px-5 text-right relative">
                     <div className="inline-block text-left">
                       <button
@@ -236,48 +254,50 @@ export const UsersView: React.FC<UsersViewProps> = ({ users, onUpdateUser }) => 
                       {activeMenuId === user.id && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setActiveMenuId(null)} />
-                          <div className="absolute right-0 mt-1 w-44 rounded-xl bg-white border border-gray-100 shadow-xl ring-1 ring-black/5 z-50 py-1.5 text-left">
+                          <div className="absolute right-0 mt-1 w-52 rounded-2xl bg-white border border-gray-100 shadow-2xl ring-1 ring-black/5 z-50 py-2 text-left space-y-1">
                             
-                            {/* Toggle active status */}
-                            {user.status !== 'Active' ? (
+                            <div className="px-3 py-1 text-[8px] font-mono font-extrabold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-1.5 mb-1.5">
+                              Security Operations
+                            </div>
+
+                            {/* Reset Password Action */}
+                            <button
+                              onClick={() => {
+                                onAdminAction(user.id, 'RESET_PASSWORD');
+                                setActiveMenuId(null);
+                              }}
+                              className="w-full flex items-center space-x-2 px-3.5 py-1.5 text-xs font-bold text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer"
+                            >
+                              <KeyRound className="w-3.5 h-3.5" />
+                              <span>Reset Password</span>
+                            </button>
+
+                            {/* Suspend / Unlock Account */}
+                            {user.status === 'Suspended' ? (
                               <button
                                 onClick={() => {
-                                  onUpdateUser(user.id, { status: 'Active' });
+                                  onAdminAction(user.id, 'UNLOCK');
                                   setActiveMenuId(null);
                                 }}
-                                className="w-full flex items-center space-x-2 px-3.5 py-2 text-xs font-bold text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
+                                className="w-full flex items-center space-x-2 px-3.5 py-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer"
                               >
                                 <UserCheck className="w-3.5 h-3.5" />
-                                <span>Activate Account</span>
+                                <span>Unlock Account</span>
                               </button>
                             ) : (
                               <button
                                 onClick={() => {
-                                  onUpdateUser(user.id, { status: 'Suspended' });
+                                  onAdminAction(user.id, 'SUSPEND');
                                   setActiveMenuId(null);
                                 }}
-                                className="w-full flex items-center space-x-2 px-3.5 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                className="w-full flex items-center space-x-2 px-3.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                               >
                                 <UserMinus className="w-3.5 h-3.5" />
                                 <span>Suspend Account</span>
                               </button>
                             )}
 
-                            {/* Flag Status switch */}
-                            {user.status !== 'Flagged' && (
-                              <button
-                                onClick={() => {
-                                  onUpdateUser(user.id, { status: 'Flagged' });
-                                  setActiveMenuId(null);
-                                }}
-                                className="w-full flex items-center space-x-2 px-3.5 py-2 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer"
-                              >
-                                <ShieldAlert className="w-3.5 h-3.5" />
-                                <span>Flag for Security</span>
-                              </button>
-                            )}
-
-                            <div className="h-px bg-gray-50 my-1" />
+                            <div className="h-px bg-gray-50 my-1.5" />
 
                             {/* VIP Tiers Adjustments */}
                             <div className="px-3.5 py-1 text-[8px] font-mono font-extrabold text-gray-400 uppercase tracking-widest">
@@ -289,16 +309,17 @@ export const UsersView: React.FC<UsersViewProps> = ({ users, onUpdateUser }) => 
                                 key={tier}
                                 disabled={user.vipTier === tier}
                                 onClick={() => {
-                                  onUpdateUser(user.id, { vipTier: tier as any });
+                                  const dbTier = tier === 'Level 3' ? 'VIP_3' : tier === 'Level 2' ? 'VIP_2' : 'VIP_1';
+                                  onAdminAction(user.id, 'CHANGE_VIP', { vipTier: dbTier });
                                   setActiveMenuId(null);
                                 }}
-                                className={`w-full flex items-center space-x-2 px-3.5 py-1.5 text-xs font-semibold ${
+                                className={`w-full flex items-center space-x-2 px-3.5 py-1 text-xs font-semibold ${
                                   user.vipTier === tier 
                                     ? 'text-gray-300 cursor-not-allowed' 
                                     : 'text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer'
                                 }`}
                               >
-                                <Award className="w-3.5 h-3.5" />
+                                <Award className="w-3 h-3 text-gray-400" />
                                 <span>Promo to {tier}</span>
                               </button>
                             ))}
@@ -306,15 +327,41 @@ export const UsersView: React.FC<UsersViewProps> = ({ users, onUpdateUser }) => 
                             {user.vipTier !== 'None' && (
                               <button
                                 onClick={() => {
-                                  onUpdateUser(user.id, { vipTier: 'None' });
+                                  onAdminAction(user.id, 'CHANGE_VIP', { vipTier: 'VIP_0' });
                                   setActiveMenuId(null);
                                 }}
-                                className="w-full flex items-center space-x-2 px-3.5 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
+                                className="w-full flex items-center space-x-2 px-3.5 py-1 text-xs font-bold text-gray-500 hover:bg-gray-50 transition-colors cursor-pointer"
                               >
-                                <Award className="w-3.5 h-3.5" />
+                                <Award className="w-3 h-3 text-red-400" />
                                 <span>Revoke VIP status</span>
                               </button>
                             )}
+
+                            <div className="h-px bg-gray-50 my-1.5" />
+
+                            {/* System Role Adjustments */}
+                            <div className="px-3.5 py-1 text-[8px] font-mono font-extrabold text-gray-400 uppercase tracking-widest">
+                              Modify System Role
+                            </div>
+
+                            {['SUPERADMIN', 'ADMIN', 'OPERATOR', 'AUDITOR', 'SUPPORT'].map((role) => (
+                              <button
+                                key={role}
+                                disabled={user.role === role}
+                                onClick={() => {
+                                  onAdminAction(user.id, 'CHANGE_ROLE', { role });
+                                  setActiveMenuId(null);
+                                }}
+                                className={`w-full flex items-center space-x-2 px-3.5 py-1 text-xs font-semibold ${
+                                  user.role === role 
+                                    ? 'text-gray-300 cursor-not-allowed' 
+                                    : 'text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer'
+                                }`}
+                              >
+                                <Shield className="w-3 h-3 text-gray-400" />
+                                <span>Set as {role}</span>
+                              </button>
+                            ))}
 
                           </div>
                         </>

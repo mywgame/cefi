@@ -11,7 +11,13 @@ export interface AuthContextType {
   token: string | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password?: string, isRegister?: boolean, referralCode?: string) => Promise<void>;
+  login: (
+    emailOrUsername: string,
+    password?: string,
+    isRegister?: boolean,
+    referralCode?: string,
+    signupData?: { name?: string; username?: string; phone?: string; country?: string }
+  ) => Promise<void>;
   logout: () => Promise<void>;
   syncProfile: () => Promise<void>;
 }
@@ -68,10 +74,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
    * Perform secure login/register flow using the CeFi backend API
    */
   const login = async (
-    email: string,
+    emailOrUsername: string,
     password?: string,
     isRegister?: boolean,
-    referralCode?: string
+    referralCode?: string,
+    signupData?: { name?: string; username?: string; phone?: string; country?: string }
   ) => {
     setLoading(true);
     setError(null);
@@ -79,14 +86,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const pwd = password || 'SecurePass123!';
 
       if (isRegister) {
-        // Step A: Register the user with referral code
+        // Step A: Register the user with referral code and additional fields
         const registerResponse = await fetch('/api/v1/auth/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            email,
+            email: emailOrUsername,
+            username: signupData?.username || emailOrUsername.split('@')[0],
+            name: signupData?.name || '',
+            phone: signupData?.phone || '',
+            country: signupData?.country || 'United States',
             password: pwd,
             referralCode: referralCode || undefined,
           }),
@@ -105,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email,
+          emailOrUsername: isRegister ? (signupData?.username || emailOrUsername) : emailOrUsername,
           password: pwd,
         }),
       });

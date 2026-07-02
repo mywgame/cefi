@@ -15,6 +15,14 @@ export interface User {
   uid: string; // Unique authentication identifier (e.g. standard user ID or JWT subject)
   email: string;
   role: UserRole;
+  name?: string;
+  phone?: string;
+  status?: string;
+  userId?: string;
+  referralCode?: string;
+  vipTier?: string;
+  walletBalance?: number;
+  passwordChangedAt?: Date | string;
   createdAt: Date;
   updatedAt: Date;
 }

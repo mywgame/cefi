@@ -23,6 +23,19 @@ export class AuthRepository {
   }
 
   /**
+   * Find user by username
+   */
+  async findByUsername(username: string) {
+    try {
+      const result = await db.select().from(users).where(eq(users.username, username.toLowerCase().trim()));
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database query (findByUsername) failed:', error);
+      throw new Error('Failed to query repository state.');
+    }
+  }
+
+  /**
    * Find user by unique public/visible User ID (e.g. DS322256)
    */
   async findByUserId(userId: string) {
@@ -54,6 +67,10 @@ export class AuthRepository {
   async createUser(data: {
     uid: string;
     email: string;
+    username: string;
+    name?: string | null;
+    phone?: string | null;
+    country?: string | null;
     passwordHash: string;
     role: UserRole;
     userId: string;
@@ -66,6 +83,10 @@ export class AuthRepository {
         .values({
           uid: data.uid,
           email: data.email.toLowerCase().trim(),
+          username: data.username.toLowerCase().trim(),
+          name: data.name || null,
+          phone: data.phone || null,
+          country: data.country || null,
           passwordHash: data.passwordHash,
           role: data.role,
           userId: data.userId,

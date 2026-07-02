@@ -6,8 +6,32 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../hooks/useAuth.ts';
-import { Mail, Lock, KeyRound, ArrowRight, ShieldCheck, Sparkles, UserPlus } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Sparkles, UserPlus } from 'lucide-react';
 import { Modal, Input, Button, Alert } from './ui/index.ts';
+
+const COUNTRIES = [
+  "United States", "Canada", "United Kingdom", "Australia", "India", "Germany", "France", "Japan", "China", "Brazil",
+  "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Austria",
+  "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
+  "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde",
+  "Cambodia", "Cameroon", "Central African Republic", "Chad", "Chile", "Colombia", "Comoros", "Congo", "Costa Rica",
+  "Croatia", "Cuba", "Cyprus", "Czechia", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
+  "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "Gabon",
+  "Gambia", "Georgia", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guyana", "Haiti", "Honduras", "Hungary",
+  "Iceland", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Jordan", "Kazakhstan", "Kenya",
+  "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein",
+  "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Mauritania",
+  "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique",
+  "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea",
+  "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru",
+  "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia",
+  "Samoa", "San Marino", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia",
+  "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka",
+  "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste",
+  "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine",
+  "United Arab Emirates", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen",
+  "Zambia", "Zimbabwe"
+];
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -18,9 +42,20 @@ interface AuthModalProps {
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMode = 'login' }) => {
   const { login, loading, error: authError } = useAuth();
   const [isRegister, setIsRegister] = useState(initialMode === 'register');
+  
+  // Input fields state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
+  // Sign up fields
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [country, setCountry] = useState('United States');
+  const [countryCode, setCountryCode] = useState('+1');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [referralCode, setReferralCode] = useState('');
+
   const [validationError, setValidationError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -29,12 +64,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
     setValidationError(null);
     setSuccessMsg(null);
 
-    if (!email.trim() || !password.trim()) {
-      setValidationError('Please enter both your email address and password.');
-      return;
-    }
-
     if (isRegister) {
+      if (!fullName.trim()) {
+        setValidationError('Please enter your Full Name.');
+        return;
+      }
+      if (!username.trim()) {
+        setValidationError('Please enter a Username.');
+        return;
+      }
+      if (!email.trim()) {
+        setValidationError('Please enter your Email Address.');
+        return;
+      }
+      if (!mobileNumber.trim()) {
+        setValidationError('Please enter your Mobile Number.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        setValidationError('Passwords do not match.');
+        return;
+      }
+      
+      // Password validation rules
       if (password.length < 8) {
         setValidationError('Password must be at least 8 characters long.');
         return;
@@ -56,15 +108,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
         return;
       }
     } else {
-      if (password.length < 8) {
-        setValidationError('Password must be at least 8 characters long for platform security.');
+      if (!email.trim() || !password.trim()) {
+        setValidationError('Please enter both your Username/Email and password.');
         return;
       }
     }
 
     try {
       if (isRegister) {
-        await login(email.trim(), password, true, referralCode.trim() || undefined);
+        const fullPhone = `${countryCode} ${mobileNumber.trim()}`;
+        await login(email.trim(), password, true, referralCode.trim() || undefined, {
+          name: fullName.trim(),
+          username: username.trim(),
+          phone: fullPhone,
+          country,
+        });
         setSuccessMsg('Account created and verified. Synchronizing security credentials...');
         setTimeout(() => {
           onClose();
@@ -86,14 +144,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
       isOpen={isOpen}
       onClose={onClose}
       id="auth-modal-portal"
-      size="sm"
+      size={isRegister ? "md" : "sm"}
     >
       {/* Top Decorative gradient strip */}
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-amber-400 to-emerald-500 w-full" />
 
       <div className="pt-2">
         {/* Header Identity */}
-        <div className="mb-6 space-y-2">
+        <div className="mb-4 space-y-1">
           <div className="inline-flex items-center space-x-1.5 bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>CeFi Secure Vault Gateway</span>
@@ -126,69 +184,174 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
         )}
 
         {/* Auth Form */}
-        <form onSubmit={handleSubmit} className="space-y-4" id="auth-modal-form">
+        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1" id="auth-modal-form">
           
-          <Input
-            label="Corporate Email Address"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="investor@cefi-platform.com"
-            id="auth-email-input"
-            required
-            autoFocus
-          />
-
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label htmlFor="auth-password-input" className="block text-xs font-semibold text-gray-700 tracking-wide">
-                Account Password
-              </label>
-              {!isRegister && (
-                <button
-                  type="button"
-                  onClick={() => alert('Password recovery has been configured on the backend. Please use standard API password reset features.')}
-                  className="text-[10px] font-mono font-bold text-blue-600 hover:underline cursor-pointer"
-                >
-                  Forgot password?
-                </button>
-              )}
-            </div>
-            
-            <input
-              id="auth-password-input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
-              required
-            />
-          </div>
-
-          {/* Referral Code */}
-          {isRegister && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              className="overflow-hidden"
-            >
+          {isRegister ? (
+            /* Signup Grid Layout */
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              
               <Input
-                label="Referral Code (Optional)"
+                label="Full Name"
                 type="text"
-                value={referralCode}
-                onChange={(e) => setReferralCode(e.target.value)}
-                placeholder="e.g. PARTNER88"
-                id="auth-referral-input"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="John Doe"
+                id="auth-name-input"
+                required
               />
-            </motion.div>
+
+              <Input
+                label="Username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="johndoe"
+                id="auth-username-input"
+                required
+              />
+
+              <Input
+                label="Email Address"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="investor@cefi-platform.com"
+                id="auth-email-input"
+                required
+              />
+
+              {/* Country Selector */}
+              <div className="space-y-1.5">
+                <label htmlFor="auth-country-select" className="block text-xs font-semibold text-gray-700 tracking-wide">
+                  Country
+                </label>
+                <select
+                  id="auth-country-select"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                >
+                  {COUNTRIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Country Code + Mobile Number */}
+              <div className="space-y-1.5 sm:col-span-2">
+                <label htmlFor="auth-mobile-input" className="block text-xs font-semibold text-gray-700 tracking-wide">
+                  Mobile Number
+                </label>
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    id="auth-country-code"
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    placeholder="+1"
+                    className="w-20 px-3 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 text-center transition-all duration-150 focus-visible:outline-none"
+                    required
+                  />
+                  <input
+                    type="tel"
+                    id="auth-mobile-input"
+                    value={mobileNumber}
+                    onChange={(e) => setMobileNumber(e.target.value)}
+                    placeholder="555-0199"
+                    className="flex-1 px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="auth-password-input" className="block text-xs font-semibold text-gray-700 tracking-wide">
+                  Password
+                </label>
+                <input
+                  id="auth-password-input"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="auth-confirm-password-input" className="block text-xs font-semibold text-gray-700 tracking-wide">
+                  Confirm Password
+                </label>
+                <input
+                  id="auth-confirm-password-input"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <Input
+                  label="Referral Code (Optional)"
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  placeholder="e.g. PARTNER88"
+                  id="auth-referral-input"
+                />
+              </div>
+
+            </div>
+          ) : (
+            /* Login Layout */
+            <div className="space-y-4">
+              <Input
+                label="Username or Email Address"
+                type="text"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Username or email address"
+                id="auth-email-input"
+                required
+                autoFocus
+              />
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="auth-password-input" className="block text-xs font-semibold text-gray-700 tracking-wide">
+                    Account Password
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => alert('Password recovery has been configured on the backend. Please use standard API password reset features.')}
+                    className="text-[10px] font-mono font-bold text-blue-600 hover:underline cursor-pointer"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+                
+                <input
+                  id="auth-password-input"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                  required
+                />
+              </div>
+            </div>
           )}
 
           {/* Submit CTA */}
           <Button
             type="submit"
             isLoading={loading}
-            className="w-full"
+            className="w-full mt-2"
             variant="primary"
             size="lg"
             id="auth-submit-btn"
@@ -199,7 +362,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
         </form>
 
         {/* Bottom Toggle */}
-        <div className="mt-6 pt-5 border-t border-gray-100 text-center">
+        <div className="mt-4 pt-4 border-t border-gray-100 text-center">
           <p className="text-xs text-gray-500 font-sans">
             {isRegister ? 'Already have an institutional ledger?' : 'New to our decentralized yield platform?'}
             <button

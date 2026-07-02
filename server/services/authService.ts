@@ -74,15 +74,26 @@ export class AuthService {
    */
   async registerUser(data: {
     email: string;
+    username: string;
+    name?: string;
+    phone?: string;
+    country?: string;
     passwordPlain: string;
     parentReferralCode?: string;
   }) {
     const trimmedEmail = data.email.trim().toLowerCase();
+    const trimmedUsername = data.username.trim().toLowerCase();
 
     // 1. Prevent duplicate emails
     const existingEmail = await authRepository.findByEmail(trimmedEmail);
     if (existingEmail) {
       throw new Error('Email address is already registered on this platform.');
+    }
+
+    // 1b. Prevent duplicate usernames
+    const existingUsername = await authRepository.findByUsername(trimmedUsername);
+    if (existingUsername) {
+      throw new Error('Username is already registered on this platform.');
     }
 
     // 2. Validate referral code if provided
@@ -107,6 +118,10 @@ export class AuthService {
     const createdUser = await authRepository.createUser({
       uid,
       email: trimmedEmail,
+      username: trimmedUsername,
+      name: data.name || null,
+      phone: data.phone || null,
+      country: data.country || null,
       passwordHash,
       role: UserRole.USER,
       userId,
@@ -123,19 +138,22 @@ export class AuthService {
    * Enterprise login logic
    */
   async loginUser(data: {
-    email: string;
+    emailOrUsername: string;
     passwordPlain: string;
     ipAddress?: string | null;
     device?: string | null;
     browser?: string | null;
   }) {
-    const trimmedEmail = data.email.trim().toLowerCase();
+    const trimmedIdentifier = data.emailOrUsername.trim().toLowerCase();
 
     // 1. Retrieve the user record
-    const user = await authRepository.findByEmail(trimmedEmail);
+    let user = await authRepository.findByEmail(trimmedIdentifier);
+    if (!user) {
+      user = await authRepository.findByUsername(trimmedIdentifier);
+    }
     if (!user) {
       // Use generic error for security to prevent username harvesting
-      throw new Error('Invalid email address or password.');
+      throw new Error('Invalid username, email address or password.');
     }
 
     // 2. Lockout protection check

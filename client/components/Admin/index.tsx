@@ -27,14 +27,14 @@ import { SettingsView, SystemSettings } from './SettingsView.tsx';
 
 // Interactive feedbacks
 import { Toast } from '../ui/Feedback/index.tsx';
-import { ArrowLeft, RefreshCw, LayoutDashboard } from 'lucide-react';
+import { ArrowLeft, RefreshCw, LayoutDashboard, X, KeyRound, Check } from 'lucide-react';
 
 interface EnterpriseAdminDashboardProps {
   onBackToLanding: () => void;
 }
 
 export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> = ({ onBackToLanding }) => {
-  const { logout, user } = useAuth();
+  const { logout, user, token } = useAuth();
 
   // Navigation states
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
@@ -43,6 +43,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
 
   // Notifications feedback states
   const [toast, setToast] = useState<{ message: string; variant: 'success' | 'danger' } | null>(null);
+  const [resetTempPassword, setResetTempPassword] = useState<{ email: string; temp: string } | null>(null);
 
   const showToastMessage = (message: string, variant: 'success' | 'danger' = 'success') => {
     setToast({ message, variant });
@@ -168,24 +169,82 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
     setAuditLogs(prev => [nextLog, ...prev]);
   };
 
-  // State Updates: Users View
-  const handleUpdateUser = (userId: string, fields: Partial<AdminUser>) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, ...fields } : u));
-    
-    // Log Audit event and toast
-    const changedFields = Object.keys(fields).map(k => `${k}: ${(fields as any)[k]}`).join(', ');
-    addAuditLog(`Modified profile details of user account ${userId} (${changedFields})`, 'VIP_PROMO');
-    showToastMessage(`User account details updated for ${userId}`);
-
-    // If VIP tier changed, sync to vipAccounts state too
-    if (fields.vipTier !== undefined) {
-      setVipAccounts(prev => prev.map(v => {
-        const matchingUser = users.find(u => u.id === userId);
-        if (matchingUser && v.email === matchingUser.email) {
-          return { ...v, currentTier: fields.vipTier as any, multiplier: fields.vipTier === 'Level 3' ? 2.10 : fields.vipTier === 'Level 2' ? 1.50 : fields.vipTier === 'Level 1' ? 1.25 : 1.00 };
+  // Fetch real users from database
+  const fetchRealUsers = async () => {
+    try {
+      const res = await fetch('/api/v1/users/admin/list', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('cefi_token')}`
         }
-        return v;
-      }));
+      });
+      if (res.ok) {
+        const body = await res.json();
+        if (body.success && body.data) {
+          const mapped: AdminUser[] = body.data.map((u: any) => ({
+            id: u.uid,
+            name: u.name || u.email.split('@')[0] || 'Institutional Client',
+            email: u.email,
+            vipTier: u.vipTier === 'VIP_3' ? 'Level 3' : u.vipTier === 'VIP_2' ? 'Level 2' : u.vipTier === 'VIP_1' ? 'Level 1' : 'None',
+            status: u.status === 'ACTIVE' ? 'Active' : u.status === 'SUSPENDED' ? 'Suspended' : 'Flagged',
+            role: u.role || 'USER',
+            registrationDate: u.createdAt ? new Date(u.createdAt).toISOString().split('T')[0] : '2026-06-30'
+          }));
+          setUsers(mapped);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load real users from backend:', err);
+    }
+  };
+
+  // Fetch real users when admin tab changes
+  React.useEffect(() => {
+    if (activeTab === 'users' || activeTab === 'dashboard') {
+      fetchRealUsers();
+    }
+  }, [activeTab]);
+
+  // Execute actual admin security and promotion actions
+  const handleAdminAction = async (
+    userId: string, 
+    action: 'RESET_PASSWORD' | 'FORCE_PASSWORD_CHANGE' | 'SUSPEND' | 'UNLOCK' | 'CHANGE_VIP' | 'CHANGE_ROLE', 
+    extraData?: any
+  ) => {
+    try {
+      const res = await fetch('/api/v1/users/admin/actions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('cefi_token')}`
+        },
+        body: JSON.stringify({
+          userId,
+          action,
+          role: extraData?.role,
+          vipTier: extraData?.vipTier
+        })
+      });
+
+      const body = await res.json();
+      if (!res.ok) {
+        throw new Error(body.error?.message || `Action ${action} failed.`);
+      }
+
+      showToastMessage(body.message || `Action ${action} executed successfully.`);
+      
+      // If reset password action, show the temporary password generated securely in our UI state!
+      if (action === 'RESET_PASSWORD' && body.data?.tempPassword) {
+        const targetUser = users.find(u => u.id === userId);
+        setResetTempPassword({
+          email: targetUser?.email || 'Unknown User',
+          temp: body.data.tempPassword
+        });
+      }
+
+      addAuditLog(`Executed admin action: ${action} on user ${userId}`, 'VIP_PROMO');
+      await fetchRealUsers();
+    } catch (err: any) {
+      showToastMessage(err.message || 'Failed to complete admin action.', 'danger');
     }
   };
 
@@ -329,7 +388,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
           />
         );
       case 'users':
-        return <UsersView users={users} onUpdateUser={handleUpdateUser} />;
+        return <UsersView users={users} onAdminAction={handleAdminAction} />;
       case 'deposits':
         return <DepositsView deposits={deposits} onApprove={handleApproveDeposit} onReject={handleRejectDeposit} />;
       case 'withdrawals':
@@ -358,7 +417,14 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
       case 'security':
         return <SecurityView onAuditLog={addAuditLog} />;
       case 'settings':
-        return <SettingsView settings={systemSettings} onSave={handleSaveSettings} />;
+        return (
+          <SettingsView 
+            settings={systemSettings} 
+            onSave={handleSaveSettings} 
+            userRole={user?.role}
+            token={token}
+          />
+        );
       default:
         return <div className="text-left py-12 text-gray-500">View not compiled.</div>;
     }
@@ -420,6 +486,61 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
           variant={toast.variant}
           onClose={() => setToast(null)}
         />
+      )}
+
+      {/* Secure Password Reset Popup */}
+      {resetTempPassword && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white border border-gray-100 rounded-3xl max-w-md w-full p-8 shadow-2xl relative overflow-hidden text-left space-y-6">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-blue-600" />
+            <button 
+              onClick={() => setResetTempPassword(null)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            
+            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-xs border border-blue-100">
+              <KeyRound className="w-6 h-6 animate-pulse" />
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-lg font-display font-black text-gray-950 uppercase tracking-tight">Temporary Key Generated</h3>
+              <p className="text-[10px] font-mono text-blue-600 font-bold tracking-widest uppercase">
+                SECURE CREDENTIAL ROTATION [SUCCESS]
+              </p>
+            </div>
+
+            <p className="text-xs text-gray-500 leading-relaxed font-sans">
+              The account <strong>{resetTempPassword.email}</strong> has been assigned a dynamic temporary password. Copied below is the unique key:
+            </p>
+
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-2xl flex items-center justify-between font-mono text-xs select-all">
+              <span className="font-bold text-gray-900 tracking-wider text-sm">{resetTempPassword.temp}</span>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(resetTempPassword.temp);
+                  showToastMessage('Temporary password copied to clipboard!');
+                }}
+                className="p-1.5 bg-white border border-gray-200 hover:border-blue-300 text-gray-500 hover:text-blue-600 rounded-lg shadow-3xs cursor-pointer transition-all"
+                title="Copy to clipboard"
+              >
+                <Check className="w-3.5 h-3.5 text-blue-500" />
+              </button>
+            </div>
+
+            <div className="p-3 bg-amber-50 border border-amber-100/60 rounded-2xl text-[10px] text-amber-800 leading-relaxed font-sans">
+              <strong>Crucial Notice:</strong> This key is generated as a secure, one-time hash. It is not saved in plain text on our servers. You must copy and distribute this password immediately. Once you close this prompt, it will be lost forever.
+            </div>
+
+            <button
+              onClick={() => setResetTempPassword(null)}
+              className="w-full py-3 bg-gray-950 hover:bg-gray-800 text-white font-bold text-xs rounded-xl transition-all hover:shadow-lg cursor-pointer"
+            >
+              I Have Securely Copied Key
+            </button>
+          </div>
+        </div>
       )}
 
     </div>

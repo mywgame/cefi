@@ -19,7 +19,8 @@ import {
   ArrowLeft,
   LayoutDashboard,
   ShieldAlert,
-  Lock
+  Lock,
+  XCircle
 } from 'lucide-react';
 
 // Import our new Phase 4 World-Class Landing Page Components
@@ -38,6 +39,7 @@ import { Footer } from './components/Footer.tsx';
 import { AuthModal } from './components/AuthModal.tsx';
 import { UserDashboard } from './components/Dashboard/index.tsx';
 import { EnterpriseAdminDashboard } from './components/Admin/index.tsx';
+import { Button } from './components/ui/Buttons/index.tsx';
 
 
 /**
@@ -255,7 +257,7 @@ function DashboardContent({ onBackToLanding }: { onBackToLanding: () => void }) 
  * MAIN APP CONTAINER WITH EMBEDDED PHASE 4 WEBSITE
  */
 function MainAppContent() {
-  const { user } = useAuth();
+  const { user, token, syncProfile } = useAuth();
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'admin'>('landing');
   const [activeSection, setActiveSection] = useState('hero');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
