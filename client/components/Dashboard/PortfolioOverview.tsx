@@ -4,213 +4,237 @@
  */
 
 import React, { useState } from 'react';
-import { TrendingUp, Activity, BarChart3, Calendar, FileDown } from 'lucide-react';
 import { Card } from '../ui/Cards/index.tsx';
 import { Button } from '../ui/Buttons/index.tsx';
+import { FileDown, Info, Calendar } from 'lucide-react';
 
-type AnalyticsTab = 'growth' | 'income' | 'deposits' | 'withdrawals';
+interface DatasetPoint {
+  dayName: string;
+  totalAssets: number;
+  dailyYield: number;
+  teamIncome: number;
+  referralIncome: number;
+  incentive: number;
+}
 
 export const PortfolioOverview: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<AnalyticsTab>('growth');
+  const [activeDayIndex, setActiveDayIndex] = useState<number | null>(6); // Default hover on Day 7
 
-  const tabs = [
-    { id: 'growth' as AnalyticsTab, label: 'Asset Growth' },
-    { id: 'income' as AnalyticsTab, label: 'Income Trend' },
-    { id: 'deposits' as AnalyticsTab, label: 'Deposit History' },
-    { id: 'withdrawals' as AnalyticsTab, label: 'Withdrawal History' },
+  const datasets: DatasetPoint[] = [
+    { dayName: 'Day 1', totalAssets: 180, dailyYield: 140, teamIncome: 80, referralIncome: 50, incentive: 30 },
+    { dayName: 'Day 2', totalAssets: 230, dailyYield: 180, teamIncome: 150, referralIncome: 100, incentive: 40 },
+    { dayName: 'Day 3', totalAssets: 210, dailyYield: 160, teamIncome: 120, referralIncome: 80, incentive: 30 },
+    { dayName: 'Day 4', totalAssets: 280, dailyYield: 230, teamIncome: 190, referralIncome: 120, incentive: 50 },
+    { dayName: 'Day 5', totalAssets: 320, dailyYield: 220, teamIncome: 180, referralIncome: 110, incentive: 40 },
+    { dayName: 'Day 6', totalAssets: 390, dailyYield: 300, teamIncome: 240, referralIncome: 150, incentive: 60 },
+    { dayName: 'Day 7', totalAssets: 460, dailyYield: 380, teamIncome: 310, referralIncome: 180, incentive: 50 },
   ];
 
-  // Helper to render responsive mockup SVGs based on active tab
-  const renderMockupChart = () => {
-    switch (activeTab) {
-      case 'growth':
-        return (
-          <svg className="w-full h-full text-blue-600" viewBox="0 0 100 35" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="growth-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#2563eb" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            {/* Grid Lines */}
-            <line x1="0" y1="5" x2="100" y2="5" stroke="#f3f4f6" strokeWidth="0.2" />
-            <line x1="0" y1="15" x2="100" y2="15" stroke="#f3f4f6" strokeWidth="0.2" />
-            <line x1="0" y1="25" x2="100" y2="25" stroke="#f3f4f6" strokeWidth="0.2" />
-            {/* Area Path */}
-            <path
-              d="M0,30 L10,28 L20,29 L30,22 L40,24 L50,15 L60,18 L70,12 L80,10 L90,6 L100,2 L100,35 L0,35 Z"
-              fill="url(#growth-grad)"
-            />
-            {/* Line Path */}
-            <path
-              d="M0,30 Q10,27 20,29 T40,23 T60,17 T80,11 T100,2"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-            {/* Interactive dots */}
-            <circle cx="60" cy="17" r="1.5" fill="#2563eb" stroke="#ffffff" strokeWidth="0.5" className="animate-pulse" />
-            <circle cx="100" cy="2" r="1.5" fill="#10b981" stroke="#ffffff" strokeWidth="0.5" />
-          </svg>
-        );
-      case 'income':
-        return (
-          <svg className="w-full h-full text-emerald-600" viewBox="0 0 100 35" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="income-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            {/* Grid Lines */}
-            <line x1="0" y1="10" x2="100" y2="10" stroke="#f3f4f6" strokeWidth="0.2" />
-            <line x1="0" y1="20" x2="100" y2="20" stroke="#f3f4f6" strokeWidth="0.2" />
-            {/* Area Path */}
-            <path
-              d="M0,25 Q15,32 30,18 T60,15 T90,8 T100,5 L100,35 L0,35 Z"
-              fill="url(#income-grad)"
-            />
-            {/* Line Path */}
-            <path
-              d="M0,25 Q15,32 30,18 T60,15 T90,8 T100,5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-            />
-            <circle cx="90" cy="8" r="1.5" fill="#10b981" stroke="#ffffff" strokeWidth="0.5" />
-          </svg>
-        );
-      case 'deposits':
-        return (
-          <div className="w-full h-full flex items-end justify-between px-2 pt-6">
-            {/* Visual Bars Mock */}
-            {[45, 60, 30, 80, 50, 75, 90, 40, 85, 100, 65, 80].map((h, i) => (
-              <div key={i} className="flex-grow mx-1 flex flex-col items-center group">
-                <div 
-                  className="w-full bg-blue-100 hover:bg-blue-600 rounded-t-md transition-all duration-300 relative"
-                  style={{ height: `${h * 0.7}%` }}
-                >
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[8px] font-semibold px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity mb-1 whitespace-nowrap pointer-events-none font-mono">
-                    ${(h * 1500).toLocaleString()}
-                  </div>
-                </div>
-                <span className="text-[7px] font-mono text-gray-400 mt-2">M{i+1}</span>
-              </div>
-            ))}
-          </div>
-        );
-      case 'withdrawals':
-        return (
-          <div className="w-full h-full flex items-end justify-between px-2 pt-6">
-            {/* Visual Bars Mock */}
-            {[20, 15, 35, 10, 40, 25, 15, 30, 10, 50, 35, 20].map((h, i) => (
-              <div key={i} className="flex-grow mx-1 flex flex-col items-center group">
-                <div 
-                  className="w-full bg-red-100 hover:bg-red-500 rounded-t-md transition-all duration-300 relative"
-                  style={{ height: `${h * 0.7}%` }}
-                >
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[8px] font-semibold px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity mb-1 whitespace-nowrap pointer-events-none font-mono">
-                    -${(h * 800).toLocaleString()}
-                  </div>
-                </div>
-                <span className="text-[7px] font-mono text-gray-400 mt-2">M{i+1}</span>
-              </div>
-            ))}
-          </div>
-        );
-      default:
-        return null;
-    }
+  // Map data to SVG viewBox="0 0 700 320"
+  // margins: left: 60, right: 20, top: 20, bottom: 40
+  const width = 700;
+  const height = 320;
+  const paddingLeft = 50;
+  const paddingRight = 20;
+  const paddingTop = 25;
+  const paddingBottom = 35;
+
+  const chartWidth = width - paddingLeft - paddingRight;
+  const chartHeight = height - paddingTop - paddingBottom;
+
+  const getX = (index: number) => {
+    return paddingLeft + (index / (datasets.length - 1)) * chartWidth;
   };
 
+  const getY = (value: number) => {
+    // scale max value $500 down to $0
+    return paddingTop + chartHeight - (value / 500) * chartHeight;
+  };
+
+  // Generate SVG path 'd' for a given key
+  const getPathD = (key: keyof Omit<DatasetPoint, 'dayName'>) => {
+    return datasets
+      .map((d, i) => {
+        const x = getX(i);
+        const y = getY(d[key] as number);
+        return `${i === 0 ? 'M' : 'L'}${x},${y}`;
+      })
+      .join(' ');
+  };
+
+  // Colors mapping matching mockup
+  const linesConfig = [
+    { key: 'totalAssets' as const, color: '#3b82f6', label: 'Total Assets' },
+    { key: 'dailyYield' as const, color: '#10b981', label: 'Daily Yield' },
+    { key: 'teamIncome' as const, color: '#8b5cf6', label: 'Team Income' },
+    { key: 'referralIncome' as const, color: '#f97316', label: 'Referral Income' },
+    { key: 'incentive' as const, color: '#ef4444', label: 'Incentive Income' },
+  ];
+
   return (
-    <Card hoverEffect={true} id="portfolio-overview" className="border border-gray-100 text-left flex flex-col justify-between h-full">
+    <Card id="metafirm-enterprise-analytics" className="border border-gray-100 bg-white p-6 rounded-3xl text-left flex flex-col justify-between h-full hover:shadow-xl transition-all duration-300">
       
-      {/* Top Header Block */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <div className="space-y-0.5">
-          <span className="text-[10px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
-            Performance Indexing
+      {/* Top Header Row */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        <div className="space-y-1">
+          <span className="text-[10px] font-mono text-violet-600 font-bold uppercase tracking-widest block">
+            MetaFirm Institutional Analytics
           </span>
-          <h3 className="text-base font-display font-extrabold text-gray-950 tracking-tight">
-            Portfolio Analytics Desk
+          <h3 className="text-sm font-display font-black text-gray-950 uppercase tracking-tight">
+            Earnings Overview <span className="text-gray-400 font-medium font-sans text-xs lowercase">(last 7 days)</span>
           </h3>
         </div>
         
-        {/* Quick Excel/Report trigger */}
         <Button
           variant="secondary"
           size="sm"
-          leftIcon={<FileDown className="w-3.5 h-3.5" />}
-          className="text-xs"
+          leftIcon={<FileDown className="w-3.5 h-3.5 text-violet-600" />}
+          className="text-xs font-bold border border-gray-100 hover:bg-gray-50/80 rounded-xl"
         >
-          Download ledger Audit
+          Download Audit Log
         </Button>
       </div>
 
-      {/* Tabs list inside Card */}
-      <div className="flex flex-wrap gap-1.5 p-1 bg-gray-50 rounded-2xl border border-gray-100 mb-6" role="tablist">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            className={`flex-grow sm:flex-none text-[10px] sm:text-xs font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer focus:outline-none ${
-              activeTab === tab.id
-                ? 'bg-white text-blue-600 shadow-sm border border-gray-100'
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      {/* Primary Analytics Graph Canvas Container */}
+      <div className="relative flex-grow min-h-[260px] bg-slate-50/30 rounded-2xl border border-gray-100/80 p-4 overflow-hidden">
+        
+        {/* Dynamic Tooltip Hover Display */}
+        {activeDayIndex !== null && (
+          <div className="absolute top-3 left-4 bg-white/95 backdrop-blur-md border border-gray-100 p-2.5 rounded-xl shadow-lg z-10 text-[10px] space-y-1 font-sans">
+            <p className="font-bold text-gray-950 font-mono flex items-center gap-1">
+              <Calendar className="w-3 h-3 text-violet-500" /> {datasets[activeDayIndex].dayName} Performance
+            </p>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-gray-600">
+              {linesConfig.map((line) => (
+                <div key={line.key} className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: line.color }} />
+                  <span className="font-mono text-gray-500">{line.label}:</span>
+                  <span className="font-bold text-gray-950">${datasets[activeDayIndex][line.key]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="w-full h-full">
+          <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full font-mono text-[10px]" preserveAspectRatio="none">
+            {/* Grid Horizontal Lines & Y Axis Labels */}
+            {[0, 100, 200, 300, 400, 500].map((val) => {
+              const y = getY(val);
+              return (
+                <g key={val} className="opacity-80">
+                  <line
+                    x1={paddingLeft}
+                    y1={y}
+                    x2={width - paddingRight}
+                    y2={y}
+                    stroke="#f1f5f9"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 4"
+                  />
+                  <text
+                    x={paddingLeft - 12}
+                    y={y + 3}
+                    textAnchor="end"
+                    fill="#94a3b8"
+                    className="font-bold text-[9px]"
+                  >
+                    ${val}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Vertical lines for each day column */}
+            {datasets.map((_, i) => {
+              const x = getX(i);
+              return (
+                <line
+                  key={i}
+                  x1={x}
+                  y1={paddingTop}
+                  x2={x}
+                  y2={height - paddingBottom}
+                  stroke="#f8fafc"
+                  strokeWidth="1"
+                />
+              );
+            })}
+
+            {/* Render line paths */}
+            {linesConfig.map((line) => (
+              <g key={line.key}>
+                <path
+                  d={getPathD(line.key)}
+                  fill="none"
+                  stroke={line.color}
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transition-all duration-300"
+                />
+                
+                {/* Dots at intersection points */}
+                {datasets.map((point, pointIdx) => (
+                  <circle
+                    key={pointIdx}
+                    cx={getX(pointIdx)}
+                    cy={getY(point[line.key] as number)}
+                    r={pointIdx === activeDayIndex ? '4.5' : '3'}
+                    fill={line.color}
+                    stroke="#ffffff"
+                    strokeWidth={pointIdx === activeDayIndex ? '2' : '1'}
+                    className="cursor-pointer transition-all duration-150"
+                    onMouseEnter={() => setActiveDayIndex(pointIdx)}
+                  />
+                ))}
+              </g>
+            ))}
+
+            {/* Highlight line for the hovered day */}
+            {activeDayIndex !== null && (
+              <line
+                x1={getX(activeDayIndex)}
+                y1={paddingTop}
+                x2={getX(activeDayIndex)}
+                y2={height - paddingBottom}
+                stroke="#6366f1"
+                strokeWidth="1.5"
+                strokeDasharray="3 3"
+                className="pointer-events-none"
+              />
+            )}
+
+            {/* X-Axis labels */}
+            {datasets.map((d, i) => (
+              <text
+                key={i}
+                x={getX(i)}
+                y={height - 12}
+                textAnchor="middle"
+                fill="#94a3b8"
+                className="font-bold text-[9px] cursor-pointer"
+                onMouseEnter={() => setActiveDayIndex(i)}
+              >
+                {d.dayName}
+              </text>
+            ))}
+          </svg>
+        </div>
       </div>
 
-      {/* Chart Canvas Area */}
-      <div className="h-56 bg-gray-50/40 rounded-2xl border border-gray-100/60 p-4 relative flex flex-col justify-between overflow-hidden">
-        {/* Overlay info */}
-        <div className="flex items-center justify-between text-[9px] font-mono text-gray-400 font-bold uppercase tracking-wider pointer-events-none">
-          <div className="flex items-center space-x-1">
-            <Activity className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
-            <span>Telemetry Nodes Live</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span>Interval: 1 Year</span>
-            <span>UTC Clock</span>
-          </div>
+      {/* Horizontal Legend Layout directly matching reference */}
+      <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 text-[10px] font-mono text-gray-500 font-bold">
+        <div className="flex flex-wrap items-center gap-4">
+          {linesConfig.map((line) => (
+            <div key={line.key} className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: line.color }} />
+              <span className="text-gray-600">{line.label}</span>
+            </div>
+          ))}
         </div>
-
-        {/* Dynamic Graphic SVG Placeholders */}
-        <div className="flex-grow flex items-center justify-center relative w-full pt-4">
-          {renderMockupChart()}
-        </div>
-
-        {/* X-Axis labels */}
-        <div className="flex items-center justify-between text-[8px] font-mono text-gray-400 font-bold pt-2 border-t border-gray-100/50">
-          <span>Q1 2026</span>
-          <span>Q2 2026</span>
-          <span>Q3 2026</span>
-          <span>Q4 2026</span>
-        </div>
-      </div>
-
-      {/* Mini legends row */}
-      <div className="mt-4 pt-4 border-t border-gray-50/80 flex items-center justify-between text-[10px] font-mono text-gray-400">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
-            <span className="font-semibold text-gray-500">Asset Balance</span>
-          </div>
-          <div className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            <span className="font-semibold text-gray-500">Yield Multipliers</span>
-          </div>
-        </div>
-        <span className="font-bold text-emerald-600 flex items-center">
-          <TrendingUp className="w-3.5 h-3.5 mr-1" /> +14.6% Avg Rate
+        <span className="text-[9px] text-gray-400 uppercase tracking-wide">
+          Real-Time Ledger Feed
         </span>
       </div>
 

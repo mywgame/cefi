@@ -89,7 +89,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onBackToLanding })
   const renderActiveView = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardHome />;
+        return <DashboardHome onQuickAction={handleQuickAction} />;
       case 'profile':
         return <ProfileView />;
       case 'team':
@@ -138,13 +138,13 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onBackToLanding })
           <div className="flex items-center justify-between pb-4 border-b border-gray-100">
             <button
               onClick={onBackToLanding}
-              className="inline-flex items-center space-x-1.5 text-xs font-semibold text-gray-500 hover:text-blue-600 transition-colors cursor-pointer"
+              className="inline-flex items-center space-x-1.5 text-xs font-semibold text-gray-500 hover:text-violet-600 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Return to Public Website</span>
             </button>
             <span className="text-[10px] font-mono text-gray-400 font-bold uppercase tracking-wider">
-              CeFi Institutional Node
+              MetaFirm Institutional Node
             </span>
           </div>
 
@@ -160,7 +160,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onBackToLanding })
           <div className="fixed inset-0" onClick={() => setActiveModal('none')} />
           <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-2xl max-w-md w-full relative z-10 text-left space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-              <div className="flex items-center space-x-2 text-blue-600">
+              <div className="flex items-center space-x-2 text-violet-600">
                 <Wallet className="w-5 h-5" />
                 <h3 className="font-display font-extrabold text-gray-950 text-sm sm:text-base">Inbound Deposit Gateway</h3>
               </div>
@@ -178,7 +178,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onBackToLanding })
                 <span className="text-[9px] font-mono text-gray-400 font-bold uppercase block">Your Destination Address</span>
                 <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100 flex items-center justify-between font-mono text-xs text-gray-900 select-all">
                   <span className="truncate">0x9821c9e2b45a90d1f43a8b32d541</span>
-                  <button onClick={handleCopyWalletAddress} className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-500 hover:text-blue-600 cursor-pointer">
+                  <button onClick={handleCopyWalletAddress} className="p-1.5 rounded-lg bg-white border border-gray-200 text-gray-500 hover:text-violet-600 cursor-pointer">
                     {copiedAddress ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 </div>

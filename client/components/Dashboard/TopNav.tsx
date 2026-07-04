@@ -51,48 +51,55 @@ export const TopNav: React.FC<TopNavProps> = ({
         </button>
 
         <div className="hidden sm:block">
-          <p className="text-[10px] font-mono text-blue-600 font-bold uppercase tracking-wider">
-            CeFi Investment Vault
+          <p className="text-[10px] font-mono text-violet-600 font-bold uppercase tracking-wider">
+            MetaFirm Investment Vault
           </p>
-          <h1 className="text-lg font-display font-extrabold text-gray-950 capitalize tracking-tight leading-none">
+          <h1 className="text-lg font-display font-black text-gray-950 capitalize tracking-tight leading-none">
             {activeTab === 'dashboard' ? 'Overview Desk' : `${activeTab} Controls`}
           </h1>
         </div>
       </div>
 
-      {/* Middle block: Search Input placeholder */}
-      <div className="hidden lg:block max-w-xs w-full mx-4">
-        <SearchInput placeholder="Search logs, ledgers, and team nodes..." />
-      </div>
-
-      {/* Right block: Notif bell, Quick CTAs, user menu, VIP Indicator */}
-      <div className="flex items-center space-x-4">
+      {/* Middle/Right combined block that contains the exact sequence of requested components */}
+      <div className="flex-grow flex items-center justify-end space-x-5">
         
-        {/* Quick Actions Action Block */}
-        <div className="hidden md:flex items-center space-x-2">
-          <Button
-            onClick={() => onQuickAction('deposit')}
-            variant="secondary"
-            size="sm"
-            leftIcon={<PlusCircle className="w-3.5 h-3.5 text-blue-600" />}
-          >
-            Deposit
-          </Button>
-          <Button
-            onClick={() => onQuickAction('withdraw')}
-            variant="secondary"
-            size="sm"
-            leftIcon={<ArrowUpRight className="w-3.5 h-3.5 text-amber-500" />}
-          >
-            Withdraw
-          </Button>
+        {/* 1. Search Bar */}
+        <div className="hidden lg:block max-w-[240px] w-full">
+          <SearchInput placeholder="Search logs, ledgers..." />
         </div>
 
-        {/* Dynamic Notification Bell with dropdown */}
+        {/* 2. Hello, User Name */}
+        <div className="text-right hidden sm:block">
+          <p className="text-xs font-bold text-gray-950 font-display">
+            Hello, <span className="text-violet-600">{user?.name || (user?.email ? user.email.split('@')[0] : 'Amit Kumar')}</span>
+          </p>
+        </div>
+
+        {/* 3. UID */}
+        <div className="hidden md:flex items-center space-x-1 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-xl">
+          <span className="text-[10px] font-mono text-gray-500 font-bold tracking-wider">
+            UID-{user?.id ? `MT${user.id}` : 'MT87436'}
+          </span>
+        </div>
+
+        {/* 4. VIP Badge */}
+        <div className="hidden sm:flex items-center space-x-1 px-2.5 py-1 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-xl text-[10px] font-display font-black shadow-xs">
+          <span className="text-white">★</span>
+          <span>VIP-1</span>
+        </div>
+
+        {/* 5. Avatar */}
+        <Avatar
+          name={user?.name || user?.email || 'CE'}
+          size="md"
+          className="border border-gray-100 hover:border-violet-300 transition-colors shadow-xs"
+        />
+
+        {/* 6. Notification Bell icon with dropdown */}
         <div className="relative">
           <button
             onClick={() => setIsNotifOpen(!isNotifOpen)}
-            className="p-2.5 rounded-xl bg-white border border-gray-100 hover:border-blue-100 text-gray-500 hover:text-blue-600 transition-all shadow-xs cursor-pointer relative"
+            className="p-2.5 rounded-xl bg-white border border-gray-100 hover:border-violet-100 text-gray-500 hover:text-violet-600 transition-all shadow-xs cursor-pointer relative"
             title="Notifications Monitor"
           >
             <Bell className="w-4 h-4" />
@@ -110,7 +117,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllRead}
-                      className="text-[10px] font-bold text-blue-600 hover:underline font-mono"
+                      className="text-[10px] font-bold text-violet-600 hover:underline font-mono"
                     >
                       Mark all read
                     </button>
@@ -123,7 +130,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                       key={n.id}
                       className={`p-2.5 rounded-xl border transition-all text-xs ${
                         n.unread 
-                          ? 'bg-blue-50/30 border-blue-100/50' 
+                          ? 'bg-violet-50/30 border-violet-100/50' 
                           : 'bg-white border-transparent hover:bg-gray-50'
                       }`}
                     >
@@ -138,26 +145,6 @@ export const TopNav: React.FC<TopNavProps> = ({
               </div>
             </>
           )}
-        </div>
-
-        {/* VIP Rank and User Identity Profile */}
-        <div className="flex items-center space-x-3 border-l border-gray-100 pl-4">
-          <div className="text-right hidden sm:block">
-            <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-amber-50 border border-amber-200 rounded-full text-[9px] font-mono font-extrabold uppercase tracking-wide text-amber-700 leading-none">
-              <span className="w-1 h-1 rounded-full bg-amber-500 mr-0.5" />
-              VIP SILVER
-            </span>
-            <p className="text-xs font-bold text-gray-900 truncate max-w-[120px] mt-0.5">
-              {user?.email ? user.email.split('@')[0] : 'Institutional Client'}
-            </p>
-          </div>
-
-          {/* Collapsible profile menu triggers */}
-          <Avatar
-            name={user?.email || 'CE'}
-            size="md"
-            className="cursor-pointer hover:border-blue-300 transition-colors"
-          />
         </div>
 
       </div>

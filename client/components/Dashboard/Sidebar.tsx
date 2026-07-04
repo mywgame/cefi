@@ -20,6 +20,7 @@ import {
   X
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { MetaFirmLogo } from './MetaFirmLogo.tsx';
 
 export type DashboardTab = 'dashboard' | 'profile' | 'team' | 'transactions' | 'security' | 'settings' | 'support';
 
@@ -61,19 +62,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <div className="flex flex-col h-full bg-white border-r border-gray-100 py-6 text-left">
       {/* Brand Header */}
       <div className={`flex items-center justify-between px-6 mb-8 ${isCollapsed ? 'justify-center' : ''}`}>
-        <div className="flex items-center space-x-3">
-          <div className="bg-blue-600 text-white p-2 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20">
-            <Shield className="w-5 h-5 text-amber-300" />
-          </div>
-          {!isCollapsed && (
-            <div>
-              <span className="font-display font-bold text-base tracking-tight text-gray-950 block">
-                CeFi Platform
-              </span>
-              <span className="text-[9px] font-mono text-gray-400 uppercase tracking-widest block font-bold leading-none">
-                Core Vault
-              </span>
-            </div>
+        <div className="flex items-center">
+          {isCollapsed ? (
+            <MetaFirmLogo iconOnly size="sm" />
+          ) : (
+            <MetaFirmLogo size="md" />
           )}
         </div>
         

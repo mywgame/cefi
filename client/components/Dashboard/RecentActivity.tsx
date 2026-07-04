@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Badge } from '../ui/Feedback/index.tsx';
-import { TableContainer } from '../ui/Cards/index.tsx';
+import { TableContainer, Card } from '../ui/Cards/index.tsx';
 import { ArrowDownLeft, ArrowUpRight, Award, CircleDollarSign, ShieldCheck, UserPlus } from 'lucide-react';
 
 interface ActivityItem {
@@ -50,13 +50,13 @@ export const RecentActivity: React.FC = () => {
   const getStatusBadge = (status: 'Complete' | 'Processing' | 'Failed') => {
     switch (status) {
       case 'Complete':
-        return <Badge variant="emerald">Complete</Badge>;
+        return <Badge variant="emerald" className="font-bold text-[10px] uppercase tracking-wider px-2.5 py-0.5">Complete</Badge>;
       case 'Processing':
-        return <Badge variant="amber">Processing</Badge>;
+        return <Badge variant="amber" className="font-bold text-[10px] uppercase tracking-wider px-2.5 py-0.5 animate-pulse">Processing</Badge>;
       case 'Failed':
-        return <Badge variant="rose">Failed</Badge>;
+        return <Badge variant="rose" className="font-bold text-[10px] uppercase tracking-wider px-2.5 py-0.5">Failed</Badge>;
       default:
-        return <Badge variant="neutral">Pending</Badge>;
+        return <Badge variant="neutral" className="font-bold text-[10px] uppercase tracking-wider px-2.5 py-0.5">Pending</Badge>;
     }
   };
 
@@ -64,80 +64,92 @@ export const RecentActivity: React.FC = () => {
     <div className="space-y-4 text-left" id="recent-activity-section">
       <div className="flex items-center justify-between mb-2">
         <div className="space-y-0.5">
-          <span className="text-[10px] font-mono text-blue-600 font-bold uppercase tracking-wider block">
-            Security audit Logs
+          <span className="text-[10px] font-mono text-violet-600 font-bold uppercase tracking-widest block">
+            Cryptographic ledger
           </span>
-          <h3 className="text-base font-display font-extrabold text-gray-950 tracking-tight">
+          <h3 className="text-base font-display font-black text-gray-950 tracking-tight">
             Recent Ledger Entries
           </h3>
         </div>
-        <span className="text-[10px] font-mono text-gray-400 font-bold uppercase">6 entries synced</span>
+        <span className="text-[10px] font-mono text-gray-400 font-bold bg-gray-50 border border-gray-100/60 px-2.5 py-1 rounded-full uppercase">
+          6 Active Logs
+        </span>
       </div>
 
-      <TableContainer>
-        <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
-          <thead>
-            <tr className="bg-gray-50/60 border-b border-gray-100/80">
-              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/4">
-                Transaction ID
-              </th>
-              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/5">
-                Type
-              </th>
-              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/5">
-                Amount
-              </th>
-              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/6">
-                Status
-              </th>
-              <th className="py-3 px-5 font-bold text-gray-400 font-mono text-[10px] tracking-wider uppercase text-left w-1/4">
-                Timestamp
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100/50 text-gray-700 bg-white">
-            {activities.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50/40 transition-colors duration-150">
-                {/* ID with simulated hex hash */}
-                <td className="py-3 px-5 text-left">
-                  <div className="space-y-0.5">
-                    <span className="font-bold text-gray-950 font-mono block text-xs">{item.id}</span>
-                    <span className="text-[9px] font-mono text-gray-400 font-medium select-all block leading-none">{item.txHash}</span>
-                  </div>
-                </td>
-
-                {/* Type block with custom visual icons */}
-                <td className="py-3 px-5 text-left">
-                  <div className="flex items-center space-x-2">
-                    <div className="p-1.5 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
-                      {React.isValidElement(getTxIcon(item.type)) ? React.cloneElement(getTxIcon(item.type) as React.ReactElement, { className: 'w-3.5 h-3.5' }) : getTxIcon(item.type)}
-                    </div>
-                    <span className="font-bold text-gray-800 font-display text-xs">{item.type}</span>
-                  </div>
-                </td>
-
-                {/* Amount */}
-                <td className="py-3 px-5 text-left font-mono font-bold text-xs">
-                  <span className={item.amount.startsWith('-') ? 'text-red-600' : 'text-emerald-600'}>
-                    {item.amount}
-                  </span>
-                </td>
-
-                {/* Status Badges */}
-                <td className="py-3 px-5 text-left align-middle">
-                  <div className="inline-flex">
-                    {getStatusBadge(item.status)}
-                  </div>
-                </td>
-
-                {/* Date */}
-                <td className="py-3 px-5 text-left text-gray-400 font-mono text-[10px] font-semibold">
-                  {item.timestamp}
-                </td>
+      <TableContainer className="overflow-hidden border border-gray-100 rounded-3xl bg-white shadow-xs">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse font-sans text-xs sm:text-sm">
+            <thead>
+              <tr className="bg-gray-50/60 border-b border-gray-100/80">
+                <th className="py-4 px-6 font-mono text-[10px] font-bold text-gray-400 tracking-wider uppercase text-left">
+                  Transaction ID
+                </th>
+                <th className="py-4 px-6 font-mono text-[10px] font-bold text-gray-400 tracking-wider uppercase text-left">
+                  Type
+                </th>
+                <th className="py-4 px-6 font-mono text-[10px] font-bold text-gray-400 tracking-wider uppercase text-left">
+                  Amount
+                </th>
+                <th className="py-4 px-6 font-mono text-[10px] font-bold text-gray-400 tracking-wider uppercase text-left">
+                  Status
+                </th>
+                <th className="py-4 px-6 font-mono text-[10px] font-bold text-gray-400 tracking-wider uppercase text-left">
+                  Timestamp
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100/50 text-gray-700 bg-white">
+              {activities.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50/30 transition-all duration-150 group">
+                  {/* ID with simulated hex hash */}
+                  <td className="py-4 px-6 text-left">
+                    <div className="space-y-0.5">
+                      <span className="font-bold text-gray-950 font-mono block text-xs group-hover:text-violet-600 transition-colors">
+                        {item.id}
+                      </span>
+                      <span className="text-[9px] font-mono text-gray-400 font-medium select-all block leading-none">
+                        {item.txHash}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Type block with custom visual icons */}
+                  <td className="py-4 px-6 text-left">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="p-1.5 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center flex-shrink-0">
+                        {React.isValidElement(getTxIcon(item.type)) 
+                          ? React.cloneElement(getTxIcon(item.type) as React.ReactElement, { className: 'w-3.5 h-3.5' }) 
+                          : getTxIcon(item.type)}
+                      </div>
+                      <span className="font-bold text-gray-800 font-display text-xs">
+                        {item.type}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Amount */}
+                  <td className="py-4 px-6 text-left font-mono font-extrabold text-xs">
+                    <span className={item.amount.startsWith('-') ? 'text-rose-600' : 'text-emerald-600'}>
+                      {item.amount}
+                    </span>
+                  </td>
+
+                  {/* Status Badges */}
+                  <td className="py-4 px-6 text-left align-middle">
+                    <div className="inline-flex">
+                      {getStatusBadge(item.status)}
+                    </div>
+                  </td>
+
+                  {/* Date */}
+                  <td className="py-4 px-6 text-left text-gray-400 font-mono text-[10px] font-semibold">
+                    {item.timestamp}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </TableContainer>
     </div>
   );
