@@ -3,10 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AlertTriangle, Eye, EyeOff, Globe, KeyRound, Lock, Save, Settings, ShieldCheck } from 'lucide-react';
 import React, { useState } from 'react';
-import { Settings, ShieldCheck, Globe, HelpCircle, Save, AlertTriangle, KeyRound, Lock, Eye, EyeOff } from 'lucide-react';
-import { Card } from '../ui/Cards/index.tsx';
 import { Button } from '../ui/Buttons/index.tsx';
+import { Card } from '../ui/Cards/index.tsx';
 import { Input, Select, ToggleSwitch } from '../ui/Inputs/index.tsx';
 
 export interface SystemSettings {
@@ -93,7 +93,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, us
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token || localStorage.getItem('cefi_token')}`
+          'Authorization': `Bearer ${token || localStorage.getItem('metafirm_token')}`
         },
         body: JSON.stringify({
           currentPassword,
@@ -122,7 +122,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, us
     e.preventDefault();
     setSaving(true);
     setSuccessMsg(false);
-    
+
     // Simulate API delay
     setTimeout(() => {
       onSave({
@@ -148,10 +148,10 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, us
 
   return (
     <div className="space-y-6 text-left max-w-4xl">
-      
+
       {/* Settings form container */}
       <form onSubmit={handleSave} className="space-y-6">
-        
+
         {/* Banner if maintenance mode is active */}
         {maintenanceMode && (
           <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 flex items-start gap-3">
@@ -166,7 +166,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ settings, onSave, us
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
+
           {/* Platform Config card */}
           <Card className="p-5 space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-gray-50">

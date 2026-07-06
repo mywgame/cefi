@@ -12,7 +12,7 @@ class ApiService {
    * Helper to retrieve auth token on demand
    */
   private getAuthHeader(): Record<string, string> {
-    const token = localStorage.getItem('cefi_token');
+    const token = localStorage.getItem('metafirm_token');
     if (token) {
       return { Authorization: `Bearer ${token}` };
     }

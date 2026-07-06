@@ -11,23 +11,23 @@ import { AdminSidebar, AdminTab } from './AdminSidebar.tsx';
 import { AdminTopbar } from './AdminTopbar.tsx';
 
 // Sub-Views
+import { Announcement, AnnouncementsView } from './AnnouncementsView.tsx';
+import { AuditLog, AuditLogsView } from './AuditLogsView.tsx';
 import { DashboardHome } from './DashboardHome.tsx';
-import { UsersView, AdminUser } from './UsersView.tsx';
-import { DepositsView, AdminDeposit } from './DepositsView.tsx';
-import { WithdrawalsView, AdminWithdrawal } from './WithdrawalsView.tsx';
-import { VipView, VipAccount } from './VipView.tsx';
+import { AdminDeposit, DepositsView } from './DepositsView.tsx';
 import { IncomeView } from './IncomeView.tsx';
 import { RewardsView } from './RewardsView.tsx';
 import { SalaryView } from './SalaryView.tsx';
-import { SupportView, SupportTicket } from './SupportView.tsx';
-import { AnnouncementsView, Announcement } from './AnnouncementsView.tsx';
-import { AuditLogsView, AuditLog } from './AuditLogsView.tsx';
 import { SecurityView } from './SecurityView.tsx';
 import { SettingsView, SystemSettings } from './SettingsView.tsx';
+import { SupportTicket, SupportView } from './SupportView.tsx';
+import { AdminUser, UsersView } from './UsersView.tsx';
+import { VipAccount, VipView } from './VipView.tsx';
+import { AdminWithdrawal, WithdrawalsView } from './WithdrawalsView.tsx';
 
 // Interactive feedbacks
+import { ArrowLeft, Check, KeyRound, X } from 'lucide-react';
 import { Toast } from '../ui/Feedback/index.tsx';
-import { ArrowLeft, RefreshCw, LayoutDashboard, X, KeyRound, Check } from 'lucide-react';
 
 interface EnterpriseAdminDashboardProps {
   onBackToLanding: () => void;
@@ -174,7 +174,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
     try {
       const res = await fetch('/api/v1/users/admin/list', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('cefi_token')}`
+          'Authorization': `Bearer ${localStorage.getItem('metafirm_token')}`
         }
       });
       if (res.ok) {
@@ -206,8 +206,8 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
 
   // Execute actual admin security and promotion actions
   const handleAdminAction = async (
-    userId: string, 
-    action: 'RESET_PASSWORD' | 'FORCE_PASSWORD_CHANGE' | 'SUSPEND' | 'UNLOCK' | 'CHANGE_VIP' | 'CHANGE_ROLE', 
+    userId: string,
+    action: 'RESET_PASSWORD' | 'FORCE_PASSWORD_CHANGE' | 'SUSPEND' | 'UNLOCK' | 'CHANGE_VIP' | 'CHANGE_ROLE',
     extraData?: any
   ) => {
     try {
@@ -215,7 +215,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('cefi_token')}`
+          'Authorization': `Bearer ${localStorage.getItem('metafirm_token')}`
         },
         body: JSON.stringify({
           userId,
@@ -231,7 +231,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
       }
 
       showToastMessage(body.message || `Action ${action} executed successfully.`);
-      
+
       // If reset password action, show the temporary password generated securely in our UI state!
       if (action === 'RESET_PASSWORD' && body.data?.tempPassword) {
         const targetUser = users.find(u => u.id === userId);
@@ -255,7 +255,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
 
     setDeposits(prev => prev.map(d => d.id === depId ? { ...d, status: 'Approved' } : d));
     setPlatformBalanceValue(prev => prev + depositItem.amount);
-    
+
     addAuditLog(`Approved clearing deposit transaction ${depId} for $${depositItem.amount.toLocaleString()} USD from ${depositItem.userEmail}`, 'SETTLEMENT');
     showToastMessage(`Cleared deposit ${depId} successfully.`);
   };
@@ -265,7 +265,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
     if (!depositItem) return;
 
     setDeposits(prev => prev.map(d => d.id === depId ? { ...d, status: 'Rejected' } : d));
-    
+
     addAuditLog(`Rejected inbound deposit transaction ${depId} for $${depositItem.amount.toLocaleString()} USD from ${depositItem.userEmail}`, 'SETTLEMENT');
     showToastMessage(`Inbound notice ${depId} rejected.`, 'danger');
   };
@@ -278,7 +278,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
     setWithdrawals(prev => prev.map(w => w.id === wId ? { ...w, status: 'Approved' } : w));
     setPlatformBalanceValue(prev => prev - wItem.amount);
     setPendingWithdrawalCount(prev => Math.max(prev - 1, 0));
-    
+
     addAuditLog(`Authorized cryptographic settlement payout ${wId} of $${wItem.amount.toLocaleString()} USD to destination ${wItem.destinationAddress}`, 'SETTLEMENT');
     showToastMessage(`Settled outbound withdrawal ${wId}`);
   };
@@ -289,7 +289,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
 
     setWithdrawals(prev => prev.map(w => w.id === wId ? { ...w, status: 'Rejected' } : w));
     setPendingWithdrawalCount(prev => Math.max(prev - 1, 0));
-    
+
     addAuditLog(`Cancelled outbound settlement payout ${wId} of $${wItem.amount.toLocaleString()} USD`, 'SETTLEMENT');
     showToastMessage(`Outbound request ${wId} rejected.`, 'danger');
   };
@@ -297,7 +297,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
   // State Updates: VIP View
   const handleUpdateVip = (id: string, fields: Partial<VipAccount>) => {
     setVipAccounts(prev => prev.map(v => v.id === id ? { ...v, ...fields } : v));
-    
+
     const account = vipAccounts.find(v => v.id === id);
     if (!account) return;
 
@@ -371,7 +371,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
     switch (activeTab) {
       case 'dashboard':
         return (
-          <DashboardHome 
+          <DashboardHome
             stats={{
               totalUsers: users.length,
               activeUsers: users.filter(u => u.status === 'Active').length,
@@ -405,11 +405,11 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
         return <SupportView tickets={tickets} onReplyTicket={handleReplyTicket} onCloseTicket={handleCloseTicket} />;
       case 'announcements':
         return (
-          <AnnouncementsView 
-            announcements={announcements} 
-            onCreate={handleCreateAnnouncement} 
-            onUpdateStatus={handleUpdateAnnouncementStatus} 
-            onDelete={handleDeleteAnnouncement} 
+          <AnnouncementsView
+            announcements={announcements}
+            onCreate={handleCreateAnnouncement}
+            onUpdateStatus={handleUpdateAnnouncementStatus}
+            onDelete={handleDeleteAnnouncement}
           />
         );
       case 'audit':
@@ -418,9 +418,9 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
         return <SecurityView onAuditLog={addAuditLog} />;
       case 'settings':
         return (
-          <SettingsView 
-            settings={systemSettings} 
-            onSave={handleSaveSettings} 
+          <SettingsView
+            settings={systemSettings}
+            onSave={handleSaveSettings}
             userRole={user?.role}
             token={token}
           />
@@ -432,7 +432,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
 
   return (
     <div className="flex h-screen bg-[#fafafa] text-gray-900 font-sans select-none overflow-hidden" id="enterprise-admin-dashboard-console">
-      
+
       {/* 1. Sidebar Panel controller */}
       <AdminSidebar
         activeTab={activeTab}
@@ -447,7 +447,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
 
       {/* 2. Main chassis wrapper */}
       <div className="flex-grow flex flex-col min-w-0 overflow-hidden h-screen">
-        
+
         {/* 2.1 Top bar and operational widgets */}
         <AdminTopbar
           onMobileMenuToggle={() => setIsMobileSidebarOpen(true)}
@@ -456,7 +456,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
 
         {/* 2.2 Content Canvas */}
         <main className="flex-grow p-6 md:p-8 overflow-y-auto space-y-6 max-w-7xl w-full mx-auto pb-24">
-          
+
           {/* Quick navigation header */}
           <div className="flex items-center justify-between pb-4 border-b border-gray-100 flex-shrink-0">
             <button
@@ -493,13 +493,13 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white border border-gray-100 rounded-3xl max-w-md w-full p-8 shadow-2xl relative overflow-hidden text-left space-y-6">
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-blue-600" />
-            <button 
+            <button
               onClick={() => setResetTempPassword(null)}
               className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-gray-600"
             >
               <X className="w-4 h-4" />
             </button>
-            
+
             <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shadow-xs border border-blue-100">
               <KeyRound className="w-6 h-6 animate-pulse" />
             </div>
@@ -517,7 +517,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
 
             <div className="p-4 bg-gray-50 border border-gray-200 rounded-2xl flex items-center justify-between font-mono text-xs select-all">
               <span className="font-bold text-gray-900 tracking-wider text-sm">{resetTempPassword.temp}</span>
-              <button 
+              <button
                 onClick={() => {
                   navigator.clipboard.writeText(resetTempPassword.temp);
                   showToastMessage('Temporary password copied to clipboard!');
