@@ -3,25 +3,23 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import {
+  ArrowUpRight,
+  CheckSquare,
+  Coins,
+  Gift,
+  PlusCircle,
+  Users2
+} from 'lucide-react';
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth.ts';
 import { Card } from '../ui/Cards/index.tsx';
-import { 
-  ArrowUpRight, 
-  Users2, 
-  Gift, 
-  Briefcase,
-  CheckSquare,
-  Coins,
-  PlusCircle,
-} from 'lucide-react';
 
+import { Announcements } from './Announcements.tsx';
 import { DailyClaimCard } from './DailyClaimCard.tsx';
+import { MetaFirmAssetIcon } from './MetaFirmAssetIcon.tsx';
 import { PortfolioOverview } from './PortfolioOverview.tsx';
 import { RecentActivity } from './RecentActivity.tsx';
-import { Announcements } from './Announcements.tsx';
-import { MetaFirmAssetIcon } from './MetaFirmAssetIcon.tsx';
-import logoImg from '../../../assets/images/branding/logo.png';
 
 interface DashboardHomeProps {
   onQuickAction?: (actionType: 'deposit' | 'withdraw' | 'claim' | 'team') => void;
@@ -29,32 +27,10 @@ interface DashboardHomeProps {
 
 export const DashboardHome: React.FC<DashboardHomeProps> = ({ onQuickAction }) => {
   const { user } = useAuth();
-  
-  // Display the user's real name instead of email address
-  const userDisplayName = user?.name || (user?.email ? user.email.split('@')[0] : 'Amit Kumar');
 
   return (
     <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 items-start w-full text-left" id="metafirm-dashboard-home">
-      
-      {/* Dashboard Page Header */}
-      <div className="col-span-12 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full pb-4 border-b border-gray-100/60 mb-2 gap-3">
-        <div className="flex items-center space-x-3">
-          <img
-            src={logoImg}
-            alt="MetaFirm Logo"
-            referrerPolicy="no-referrer"
-            className="h-10 object-contain"
-          />
-          <span className="text-xs font-mono text-violet-600 font-extrabold uppercase tracking-widest bg-violet-50 px-2.5 py-1 rounded-full">
-            Institutional Node
-          </span>
-        </div>
-        <div className="text-left sm:text-right">
-          <p className="text-xs text-gray-400 font-medium">Secured Reserve Wallet</p>
-          <p className="text-sm font-bold text-gray-950 font-display">{userDisplayName}</p>
-        </div>
-      </div>
-      
+
       {/* 1. Total Assets Card (Left top column on desktop, first on mobile) */}
       <div className="order-1 lg:order-none lg:col-span-7 lg:col-start-1 lg:row-start-1 w-full" id="total-assets-container">
         <div className="w-full flex justify-center">
@@ -62,7 +38,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ onQuickAction }) =
             {/* Soft decorative background circles */}
             <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full filter blur-xl pointer-events-none" />
             <div className="absolute -bottom-6 -left-6 w-28 h-28 bg-indigo-500/5 rounded-full filter blur-xl pointer-events-none" />
-            
+
             <div className="space-y-1.5 text-left">
               <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest block leading-none">
                 Total Assets
@@ -85,7 +61,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ onQuickAction }) =
       {/* 2. Income Cards (Left second column on desktop, second on mobile) */}
       <div className="order-2 lg:order-none lg:col-span-7 lg:col-start-1 lg:row-start-2 w-full" id="income-cards-container">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          
+
           {/* 1. Daily Yield */}
           <Card className="py-3 px-4 border border-gray-100 bg-white shadow-2xs rounded-2xl hover:shadow-sm transition-all duration-300 flex flex-col justify-between">
             <div className="flex items-center gap-1.5 mb-2">
@@ -144,7 +120,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ onQuickAction }) =
       {/* 3. Action Buttons (Left third column on desktop, third on mobile) */}
       <div className="order-3 lg:order-none lg:col-span-7 lg:col-start-1 lg:row-start-3 w-full" id="action-buttons-container">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-          
+
           {/* Deposit Button */}
           <button
             onClick={() => onQuickAction?.('deposit')}

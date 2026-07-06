@@ -5,24 +5,23 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth.ts';
-import { Sidebar, DashboardTab } from './Sidebar.tsx';
-import { TopNav } from './TopNav.tsx';
-import { Card } from '../ui/Cards/index.tsx';
 import { Button } from '../ui/Buttons/index.tsx';
 import { Input } from '../ui/Inputs/index.tsx';
+import { DashboardTab, Sidebar } from './Sidebar.tsx';
+import { TopNav } from './TopNav.tsx';
 
 // Tab Views
 import { DashboardHome } from './DashboardHome.tsx';
-import { ProfileView } from './ProfileView.tsx';
 import { MyTeamView } from './MyTeamView.tsx';
-import { TransactionsView } from './TransactionsView.tsx';
+import { ProfileView } from './ProfileView.tsx';
 import { SecurityView } from './SecurityView.tsx';
 import { SettingsView } from './SettingsView.tsx';
 import { SupportView } from './SupportView.tsx';
+import { TransactionsView } from './TransactionsView.tsx';
 
 // Overlay
+import { ArrowLeft, Check, Copy, Wallet, X } from 'lucide-react';
 import { Toast } from '../ui/Feedback/index.tsx';
-import { ArrowLeft, Wallet, ShieldCheck, X, Copy, Check } from 'lucide-react';
 
 interface UserDashboardProps {
   onBackToLanding: () => void;
@@ -33,7 +32,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onBackToLanding })
   const [activeTab, setActiveTab] = useState<DashboardTab>('dashboard');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  
+
   // Quick Actions Overlays
   const [activeModal, setActiveModal] = useState<'none' | 'deposit' | 'withdraw'>('none');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -109,7 +108,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onBackToLanding })
 
   return (
     <div className="flex min-h-screen bg-[#fafafa] text-gray-900 font-sans" id="premium-user-dashboard">
-      
+
       {/* 1. Left Sidebar Navigation */}
       <Sidebar
         activeTab={activeTab}
@@ -123,7 +122,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onBackToLanding })
 
       {/* 2. Main content chassis block */}
       <div className="flex-grow flex flex-col min-w-0">
-        
+
         {/* 2.1 Top Bar Navigation */}
         <TopNav
           onMobileMenuToggle={() => setIsMobileSidebarOpen(true)}
@@ -133,7 +132,7 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onBackToLanding })
 
         {/* 2.2 Scrollable Content Canvas Container */}
         <main className="flex-grow p-6 md:p-8 overflow-y-auto space-y-6 max-w-7xl w-full mx-auto">
-          
+
           {/* Back to landing shortcut banner */}
           <div className="flex items-center justify-between pb-4 border-b border-gray-100">
             <button
@@ -143,9 +142,6 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ onBackToLanding })
               <ArrowLeft className="w-4 h-4" />
               <span>Return to Public Website</span>
             </button>
-            <span className="text-[10px] font-mono text-gray-400 font-bold uppercase tracking-wider">
-              MetaFirm Institutional Node
-            </span>
           </div>
 
           {/* Active Child View */}
