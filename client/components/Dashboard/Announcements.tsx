@@ -4,16 +4,15 @@
  */
 
 import React from 'react';
-import { Megaphone, Calendar, ShieldAlert, Sparkles, ChevronRight } from 'lucide-react';
+import { Megaphone, Calendar, ChevronRight } from 'lucide-react';
 import { Card } from '../ui/Cards/index.tsx';
 
 interface AnnouncementItem {
   id: number;
-  category: 'Audit' | 'System' | 'Release' | 'Security';
+  category: 'Audit' | 'Security' | 'Governance';
   title: string;
   excerpt: string;
   date: string;
-  important?: boolean;
 }
 
 export const Announcements: React.FC = () => {
@@ -23,133 +22,117 @@ export const Announcements: React.FC = () => {
       category: 'Audit',
       title: 'Q2 Sovereign Reserve Verification Seal Issued',
       excerpt: 'Sovereign tier compliance sweeps successfully completed with a 135% active collateral buffer fully certified by lead external node partners.',
-      date: 'June 27, 2026',
-      important: true,
+      date: 'June 27, 2025',
     },
     {
       id: 2,
       category: 'Security',
       title: 'Mandatory Ledger Shield Upgrade Sequence Complete',
-      excerpt: 'New multi-sig hardware modules successfully deployed across all regional network gateway routers. API key access tokens auto-refreshed.',
-      date: 'June 24, 2026',
-      important: false,
+      excerpt: 'All guardian ledgers upgraded across global nodes. Multisig threshold recalibration (88%) successfully applied.',
+      date: 'June 24, 2025',
     },
     {
       id: 3,
-      category: 'Release',
-      title: 'VIP Silver Multiplier Boost Enacted',
-      excerpt: 'Effective immediately, VIP Silver accounts benefit from a daily yield velocity bump from 1.55% to 1.65% with auto-compounding active.',
-      date: 'June 20, 2026',
-      important: false,
-    },
-    {
-      id: 4,
-      category: 'System',
-      title: 'PostgreSQL Database Pooling Optimizer Activated',
-      excerpt: 'Drizzle ORM query buffers fully optimized across our scalable backend clusters to support near-instant ledger index queries.',
-      date: 'June 18, 2026',
-      important: false,
+      category: 'Governance',
+      title: 'Institutional Governance Snapshot Finalized',
+      excerpt: 'Voting snapshot for network treasury reallocation and validator incentive model concluded. New epoch cycle initiated.',
+      date: 'June 21, 2025',
     },
   ];
 
-  // Resolve visual categories indicators
-  const getCatBadge = (category: string) => {
+  const getCatBadge = (category: 'Audit' | 'Security' | 'Governance') => {
     switch (category) {
       case 'Audit':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100/50">
-            <span className="w-1 h-1 rounded-full bg-blue-500" />
-            <span>{category}</span>
+          <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-wider text-blue-600 bg-blue-50/80 border border-blue-100 px-2 py-0.5 rounded">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            <span>Audit</span>
           </span>
         );
       case 'Security':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-red-50 text-red-700 border border-red-100/50">
-            <span className="w-1 h-1 rounded-full bg-red-500 animate-pulse" />
-            <span>{category}</span>
+          <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-wider text-rose-600 bg-rose-50/80 border border-rose-100 px-2 py-0.5 rounded">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+            <span>Security</span>
           </span>
         );
-      case 'Release':
+      case 'Governance':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100/50">
-            <span className="w-1 h-1 rounded-full bg-emerald-500" />
-            <span>{category}</span>
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-gray-50 text-gray-700 border border-gray-100">
-            <span className="w-1 h-1 rounded-full bg-gray-400" />
-            <span>{category}</span>
+          <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold uppercase tracking-wider text-violet-600 bg-violet-50/80 border border-violet-100 px-2 py-0.5 rounded">
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+            <span>Governance</span>
           </span>
         );
     }
   };
 
   return (
-    <Card hoverEffect={true} id="announcements-card" className="border border-gray-100 text-left h-full flex flex-col justify-between">
+    <Card id="announcements-card" className="border border-gray-100 text-left p-6 w-full bg-white shadow-2xs rounded-3xl">
       
-      {/* Header */}
-      <div className="space-y-4 mb-5">
-        <div className="flex items-center justify-between">
+      {/* Top Header Row with Title Block on Left and Badge + Button on Right */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="space-y-1">
           <div className="flex items-center space-x-2">
-            <div className="p-2 rounded-xl bg-blue-50 border border-blue-100/60 text-blue-600">
+            <div className="p-1.5 rounded-lg bg-blue-50 border border-blue-100/60 text-blue-600">
               <Megaphone className="w-4 h-4 text-blue-600" />
             </div>
-            <h3 className="text-base font-display font-extrabold text-gray-950 tracking-tight">
+            <h3 className="text-sm font-sans font-extrabold text-gray-900 tracking-wider uppercase">
               Corporate Bulletin Desk
             </h3>
           </div>
-          <span className="text-[9px] font-mono text-gray-400 font-bold uppercase">Admin Feed Active</span>
+          <p className="text-xs text-gray-400 font-medium">
+            Keep track of corporate actions, network protocol developments, and structural smart contract sweeps.
+          </p>
         </div>
-        <p className="text-xs text-gray-500 leading-relaxed font-sans">
-          Keep track of corporate actions, network protocol developments, and structural smart contract sweeps.
-        </p>
+
+        {/* Right side controls */}
+        <div className="flex items-center space-x-3 shrink-0">
+          <span className="text-[10px] font-mono text-gray-400 font-bold uppercase tracking-widest bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-full">
+            Archon Feed Active
+          </span>
+          <button className="px-3.5 py-1 text-[10px] font-sans font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-50 border border-gray-200/80 rounded-full transition-all cursor-pointer">
+            View all
+          </button>
+        </div>
       </div>
 
-      {/* Scrollable list content */}
-      <div className="space-y-3 max-h-80 overflow-y-auto pr-1 flex-grow" role="feed">
-        {announcements.map((item) => (
-          <article
-            key={item.id}
-            className={`p-3.5 rounded-xl border transition-all text-left relative group ${
-              item.important 
-                ? 'bg-amber-50/10 border-amber-200/40 hover:border-amber-400/60' 
-                : 'bg-white border-gray-100 hover:border-blue-100/60 hover:bg-gray-50/20'
-            }`}
-          >
-            {/* Highlight ribbon for vital releases */}
-            {item.important && (
-              <span className="absolute -top-2.5 left-4 bg-amber-500 text-white px-2 py-0.5 rounded-full text-[8px] font-mono font-bold uppercase tracking-wide shadow-2xs flex items-center space-x-1">
-                <Sparkles className="w-2.5 h-2.5 animate-spin text-amber-200" />
-                <span>Critical Bulletin</span>
-              </span>
-            )}
+      {/* Main content split: 3-column Grid + Scroll Trigger arrow */}
+      <div className="flex items-center gap-5 w-full">
+        {/* The 3 Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 flex-grow">
+          {announcements.map((item) => (
+            <article
+              key={item.id}
+              className="p-5 rounded-2xl border border-gray-100 bg-white hover:border-blue-100 hover:shadow-xs transition-all duration-300 flex flex-col justify-between min-h-[145px]"
+            >
+              <div className="space-y-3">
+                {/* Tag & Date row */}
+                <div className="flex items-center justify-between">
+                  {getCatBadge(item.category)}
+                  <span className="text-[10px] font-mono text-gray-400 font-bold flex items-center">
+                    <Calendar className="w-3.5 h-3.5 mr-1" /> {item.date}
+                  </span>
+                </div>
 
-            <div className="space-y-2 pt-1.5">
-              <div className="flex items-center justify-between">
-                {getCatBadge(item.category)}
-                <span className="text-[9px] font-mono text-gray-400 font-semibold flex items-center">
-                  <Calendar className="w-3 h-3 mr-1" /> {item.date}
-                </span>
+                {/* Announcement Title */}
+                <h4 className="font-sans font-extrabold text-gray-950 text-xs leading-snug hover:text-blue-600 transition-colors">
+                  {item.title}
+                </h4>
+
+                {/* Excerpt */}
+                <p className="text-xs text-gray-400 leading-relaxed font-medium">
+                  {item.excerpt}
+                </p>
               </div>
+            </article>
+          ))}
+        </div>
 
-              <h4 className="font-display font-bold text-gray-950 text-xs group-hover:text-blue-600 transition-colors leading-tight">
-                {item.title}
-              </h4>
-              <p className="text-[11px] text-gray-500 leading-relaxed font-sans">
-                {item.excerpt}
-              </p>
-            </div>
-          </article>
-        ))}
+        {/* Right Chevron next/scroll button */}
+        <button className="hidden md:flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 hover:border-gray-900 hover:bg-gray-50 text-gray-400 hover:text-gray-900 transition-all shrink-0 shadow-3xs cursor-pointer">
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
-
-      {/* Bottom control */}
-      <button className="mt-5 pt-3.5 border-t border-gray-50 flex items-center justify-between text-[10px] font-mono font-bold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer w-full text-left">
-        <span>Request Archive Logs</span>
-        <ChevronRight className="w-3.5 h-3.5" />
-      </button>
 
     </Card>
   );

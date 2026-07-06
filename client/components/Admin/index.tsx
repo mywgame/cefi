@@ -57,7 +57,7 @@ export const EnterpriseAdminDashboard: React.FC<EnterpriseAdminDashboardProps> =
 
   // Settings State
   const [systemSettings, setSystemSettings] = useState<SystemSettings>({
-    platformName: 'CeFi Platform',
+    platformName: 'MetaFirm Platform',
     businessTimezone: 'UTC',
     minDeposit: 100,
     minWithdrawal: 50,

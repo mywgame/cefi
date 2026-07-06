@@ -6,6 +6,7 @@
 import React from 'react';
 import { Shield, Github, Linkedin, Twitter, ArrowUpRight, HelpCircle } from 'lucide-react';
 import { companyInfo } from '../utils/landingData.ts';
+import MetaFirmLogo from './Dashboard/MetaFirmLogo.tsx';
 
 interface FooterProps {
   onNavigateToSection: (sectionId: string) => void;
@@ -32,13 +33,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateToSection }) => {
           
           {/* Brand Col */}
           <div className="md:col-span-5 space-y-4">
-            <div className="flex items-center space-x-2.5">
-              <div className="bg-blue-600 text-white p-2 rounded-xl flex items-center justify-center">
-                <Shield className="w-4.5 h-4.5 text-amber-300" />
-              </div>
-              <span className="font-display font-bold text-base tracking-tight text-gray-900">
-                CeFi Platform
-              </span>
+            <div className="flex items-center">
+              <MetaFirmLogo size="md" />
             </div>
             
             <p className="text-[11px] sm:text-xs text-gray-500 max-w-sm leading-relaxed font-sans">
@@ -107,7 +103,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateToSection }) => {
         {/* Legal Disclaimer & License Footer */}
         <div className="space-y-4">
           <p className="text-[9px] text-gray-400 leading-normal font-sans text-center max-w-5xl mx-auto">
-            Disclaimer: Digital asset investments contain substantial volatility and risk of capital impairment. Payout rates fluctuate based on overall system reserves and smart contract allocation models. Past performance metrics are not a promise of upcoming daily yields. CeFi Platform is not a licensed commercial bank or depository broker-dealer in all operational regions. Be sure to review complete region-specific legal disclosures before transferring funds.
+            Disclaimer: Digital asset investments contain substantial volatility and risk of capital impairment. Payout rates fluctuate based on overall system reserves and smart contract allocation models. Past performance metrics are not a promise of upcoming daily yields. MetaFirm is not a licensed commercial bank or depository broker-dealer in all operational regions. Be sure to review complete region-specific legal disclosures before transferring funds.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-between pt-4 border-t border-gray-50 text-[10px] font-mono text-gray-400">

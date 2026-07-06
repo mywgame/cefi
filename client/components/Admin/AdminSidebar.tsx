@@ -131,7 +131,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
             </div>
             <div>
               <span className="font-display font-extrabold text-sm tracking-tight text-gray-950 block">
-                CeFi Console
+                MetaFirm Admin
               </span>
               <span className="text-[9px] font-mono text-blue-600 uppercase tracking-widest block font-bold leading-none">
                 OPS TERMINAL

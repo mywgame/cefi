@@ -21,23 +21,23 @@ export const PortfolioOverview: React.FC = () => {
   const [activeDayIndex, setActiveDayIndex] = useState<number | null>(6); // Default hover on Day 7
 
   const datasets: DatasetPoint[] = [
-    { dayName: 'Day 1', totalAssets: 180, dailyYield: 140, teamIncome: 80, referralIncome: 50, incentive: 30 },
-    { dayName: 'Day 2', totalAssets: 230, dailyYield: 180, teamIncome: 150, referralIncome: 100, incentive: 40 },
-    { dayName: 'Day 3', totalAssets: 210, dailyYield: 160, teamIncome: 120, referralIncome: 80, incentive: 30 },
-    { dayName: 'Day 4', totalAssets: 280, dailyYield: 230, teamIncome: 190, referralIncome: 120, incentive: 50 },
-    { dayName: 'Day 5', totalAssets: 320, dailyYield: 220, teamIncome: 180, referralIncome: 110, incentive: 40 },
-    { dayName: 'Day 6', totalAssets: 390, dailyYield: 300, teamIncome: 240, referralIncome: 150, incentive: 60 },
-    { dayName: 'Day 7', totalAssets: 460, dailyYield: 380, teamIncome: 310, referralIncome: 180, incentive: 50 },
+    { dayName: 'Day 1', totalAssets: 420, dailyYield: 380, teamIncome: 280, referralIncome: 100, incentive: 40 },
+    { dayName: 'Day 2', totalAssets: 500, dailyYield: 420, teamIncome: 325, referralIncome: 220, incentive: 110 },
+    { dayName: 'Day 3', totalAssets: 480, dailyYield: 410, teamIncome: 300, referralIncome: 180, incentive: 90 },
+    { dayName: 'Day 4', totalAssets: 650, dailyYield: 510, teamIncome: 430, referralIncome: 240, incentive: 120 },
+    { dayName: 'Day 5', totalAssets: 700, dailyYield: 500, teamIncome: 425, referralIncome: 210, incentive: 105 },
+    { dayName: 'Day 6', totalAssets: 820, dailyYield: 680, teamIncome: 540, referralIncome: 350, incentive: 150 },
+    { dayName: 'Day 7', totalAssets: 930, dailyYield: 810, teamIncome: 650, referralIncome: 430, incentive: 125 },
   ];
 
   // Map data to SVG viewBox="0 0 700 320"
-  // margins: left: 60, right: 20, top: 20, bottom: 40
+  // margins: left: 48, right: 12, top: 15, bottom: 30
   const width = 700;
   const height = 320;
-  const paddingLeft = 50;
-  const paddingRight = 20;
-  const paddingTop = 25;
-  const paddingBottom = 35;
+  const paddingLeft = 48;
+  const paddingRight = 12;
+  const paddingTop = 15;
+  const paddingBottom = 30;
 
   const chartWidth = width - paddingLeft - paddingRight;
   const chartHeight = height - paddingTop - paddingBottom;
@@ -47,8 +47,8 @@ export const PortfolioOverview: React.FC = () => {
   };
 
   const getY = (value: number) => {
-    // scale max value $500 down to $0
-    return paddingTop + chartHeight - (value / 500) * chartHeight;
+    // scale max value $1000 down to $0
+    return paddingTop + chartHeight - (value / 1000) * chartHeight;
   };
 
   // Generate SVG path 'd' for a given key
@@ -75,52 +75,23 @@ export const PortfolioOverview: React.FC = () => {
     <Card id="metafirm-enterprise-analytics" className="border border-gray-100 bg-white p-6 rounded-3xl text-left flex flex-col justify-between h-full hover:shadow-xl transition-all duration-300">
       
       {/* Top Header Row */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-        <div className="space-y-1">
-          <span className="text-[10px] font-mono text-violet-600 font-bold uppercase tracking-widest block">
-            MetaFirm Institutional Analytics
-          </span>
-          <h3 className="text-sm font-display font-black text-gray-950 uppercase tracking-tight">
+      <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-4">
+        <div className="space-y-1.5 w-full text-left">
+          <h3 className="text-sm font-sans font-extrabold text-gray-950 uppercase tracking-tight">
             Earnings Overview <span className="text-gray-400 font-medium font-sans text-xs lowercase">(last 7 days)</span>
           </h3>
         </div>
-        
-        <Button
-          variant="secondary"
-          size="sm"
-          leftIcon={<FileDown className="w-3.5 h-3.5 text-violet-600" />}
-          className="text-xs font-bold border border-gray-100 hover:bg-gray-50/80 rounded-xl"
-        >
-          Download Audit Log
-        </Button>
       </div>
 
       {/* Primary Analytics Graph Canvas Container */}
-      <div className="relative flex-grow min-h-[260px] bg-slate-50/30 rounded-2xl border border-gray-100/80 p-4 overflow-hidden">
+      <div className="relative flex-grow min-h-[260px] bg-slate-50/30 rounded-2xl border border-gray-100/80 pt-4 pb-2 px-1 overflow-hidden">
         
-        {/* Dynamic Tooltip Hover Display */}
-        {activeDayIndex !== null && (
-          <div className="absolute top-3 left-4 bg-white/95 backdrop-blur-md border border-gray-100 p-2.5 rounded-xl shadow-lg z-10 text-[10px] space-y-1 font-sans">
-            <p className="font-bold text-gray-950 font-mono flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-violet-500" /> {datasets[activeDayIndex].dayName} Performance
-            </p>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-gray-600">
-              {linesConfig.map((line) => (
-                <div key={line.key} className="flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: line.color }} />
-                  <span className="font-mono text-gray-500">{line.label}:</span>
-                  <span className="font-bold text-gray-950">${datasets[activeDayIndex][line.key]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div className="w-full h-full">
           <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full font-mono text-[10px]" preserveAspectRatio="none">
             {/* Grid Horizontal Lines & Y Axis Labels */}
-            {[0, 100, 200, 300, 400, 500].map((val) => {
+            {[0, 250, 500, 750, 1000].map((val) => {
               const y = getY(val);
+              const label = val === 1000 ? '$1K' : `$${val}`;
               return (
                 <g key={val} className="opacity-80">
                   <line
@@ -133,13 +104,13 @@ export const PortfolioOverview: React.FC = () => {
                     strokeDasharray="4 4"
                   />
                   <text
-                    x={paddingLeft - 12}
-                    y={y + 3}
+                    x={paddingLeft - 10}
+                    y={y + 4}
                     textAnchor="end"
-                    fill="#94a3b8"
-                    className="font-bold text-[9px]"
+                    fill="#334155"
+                    className="font-sans font-bold text-[11px]"
                   >
-                    ${val}
+                    {label}
                   </text>
                 </g>
               );
@@ -210,10 +181,10 @@ export const PortfolioOverview: React.FC = () => {
               <text
                 key={i}
                 x={getX(i)}
-                y={height - 12}
+                y={height - 10}
                 textAnchor="middle"
-                fill="#94a3b8"
-                className="font-bold text-[9px] cursor-pointer"
+                fill="#334155"
+                className="font-sans font-bold text-[11px] cursor-pointer"
                 onMouseEnter={() => setActiveDayIndex(i)}
               >
                 {d.dayName}
@@ -223,18 +194,33 @@ export const PortfolioOverview: React.FC = () => {
         </div>
       </div>
 
-      {/* Horizontal Legend Layout directly matching reference */}
-      <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 text-[10px] font-mono text-gray-500 font-bold">
-        <div className="flex flex-wrap items-center gap-4">
-          {linesConfig.map((line) => (
-            <div key={line.key} className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: line.color }} />
-              <span className="text-gray-600">{line.label}</span>
-            </div>
-          ))}
-        </div>
-        <span className="text-[9px] text-gray-400 uppercase tracking-wide">
-          Real-Time Ledger Feed
+      {/* Bottom Row - Day 7 Performance */}
+      <div className="mt-4 pt-3 border-t border-gray-100 flex flex-wrap items-center justify-center gap-x-3.5 gap-y-2 text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider w-full">
+        <span className="text-blue-600 font-extrabold">DAY 7 PERFORMANCE</span>
+        <span className="text-slate-300">•</span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#3b82f6]" />
+          <span>Assets: <strong className="text-slate-900 font-sans font-extrabold">$930</strong></span>
+        </span>
+        <span className="text-slate-300">•</span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#10b981]" />
+          <span>Yield: <strong className="text-slate-900 font-sans font-extrabold">$810</strong></span>
+        </span>
+        <span className="text-slate-300">•</span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#8b5cf6]" />
+          <span>Team: <strong className="text-slate-900 font-sans font-extrabold">$650</strong></span>
+        </span>
+        <span className="text-slate-300">•</span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#f97316]" />
+          <span>Referral: <strong className="text-slate-900 font-sans font-extrabold">$430</strong></span>
+        </span>
+        <span className="text-slate-300">•</span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#ef4444]" />
+          <span>Incentive: <strong className="text-slate-900 font-sans font-extrabold">$125</strong></span>
         </span>
       </div>
 

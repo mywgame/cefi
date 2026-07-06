@@ -1,30 +1,27 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from 'react';
 
 interface MetaFirmLogoProps {
   className?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   iconOnly?: boolean;
-  size?: 'sm' | 'md' | 'lg';
 }
 
-export const MetaFirmLogo: React.FC<MetaFirmLogoProps> = ({
+const MetaFirmLogo: React.FC<MetaFirmLogoProps> = ({
   className = '',
-  iconOnly = false,
   size = 'md',
+  iconOnly = false,
 }) => {
   const getDimensions = () => {
     switch (size) {
       case 'sm':
-        return { width: '28px', height: '28px', fontSize: 'text-base' };
+        return { width: 28, height: 24, fontSize: 'text-base' };
       case 'lg':
-        return { width: '48px', height: '48px', fontSize: 'text-2xl' };
+        return { width: 48, height: 40, fontSize: 'text-2xl' };
+      case 'xl':
+        return { width: 64, height: 54, fontSize: 'text-3xl' };
       case 'md':
-    default:
-        return { width: '36px', height: '36px', fontSize: 'text-xl' };
+      default:
+        return { width: 38, height: 32, fontSize: 'text-xl' };
     }
   };
 
@@ -32,48 +29,34 @@ export const MetaFirmLogo: React.FC<MetaFirmLogoProps> = ({
 
   return (
     <div className={`flex items-center gap-2.5 ${className}`} id="metafirm-brand-logo">
-      {/* Abstract overlapping futuristic M icon with purple-to-blue-to-pink gradient */}
       <svg
-        style={{ width: dim.width, height: dim.height }}
-        viewBox="0 0 40 40"
-        fill="none"
+        width={dim.width}
+        height={dim.height}
+        viewBox="0 0 120 100"
         xmlns="http://www.w3.org/2000/svg"
-        className="flex-shrink-0 filter drop-shadow-sm"
+        className="flex-shrink-0"
+        role="img"
       >
         <defs>
-          <linearGradient id="metafirm-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#d946ef" /> {/* Pink/Magenta */}
-            <stop offset="50%" stopColor="#8b5cf6" /> {/* Violet */}
-            <stop offset="100%" stopColor="#3b82f6" /> {/* Blue */}
-          </linearGradient>
-          <linearGradient id="metafirm-grad-2" x1="100%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#6366f1" />
-            <stop offset="100%" stopColor="#ec4899" />
+          <linearGradient id="metaFirmGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#E040A7" /> {/* Magenta */}
+            <stop offset="35%" stopColor="#9153F4" /> {/* Purple */}
+            <stop offset="70%" stopColor="#2F6AEC" /> {/* Blue */}
+            <stop offset="100%" stopColor="#13B5E6" /> {/* Cyan */}
           </linearGradient>
         </defs>
-        {/* Left vertical pillar */}
         <path
-          d="M6 34V6C6 6 12 10 16 16V34H6Z"
-          fill="url(#metafirm-grad-1)"
-          opacity="0.95"
-        />
-        {/* Middle swooping intersection */}
-        <path
-          d="M16 16L24 24L32 10V34H24V24L16 34V16Z"
-          fill="url(#metafirm-grad-2)"
-          opacity="0.9"
-        />
-        {/* Right protective enterprise wing */}
-        <path
-          d="M32 10C34.5 13 34 26 34 34H26V24L32 10Z"
-          fill="url(#metafirm-grad-1)"
-          opacity="0.85"
+          d="M15 75 C12 55, 18 35, 28 25 C38 15, 48 18, 52 35 C56 50, 60 70, 72 45 C80 28, 86 18, 94 20 C102 22, 108 45, 110 75 L100 75 C98 55, 94 36, 92 34 C90 32, 84 34, 78 48 C70 66, 66 75, 58 75 C50 75, 46 62, 42 50 C38 38, 32 30, 26 34 C20 38, 18 55, 20 75 L15 75 Z"
+          fill="url(#metaFirmGradient)"
         />
       </svg>
 
       {!iconOnly && (
-        <span className={`font-display font-black text-gray-950 tracking-tight select-none ${dim.fontSize}`}>
-          Meta<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-blue-600">Firm</span>
+        <span
+          className={`font-sans font-extrabold tracking-tight select-none leading-none flex items-center ${dim.fontSize}`}
+        >
+          <span className="text-[#5899F8]">Meta</span>
+          <span className="text-[#1356D8]">Firm</span>
         </span>
       )}
     </div>

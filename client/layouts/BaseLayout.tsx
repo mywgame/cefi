@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../hooks/useAuth.ts';
 import { Shield, LogOut, LogIn, Database } from 'lucide-react';
+import MetaFirmLogo from '../components/Dashboard/MetaFirmLogo.tsx';
 
 export const BaseLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, login, logout, loading } = useAuth();
@@ -24,18 +25,8 @@ export const BaseLayout: React.FC<{ children: React.ReactNode }> = ({ children }
       {/* Navigation Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-gray-900 text-white p-2 rounded-xl flex items-center justify-center shadow-sm">
-              <Shield className="w-5 h-5 text-emerald-400" />
-            </div>
-            <div>
-              <h1 className="font-display font-bold text-lg tracking-tight text-gray-950">
-                CeFi Platform
-              </h1>
-              <p className="text-[10px] font-mono text-gray-400 uppercase tracking-wider">
-                Enterprise Core v1.0
-              </p>
-            </div>
+          <div className="flex items-center">
+            <MetaFirmLogo size="md" />
           </div>
 
           <div className="flex items-center space-x-4">

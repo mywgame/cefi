@@ -74,8 +74,8 @@ export interface ContactInfo {
 
 // Configurable Company Profile
 export const companyInfo: CompanyInfo = {
-  name: 'CeFi Platform',
-  tagline: 'Institutional-Grade CeFi Investment Platform',
+  name: 'MetaFirm',
+  tagline: 'Institutional-Grade MetaFirm Investment Platform',
   description: 'A global centralized finance leader providing secure, high-yield digital asset investments, backed by robust encryption, licensed partners, and transparent auditing.',
   mission: 'To democratize access to high-yield interest generation and secure wealth growth by bridging the gap between traditional finance trust and modern block ledger yields.',
   vision: 'To build the world\'s most trusted, accessible, and compliant digital wealth ecosystem for retail and institutional investors globally.',
@@ -327,7 +327,7 @@ export const securityHighlights: SecurityHighlight[] = [
 export const faqItems: FaqItem[] = [
   {
     id: 'faq1',
-    question: 'How does the CeFi investment architecture secure my digital capital?',
+    question: 'How does the MetaFirm investment architecture secure my digital capital?',
     answer: 'We utilize multi-signature cold custody vaults partnered with fully licensed and insured global financial custodians. Your asset balance is managed with conservative, market-neutral arbitrage models, completely eliminating direction-based asset risk.',
   },
   {
@@ -354,8 +354,8 @@ export const faqItems: FaqItem[] = [
 
 // Contact Details
 export const contactDetails: ContactInfo = {
-  supportEmail: 'support@cefi-platform.com',
-  businessEmail: 'institutional@cefi-platform.com',
+  supportEmail: 'support@metafirm.io',
+  businessEmail: 'institutional@metafirm.io',
   workingHours: '24/7/365 Global Coverage (Priority SLA: Under 15 Minutes)',
   officeLocationPlaceholder: 'Financial District, London, UK / Marina Bay Sands, Singapore',
   phonePlaceholder: '+44 (0) 20 7946 0192',

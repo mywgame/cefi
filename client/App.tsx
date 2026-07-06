@@ -79,7 +79,7 @@ function DashboardContent({ onBackToLanding }: { onBackToLanding: () => void }) 
           <span>FinTech Core Architecture Successfully Bound</span>
         </div>
         <h2 className="text-3xl md:text-4xl font-display font-extrabold text-gray-950 tracking-tight leading-none">
-          Enterprise CeFi Platform Foundation
+          Enterprise MetaFirm Platform Foundation
         </h2>
         <p className="text-gray-500 max-w-2xl text-sm leading-relaxed">
           A production-grade, highly scalable full-stack architecture. Powered by an Express.js backend, 
@@ -387,7 +387,7 @@ function MainAppContent() {
               <p className="text-xs text-gray-400 font-mono">SECURE OPERATIONS ENCLAVE</p>
             </div>
             <p className="text-xs text-gray-500 leading-relaxed">
-              Access to the CeFi Platform operational console requires active multi-factor cryptographic authentication. Please sign in to verify credentials.
+              Access to the MetaFirm Platform operational console requires active multi-factor cryptographic authentication. Please sign in to verify credentials.
             </p>
             <div className="flex gap-3">
               <button

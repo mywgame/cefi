@@ -6,7 +6,7 @@
 /**
  * Enterprise Design Tokens & Theme Constants
  * Used for maintaining visual consistency across the Landing Page, Login, Register,
- * and future Dashboards/Admin views of the CeFi Platform.
+ * and future Dashboards/Admin views of the MetaFirm Platform.
  */
 
 export const TOKENS = {

@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth.ts';
 import { Shield, Menu, X, ArrowUpRight, LogOut, LayoutDashboard } from 'lucide-react';
 import { Button } from './ui/index.ts';
+import MetaFirmLogo from './Dashboard/MetaFirmLogo.tsx';
 
 interface NavbarProps {
   onOpenAuth: (mode: 'login' | 'register') => void;
@@ -58,20 +59,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuth, onNavigateToSection,
           {/* Logo Brand Identity */}
           <button
             onClick={() => handleLinkClick('hero')}
-            className="flex items-center space-x-2.5 text-left focus:outline-none group cursor-pointer"
+            className="flex items-center text-left focus:outline-none group cursor-pointer"
             id="navbar-brand-logo"
           >
-            <div className="bg-blue-600 text-white p-2 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
-              <Shield className="w-5 h-5 text-amber-300" />
-            </div>
-            <div>
-              <span className="font-display font-bold text-lg tracking-tight text-gray-950 block">
-                CeFi Platform
-              </span>
-              <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest block font-bold leading-none">
-                Enterprise Capital
-              </span>
-            </div>
+            <MetaFirmLogo size="lg" />
           </button>
 
           {/* Desktop Navigation list */}

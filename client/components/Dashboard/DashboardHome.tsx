@@ -8,17 +8,12 @@ import { useAuth } from '../../hooks/useAuth.ts';
 import { Card } from '../ui/Cards/index.tsx';
 import { 
   ArrowUpRight, 
-  Sparkles, 
   Users2, 
   Gift, 
   Briefcase,
   CheckSquare,
   Coins,
   PlusCircle,
-  TrendingUp,
-  ShieldCheck,
-  ChevronRight,
-  ArrowRight
 } from 'lucide-react';
 
 import { DailyClaimCard } from './DailyClaimCard.tsx';
@@ -26,6 +21,7 @@ import { PortfolioOverview } from './PortfolioOverview.tsx';
 import { RecentActivity } from './RecentActivity.tsx';
 import { Announcements } from './Announcements.tsx';
 import { MetaFirmAssetIcon } from './MetaFirmAssetIcon.tsx';
+import MetaFirmLogo from './MetaFirmLogo.tsx';
 
 interface DashboardHomeProps {
   onQuickAction?: (actionType: 'deposit' | 'withdraw' | 'claim' | 'team') => void;
@@ -38,185 +34,116 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ onQuickAction }) =
   const userDisplayName = user?.name || (user?.email ? user.email.split('@')[0] : 'Amit Kumar');
 
   return (
-    <div className="space-y-6 text-left" id="metafirm-dashboard-home">
+    <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 items-start w-full text-left" id="metafirm-dashboard-home">
       
-      {/* ====================================================
-          HERO ROW
-          ==================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Total Assets card (left, lg:col-span-7) */}
-        <div className="lg:col-span-7 h-full">
-          <Card className="p-6 border border-gray-100 bg-white shadow-xl shadow-gray-100/30 rounded-3xl h-full flex flex-col justify-between relative overflow-hidden group">
-            {/* Soft decorative background gradient */}
-            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-violet-500/5 to-blue-500/5 rounded-full filter blur-2xl pointer-events-none" />
+      {/* Dashboard Page Header */}
+      <div className="col-span-12 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full pb-4 border-b border-gray-100/60 mb-2 gap-3">
+        <div className="flex items-center space-x-3">
+          <MetaFirmLogo size="lg" />
+          <span className="text-xs font-mono text-violet-600 font-extrabold uppercase tracking-widest bg-violet-50 px-2.5 py-1 rounded-full">
+            Institutional Node
+          </span>
+        </div>
+        <div className="text-left sm:text-right">
+          <p className="text-xs text-gray-400 font-medium">Secured Reserve Wallet</p>
+          <p className="text-sm font-bold text-gray-950 font-display">{userDisplayName}</p>
+        </div>
+      </div>
+      
+      {/* 1. Total Assets Card (Left top column on desktop, first on mobile) */}
+      <div className="order-1 lg:order-none lg:col-span-7 lg:col-start-1 lg:row-start-1 w-full" id="total-assets-container">
+        <div className="w-full flex justify-center">
+          <Card className="p-6 border border-blue-100/60 bg-gradient-to-br from-[#f0f4ff]/80 via-[#f7f9fc]/50 to-white shadow-xs rounded-3xl w-full lg:max-w-[75%] relative overflow-hidden flex items-center justify-between">
+            {/* Soft decorative background circles */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full filter blur-xl pointer-events-none" />
+            <div className="absolute -bottom-6 -left-6 w-28 h-28 bg-indigo-500/5 rounded-full filter blur-xl pointer-events-none" />
             
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                {/* MetaFirm custom Asset icon */}
-                <MetaFirmAssetIcon size="lg" />
-                
-                <div className="space-y-0.5">
-                  <span className="text-[10px] font-mono font-black text-gray-400 uppercase tracking-widest block leading-none">
-                    Total Assets
-                  </span>
-                  <div className="flex items-baseline gap-2.5">
-                    <span className="text-3xl sm:text-4xl font-display font-black text-gray-950 tracking-tight">
-                      $12,546.67
-                    </span>
-                    <span className="text-xs font-mono font-bold text-emerald-600 bg-emerald-50 border border-emerald-100/50 px-2 py-0.5 rounded-full flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3" /> +22.4%
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Verified metadata section */}
-              <div className="flex items-center justify-between text-[10px] font-mono text-gray-400 pt-4 border-t border-gray-100/80">
-                <span className="flex items-center gap-1.5 font-bold text-emerald-600 bg-emerald-50/50 px-2.5 py-1 rounded-full border border-emerald-100/40">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Reserve Audit Verified
-                </span>
-                <span className="font-extrabold text-violet-600 bg-violet-50 px-2.5 py-1 rounded-full border border-violet-100/40">
-                  100% Active Liquidity
-                </span>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Welcome card (right, lg:col-span-5) */}
-        <div className="lg:col-span-5 h-full">
-          <Card className="p-6 border border-violet-100/60 bg-gradient-to-br from-violet-50/40 via-blue-50/20 to-white shadow-xl shadow-violet-100/10 rounded-3xl h-full flex flex-col justify-between relative overflow-hidden">
-            {/* Futuristic shield illustration placeholder */}
-            <div className="absolute right-4 bottom-4 opacity-10 pointer-events-none">
-              <ShieldCheck className="w-24 h-24 text-violet-600" />
-            </div>
-
-            <div className="space-y-3">
-              <span className="text-[10px] font-mono bg-violet-100 text-violet-700 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider inline-block">
-                System Authorized
+            <div className="space-y-1.5 text-left">
+              <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest block leading-none">
+                Total Assets
               </span>
-              <h2 className="text-xl sm:text-2xl font-display font-black text-gray-950 tracking-tight leading-tight">
-                Welcome back! 👋
-              </h2>
-              <p className="text-xs text-gray-500 leading-relaxed max-w-sm">
-                Secure investment vault optimized under zero-trust protocols. Synced and verified in real-time.
-              </p>
+              <div className="text-3xl sm:text-3.5xl font-sans font-extrabold text-gray-950 tracking-tight leading-none pt-0.5">
+                $12,546.67
+              </div>
+              <span className="text-xs text-gray-400 font-medium block pt-0.5">
+                All assets value in USD
+              </span>
+            </div>
+            <div className="shrink-0 relative">
+              <div className="absolute inset-0 bg-blue-500/20 rounded-full filter blur-md animate-pulse" />
+              <MetaFirmAssetIcon size="lg" className="relative z-10" />
             </div>
           </Card>
         </div>
-
       </div>
 
-      {/* ====================================================
-          INCOME CARDS ROW (5 Cards)
-          ==================================================== */}
-      <section className="space-y-2.5">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest block">
-            Yield & Performance Income
-          </span>
-          <span className="text-[10px] font-mono text-violet-600 font-bold bg-violet-50 border border-violet-100/50 px-2 py-0.5 rounded-full uppercase">
-            Active Multipliers
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      {/* 2. Income Cards (Left second column on desktop, second on mobile) */}
+      <div className="order-2 lg:order-none lg:col-span-7 lg:col-start-1 lg:row-start-2 w-full" id="income-cards-container">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
           
           {/* 1. Daily Yield */}
-          <Card className="p-4.5 border border-gray-100 bg-white shadow-xs rounded-2xl hover:shadow-md transition-all duration-300">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
-                <CheckSquare className="w-4 h-4" />
+          <Card className="py-3 px-4 border border-gray-100 bg-white shadow-2xs rounded-2xl hover:shadow-sm transition-all duration-300 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="w-6.5 h-6.5 rounded-lg bg-emerald-50 border border-emerald-100/60 flex items-center justify-center text-emerald-600 shrink-0">
+                <CheckSquare className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">
+              <span className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider block truncate">
                 Daily Yield
               </span>
             </div>
-            <div className="space-y-0.5">
-              <div className="text-xl font-display font-black text-gray-950">$56.80</div>
-              <div className="text-[9px] font-mono text-emerald-600 font-bold">1.65% Daily Mult.</div>
-            </div>
+            <div className="text-lg sm:text-xl font-sans font-extrabold text-gray-950">$56.80</div>
           </Card>
 
           {/* 2. Referral Income */}
-          <Card className="p-4.5 border border-gray-100 bg-white shadow-xs rounded-2xl hover:shadow-md transition-all duration-300">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600">
-                <Users2 className="w-4 h-4" />
+          <Card className="py-3 px-4 border border-gray-100 bg-white shadow-2xs rounded-2xl hover:shadow-sm transition-all duration-300 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="w-6.5 h-6.5 rounded-lg bg-orange-50 border border-orange-100/60 flex items-center justify-center text-orange-500 shrink-0">
+                <Users2 className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">
+              <span className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider block truncate">
                 Referral Income
               </span>
             </div>
-            <div className="space-y-0.5">
-              <div className="text-xl font-display font-black text-gray-950">$245.00</div>
-              <div className="text-[9px] font-mono text-orange-600 font-bold">Verified payouts</div>
-            </div>
+            <div className="text-lg sm:text-xl font-sans font-extrabold text-gray-950">$245.00</div>
           </Card>
 
           {/* 3. Team Income */}
-          <Card className="p-4.5 border border-gray-100 bg-white shadow-xs rounded-2xl hover:shadow-md transition-all duration-300">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
-                <Users2 className="w-4 h-4" />
+          <Card className="py-3 px-4 border border-gray-100 bg-white shadow-2xs rounded-2xl hover:shadow-sm transition-all duration-300 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="w-6.5 h-6.5 rounded-lg bg-violet-50 border border-violet-100/60 flex items-center justify-center text-violet-600 shrink-0">
+                <Users2 className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">
+              <span className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider block truncate">
                 Team Income
               </span>
             </div>
-            <div className="space-y-0.5">
-              <div className="text-xl font-display font-black text-gray-950">$320.00</div>
-              <div className="text-[9px] font-mono text-violet-600 font-bold">365 member downlines</div>
-            </div>
+            <div className="text-lg sm:text-xl font-sans font-extrabold text-gray-950">$320.00</div>
           </Card>
 
           {/* 4. Incentive Income */}
-          <Card className="p-4.5 border border-gray-100 bg-white shadow-xs rounded-2xl hover:shadow-md transition-all duration-300">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600">
-                <Gift className="w-4 h-4" />
+          <Card className="py-3 px-4 border border-gray-100 bg-white shadow-2xs rounded-2xl hover:shadow-sm transition-all duration-300 flex flex-col justify-between">
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="w-6.5 h-6.5 rounded-lg bg-rose-50 border border-rose-100/60 flex items-center justify-center text-rose-500 shrink-0">
+                <Gift className="w-3.5 h-3.5" />
               </div>
-              <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">
+              <span className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider block truncate">
                 Incentive Income
               </span>
             </div>
-            <div className="space-y-0.5">
-              <div className="text-xl font-display font-black text-gray-950">$117.20</div>
-              <div className="text-[9px] font-mono text-rose-600 font-bold">Promotion credits</div>
-            </div>
-          </Card>
-
-          {/* 5. Salary Income */}
-          <Card className="p-4.5 border border-gray-100 bg-white shadow-xs rounded-2xl hover:shadow-md transition-all duration-300">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
-                <Briefcase className="w-4 h-4" />
-              </div>
-              <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-wider">
-                Salary Income
-              </span>
-            </div>
-            <div className="space-y-0.5">
-              <div className="text-xl font-display font-black text-gray-950">$182.50</div>
-              <div className="text-[9px] font-mono text-indigo-600 font-bold">Weekly recurring</div>
-            </div>
+            <div className="text-lg sm:text-xl font-sans font-extrabold text-gray-950">$117.20</div>
           </Card>
 
         </div>
-      </section>
+      </div>
 
-      {/* ====================================================
-          QUICK ACTIONS ROW
-          ==================================================== */}
-      <section className="p-1 bg-gray-50 border border-gray-100 rounded-3xl shadow-xs">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+      {/* 3. Action Buttons (Left third column on desktop, third on mobile) */}
+      <div className="order-3 lg:order-none lg:col-span-7 lg:col-start-1 lg:row-start-3 w-full" id="action-buttons-container">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
           
           {/* Deposit Button */}
           <button
             onClick={() => onQuickAction?.('deposit')}
-            className="flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-extrabold text-xs tracking-wider uppercase transition-all shadow-md shadow-emerald-500/10 hover:shadow-lg active:scale-95 cursor-pointer"
+            className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-[#039875] hover:bg-[#028062] text-white font-sans font-bold text-xs tracking-wider uppercase transition-all shadow-xs active:scale-[0.98] cursor-pointer"
           >
             <PlusCircle className="w-4 h-4" />
             <span>Deposit</span>
@@ -225,7 +152,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ onQuickAction }) =
           {/* Withdraw Button */}
           <button
             onClick={() => onQuickAction?.('withdraw')}
-            className="flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-display font-extrabold text-xs tracking-wider uppercase transition-all shadow-md shadow-rose-500/10 hover:shadow-lg active:scale-95 cursor-pointer"
+            className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-[#d91b42] hover:bg-[#be183a] text-white font-sans font-bold text-xs tracking-wider uppercase transition-all shadow-xs active:scale-[0.98] cursor-pointer"
           >
             <ArrowUpRight className="w-4 h-4" />
             <span>Withdraw</span>
@@ -234,7 +161,7 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ onQuickAction }) =
           {/* Rewards Button */}
           <button
             onClick={() => onQuickAction?.('claim')}
-            className="flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-display font-extrabold text-xs tracking-wider uppercase transition-all shadow-md shadow-blue-500/10 hover:shadow-lg active:scale-95 cursor-pointer"
+            className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-[#1a62d6] hover:bg-[#1450b4] text-white font-sans font-bold text-xs tracking-wider uppercase transition-all shadow-xs active:scale-[0.98] cursor-pointer"
           >
             <Gift className="w-4 h-4" />
             <span>Rewards</span>
@@ -243,36 +170,32 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ onQuickAction }) =
           {/* Earn Button */}
           <button
             onClick={() => onQuickAction?.('claim')}
-            className="flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-display font-extrabold text-xs tracking-wider uppercase transition-all shadow-md shadow-amber-500/10 hover:shadow-lg active:scale-95 cursor-pointer"
+            className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-[#f59e0b] hover:bg-[#d97706] text-white font-sans font-bold text-xs tracking-wider uppercase transition-all shadow-xs active:scale-[0.98] cursor-pointer"
           >
             <Coins className="w-4 h-4" />
             <span>Earn</span>
           </button>
 
         </div>
-      </section>
-
-      {/* ====================================================
-          ANALYTICS SECTION (Graph Left, Claim Center Right)
-          ==================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-8 h-full">
-          <PortfolioOverview />
-        </div>
-        <div className="lg:col-span-4 h-full">
-          <DailyClaimCard />
-        </div>
       </div>
 
-      {/* ====================================================
-          BOTTOM SECTION (Recent Transactions Full Width)
-          ==================================================== */}
-      <div className="w-full">
+      {/* 4. Yield Collection Center (Right side column, 4th on mobile) */}
+      <div className="order-4 lg:order-none lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:row-span-3 w-full h-full" id="yield-collection-container">
+        <DailyClaimCard />
+      </div>
+
+      {/* 5. Recent Transactions Table (Left fourth column on desktop, 5th on mobile) */}
+      <div className="order-5 lg:order-none lg:col-span-7 lg:col-start-1 lg:row-start-4 w-full" id="recent-transactions-container">
         <RecentActivity />
       </div>
 
-      {/* Announcements */}
-      <div>
+      {/* 6. Earnings Overview Analytics Graph (Right side column, 6th on mobile) */}
+      <div className="order-6 lg:order-none lg:col-span-5 lg:col-start-8 lg:row-start-4 w-full" id="analytics-graph-container">
+        <PortfolioOverview />
+      </div>
+
+      {/* 7. Corporate Bulletin Desk (Announcements, spans full 12 columns at bottom on both) */}
+      <div className="order-7 lg:order-none lg:col-span-12 lg:row-start-5 w-full pt-2" id="announcements-container">
         <Announcements />
       </div>
 

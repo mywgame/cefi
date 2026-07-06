@@ -83,7 +83,7 @@ export const AdminTopbar: React.FC<AdminTopbarProps> = ({
             {getTabTitle()}
           </h1>
           <span className="text-[9px] font-mono font-bold text-gray-400 block mt-1 uppercase">
-            CeFi Network Operator Panel
+            MetaFirm Network Operator Panel
           </span>
         </div>
       </div>

@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 import { useAuth } from '../hooks/useAuth.ts';
 import { ArrowRight, ShieldCheck, Sparkles, UserPlus } from 'lucide-react';
 import { Modal, Input, Button, Alert } from './ui/index.ts';
+import MetaFirmLogo from './Dashboard/MetaFirmLogo.tsx';
 
 const COUNTRIES = [
   "United States", "Canada", "United Kingdom", "Australia", "India", "Germany", "France", "Japan", "China", "Brazil",
@@ -150,11 +151,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
       <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-amber-400 to-emerald-500 w-full" />
 
       <div className="pt-2">
+        {/* Logo */}
+        <div className="mb-4 flex justify-start">
+          <MetaFirmLogo size="lg" className="animate-fade-in" />
+        </div>
+
         {/* Header Identity */}
         <div className="mb-4 space-y-1">
           <div className="inline-flex items-center space-x-1.5 bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>CeFi Secure Vault Gateway</span>
+            <span>MetaFirm Secure Vault Gateway</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-display font-extrabold text-gray-950 tracking-tight leading-none pt-1">
             {isRegister ? 'Begin Your Yield Journey' : 'Secure Vault Authentication'}
@@ -215,7 +221,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="investor@cefi-platform.com"
+                placeholder="investor@metafirm.io"
                 id="auth-email-input"
                 required
               />

@@ -32,8 +32,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Auto-restore session from localStorage on initialization
   useEffect(() => {
-    const savedToken = localStorage.getItem('cefi_token');
-    const savedUser = localStorage.getItem('cefi_user');
+    const savedToken = localStorage.getItem('metafirm_token');
+    const savedUser = localStorage.getItem('metafirm_user');
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
@@ -56,22 +56,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch user state from CeFi backend.');
+        throw new Error('Failed to fetch user state from MetaFirm backend.');
       }
 
       const resData: ApiResponse<User> = await response.json();
       if (resData.success && resData.data) {
         setUser(resData.data);
-        localStorage.setItem('cefi_user', JSON.stringify(resData.data));
+        localStorage.setItem('metafirm_user', JSON.stringify(resData.data));
       }
     } catch (err: any) {
-      console.error('CeFi Profile Sync Error:', err);
+      console.error('MetaFirm Profile Sync Error:', err);
       setError(err.message || 'Profile sync failed');
     }
   };
 
   /**
-   * Perform secure login/register flow using the CeFi backend API
+   * Perform secure login/register flow using the MetaFirm backend API
    */
   const login = async (
     emailOrUsername: string,
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (!registerResponse.ok) {
           const errData = await registerResponse.json().catch(() => ({}));
-          throw new Error(errData.error?.message || 'Failed to register account with CeFi backend.');
+          throw new Error(errData.error?.message || 'Failed to register account with MetaFirm backend.');
         }
       }
 
@@ -123,7 +123,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (!loginResponse.ok) {
         const errData = await loginResponse.json().catch(() => ({}));
-        throw new Error(errData.error?.message || 'Failed to authenticate with CeFi backend.');
+        throw new Error(errData.error?.message || 'Failed to authenticate with MetaFirm backend.');
       }
 
       const resData = await loginResponse.json();
@@ -133,16 +133,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setToken(returnedToken);
         setUser(returnedUser);
-        localStorage.setItem('cefi_token', returnedToken);
-        localStorage.setItem('cefi_user', JSON.stringify(returnedUser));
+        localStorage.setItem('metafirm_token', returnedToken);
+        localStorage.setItem('metafirm_user', JSON.stringify(returnedUser));
       } else {
-        throw new Error('CeFi authentication response returned invalid payload');
+        throw new Error('MetaFirm authentication response returned invalid payload');
       }
     } catch (err: any) {
       console.error('Login Error:', err);
       setError(err.message || 'Authentication failed');
-      localStorage.removeItem('cefi_token');
-      localStorage.removeItem('cefi_user');
+      localStorage.removeItem('metafirm_token');
+      localStorage.removeItem('metafirm_user');
       setToken(null);
       setUser(null);
       throw err;
@@ -158,8 +158,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setLoading(true);
     setError(null);
     try {
-      localStorage.removeItem('cefi_token');
-      localStorage.removeItem('cefi_user');
+      localStorage.removeItem('metafirm_token');
+      localStorage.removeItem('metafirm_user');
       setToken(null);
       setUser(null);
     } catch (err: any) {

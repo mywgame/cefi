@@ -694,7 +694,7 @@ export const SecurityView: React.FC = () => {
               <h5 className="text-xs font-bold font-display">Account Security Advice</h5>
             </div>
             <p className="text-[11px] text-gray-500 leading-relaxed font-sans">
-              Never share your credentials keys, passwords, or recovery codes with any third-party. The CeFi support team will never request your private security keys.
+              Never share your credentials keys, passwords, or recovery codes with any third-party. The MetaFirm support team will never request your private security keys.
             </p>
           </Card>
         </div>
