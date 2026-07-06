@@ -1,98 +1,90 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
 import React from 'react';
 import { motion } from 'motion/react';
-import { UserPlus, LogIn, Coins, CalendarDays, Users2, ShieldCheck, ArrowRight } from 'lucide-react';
-import { timelineSteps } from '../utils/landingData.ts';
-import { SectionHeader } from './ui/index.ts';
+import { TrendingUp, Award, Activity, Milestone } from 'lucide-react';
 
-const getStepIcon = (step: number) => {
-  switch (step) {
-    case 1:
-      return UserPlus;
-    case 2:
-      return LogIn;
-    case 3:
-      return Coins;
-    case 4:
-      return CalendarDays;
-    case 5:
-      return Users2;
-    case 6:
-      return ShieldCheck;
-    default:
-      return ShieldCheck;
-  }
-};
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+const STATS = [
+  { num: '$420.5M', label: 'Deployed since 2021', icon: Milestone },
+  { num: '38', label: 'Operators fully funded', icon: Award },
+  { num: '1.1GW', label: 'Clean solar capacity backed', icon: Activity },
+  { num: '24.2%', label: 'Avg. gross IRR to date', icon: TrendingUp },
+];
 
 export const HowItWorks: React.FC = () => {
   return (
-    <section id="how-it-works" className="py-20 lg:py-28 bg-gradient-to-b from-white to-gray-50/50 relative overflow-hidden">
-      {/* Background visual curves */}
-      <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-dashed bg-gray-100 -translate-y-1/2 hidden lg:block -z-10" />
+    <section id="how-it-works" className="py-24 sm:py-32 bg-navy-950 text-white border-b border-white/5 relative overflow-hidden">
+      {/* Absolute glow elements */}
+      <div
+        className="absolute right-10 bottom-10 z-0 h-[450px] w-[450px] rounded-full blur-3xl opacity-20 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(41,171,226,0.18), transparent 70%)',
+        }}
+        aria-hidden="true"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <SectionHeader
-          badge="Seamless Onboarding Protocol"
-          title="Your Wealth Journey in Six Steps"
-          description="Follow our clean, automated onboarding pipeline to establish secure assets and participate in our global referral yield matrix."
-          className="mb-16"
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: EASE }}
+          className="mb-16 max-w-2xl text-left"
+        >
+          <span className="mb-4 block font-mono text-xs uppercase tracking-widest text-brand-cyan font-bold">
+            Verified Performance / Track Record
+          </span>
+          <h2 className="font-display text-3xl font-extrabold sm:text-4xl text-white tracking-tight">
+            Numbers our partners can underwrite to.
+          </h2>
+          <p className="mt-4 text-sm sm:text-base text-ink-300 font-sans leading-relaxed">
+            Every statistic on our platform is backed by hard legal structures, live on-chain ledgers, and physical land or hardware audits. No hypothetical estimates.
+          </p>
+        </motion.div>
 
-        {/* Timeline Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 relative" id="how-it-works-timeline" role="list">
-          {timelineSteps.map((item, idx) => {
-            const Icon = getStepIcon(item.step);
+        {/* Stats Grid with dynamic card elements */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" id="track-record-stats">
+          {STATS.map((stat, i) => {
+            const StatIcon = stat.icon;
             return (
               <motion.div
-                key={item.step}
-                initial={{ opacity: 0, y: 15 }}
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="relative bg-white border border-gray-100/80 p-6 rounded-[32px] shadow-xs hover:border-blue-100/80 hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.06)] transition-all duration-300 text-center flex flex-col justify-between items-center group"
-                id={`step-card-${item.step}`}
-                role="listitem"
+                viewport={{ once: true }}
+                transition={{ duration: 0.65, ease: EASE, delay: i * 0.06 }}
+                className="glass-panel p-8 bg-white/[0.01] hover:bg-white/[0.03] border border-white/5 hover:border-white/10 transition-all duration-300 flex flex-col justify-between group"
               >
-                {/* Numeric Tag */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-50 text-blue-700 border border-blue-100 px-3 py-0.5 rounded-full text-[10px] font-mono font-extrabold shadow-xs">
-                  Step 0{item.step}
+                <div className="flex justify-between items-start mb-6">
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-brand-cyan group-hover:text-white group-hover:bg-brand-blue transition-colors duration-300">
+                    <StatIcon className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] font-mono text-ink-500 font-bold uppercase tracking-widest">
+                    Verified
+                  </span>
                 </div>
-
-                {/* Arrow visual for desktop connection (except last item) */}
-                {item.step < 6 && (
-                  <div className="absolute top-1/2 -right-4 -translate-y-1/2 text-gray-200 hidden lg:block z-20 pointer-events-none group-hover:text-blue-500 transition-colors">
-                    <ArrowRight className="w-5 h-5 animate-pulse" />
+                <div>
+                  <div className="bg-brand-gradient bg-clip-text font-mono text-3xl font-extrabold text-transparent sm:text-4xl tracking-tight">
+                    {stat.num}
                   </div>
-                )}
-
-                <div className="space-y-4 pt-2">
-                  {/* Icon Node */}
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/60 text-blue-600 flex items-center justify-center mx-auto shadow-xs group-hover:scale-105 group-hover:from-blue-600 group-hover:to-blue-700 group-hover:text-white transition-all duration-300">
-                    <Icon className="w-5 h-5" />
-                  </div>
-
-                  {/* Text descriptions */}
-                  <div className="space-y-1.5">
-                    <h3 className="font-display font-semibold text-gray-900 text-xs sm:text-sm group-hover:text-blue-600 transition-colors duration-200">
-                      {item.title}
-                    </h3>
-                    <p className="text-[11px] text-gray-500 leading-relaxed font-sans">
-                      {item.description}
-                    </p>
-                  </div>
+                  <div className="mt-2 text-xs sm:text-sm font-semibold text-ink-300 font-sans">{stat.label}</div>
                 </div>
-
-                {/* Minimalist marker at the bottom */}
-                <div className="mt-4 w-1.5 h-1.5 rounded-full bg-blue-600/30 group-hover:bg-amber-400 group-hover:scale-125 transition-all duration-200" />
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Mini Trust Ledger Box */}
+        <div className="mt-12 p-5 rounded-2xl border border-white/5 bg-white/[0.01] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="text-left">
+            <h4 className="text-xs font-mono font-bold text-white uppercase tracking-wider">Independent Audit Hashing Envelope</h4>
+            <p className="text-[11px] text-ink-500 font-medium font-sans mt-0.5">The platform reserves are independently audited weekly and attested under a secure zero-knowledge cryptographical envelope.</p>
+          </div>
+          <span className="text-[10px] font-mono font-bold text-brand-cyan uppercase tracking-widest border border-brand-cyan/20 px-2.5 py-1 rounded-md bg-brand-cyan/5">
+            SECURE-ZK-ATTESTATION: ACTIVE
+          </span>
         </div>
 
       </div>

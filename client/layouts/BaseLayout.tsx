@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../hooks/useAuth.ts';
 import { Shield, LogOut, LogIn, Database } from 'lucide-react';
-import MetaFirmLogo from '../components/Dashboard/MetaFirmLogo.tsx';
+import logoImg from '../../assets/images/branding/logo.png';
 
 export const BaseLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, login, logout, loading } = useAuth();
@@ -26,7 +26,12 @@ export const BaseLayout: React.FC<{ children: React.ReactNode }> = ({ children }
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center">
-            <MetaFirmLogo size="md" />
+            <img
+              src={logoImg}
+              alt="MetaFirm Logo"
+              referrerPolicy="no-referrer"
+              className="h-8 object-contain"
+            />
           </div>
 
           <div className="flex items-center space-x-4">

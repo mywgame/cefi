@@ -8,7 +8,7 @@ import { motion } from 'motion/react';
 import { useAuth } from '../hooks/useAuth.ts';
 import { ArrowRight, ShieldCheck, Sparkles, UserPlus } from 'lucide-react';
 import { Modal, Input, Button, Alert } from './ui/index.ts';
-import MetaFirmLogo from './Dashboard/MetaFirmLogo.tsx';
+import logoImg from '../../assets/images/branding/logo.png';
 
 const COUNTRIES = [
   "United States", "Canada", "United Kingdom", "Australia", "India", "Germany", "France", "Japan", "China", "Brazil",
@@ -153,7 +153,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
       <div className="pt-2">
         {/* Logo */}
         <div className="mb-4 flex justify-start">
-          <MetaFirmLogo size="lg" className="animate-fade-in" />
+          <img
+            src={logoImg}
+            alt="MetaFirm Logo"
+            referrerPolicy="no-referrer"
+            className="h-10 object-contain animate-fade-in"
+          />
         </div>
 
         {/* Header Identity */}

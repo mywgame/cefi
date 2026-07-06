@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import logoMarkImg from '../../../assets/images/branding/logo-mark.png';
 
 interface MetaFirmAssetIconProps {
   className?: string;
@@ -34,17 +35,12 @@ export const MetaFirmAssetIcon: React.FC<MetaFirmAssetIconProps> = ({
       <div className="absolute inset-0.5 rounded-full border border-white/20 animate-spin-slow pointer-events-none" />
       
       {/* Dynamic letter M mark */}
-      <svg 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="3.5" 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        className="w-1/2 h-1/2 text-white drop-shadow-md"
-      >
-        <path d="M4 20V8l8 6 8-6v12" />
-      </svg>
+      <img
+        src={logoMarkImg}
+        alt="MetaFirm Icon"
+        referrerPolicy="no-referrer"
+        className="w-1/2 h-1/2 object-contain drop-shadow-md z-10"
+      />
     </div>
   );
 };

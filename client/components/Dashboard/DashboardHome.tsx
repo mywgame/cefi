@@ -21,7 +21,7 @@ import { PortfolioOverview } from './PortfolioOverview.tsx';
 import { RecentActivity } from './RecentActivity.tsx';
 import { Announcements } from './Announcements.tsx';
 import { MetaFirmAssetIcon } from './MetaFirmAssetIcon.tsx';
-import MetaFirmLogo from './MetaFirmLogo.tsx';
+import logoImg from '../../../assets/images/branding/logo.png';
 
 interface DashboardHomeProps {
   onQuickAction?: (actionType: 'deposit' | 'withdraw' | 'claim' | 'team') => void;
@@ -39,7 +39,12 @@ export const DashboardHome: React.FC<DashboardHomeProps> = ({ onQuickAction }) =
       {/* Dashboard Page Header */}
       <div className="col-span-12 flex flex-col sm:flex-row items-start sm:items-center justify-between w-full pb-4 border-b border-gray-100/60 mb-2 gap-3">
         <div className="flex items-center space-x-3">
-          <MetaFirmLogo size="lg" />
+          <img
+            src={logoImg}
+            alt="MetaFirm Logo"
+            referrerPolicy="no-referrer"
+            className="h-10 object-contain"
+          />
           <span className="text-xs font-mono text-violet-600 font-extrabold uppercase tracking-widest bg-violet-50 px-2.5 py-1 rounded-full">
             Institutional Node
           </span>

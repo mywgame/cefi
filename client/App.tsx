@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { AuthProvider } from './contexts/AuthContext.tsx';
 import { useAuth } from './hooks/useAuth.ts';
 import { BaseLayout } from './layouts/BaseLayout.tsx';
@@ -26,11 +27,9 @@ import {
 // Import our new Phase 4 World-Class Landing Page Components
 import { Navbar } from './components/Navbar.tsx';
 import { Hero } from './components/Hero.tsx';
-import { Trust } from './components/Trust.tsx';
 import { About } from './components/About.tsx';
 import { WhyChooseUs } from './components/WhyChooseUs.tsx';
 import { HowItWorks } from './components/HowItWorks.tsx';
-import { VipPreview } from './components/VipPreview.tsx';
 import { Stats } from './components/Stats.tsx';
 import { Security } from './components/Security.tsx';
 import { Faq } from './components/Faq.tsx';
@@ -40,6 +39,7 @@ import { AuthModal } from './components/AuthModal.tsx';
 import { UserDashboard } from './components/Dashboard/index.tsx';
 import { EnterpriseAdminDashboard } from './components/Admin/index.tsx';
 import { Button } from './components/ui/Buttons/index.tsx';
+import { LoadingScreen } from './components/LoadingScreen.tsx';
 
 
 /**
@@ -260,8 +260,17 @@ function MainAppContent() {
   const { user, token, syncProfile } = useAuth();
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard' | 'admin'>('landing');
   const [activeSection, setActiveSection] = useState('hero');
+  const [isAppLoading, setIsAppLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
+
+  // Initial premium app loading timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAppLoading(false);
+    }, 1800); // 1.8 seconds allows the shimmer progress to complete elegantly
+    return () => clearTimeout(timer);
+  }, []);
 
   // 1. Client-Side Pathname Routing Sync
   useEffect(() => {
@@ -326,7 +335,7 @@ function MainAppContent() {
   useEffect(() => {
     if (currentView !== 'landing') return;
 
-    const sections = ['hero', 'about', 'benefits', 'how-it-works', 'vip-preview', 'security', 'faq', 'contact'];
+    const sections = ['hero', 'about', 'benefits', 'how-it-works', 'security', 'faq', 'contact'];
     
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 160; // Offset for sticky navbar height
@@ -377,40 +386,49 @@ function MainAppContent() {
 
     if (!user) {
       return (
-        <div className="min-h-screen bg-[#fafafa] flex flex-col items-center justify-center p-6 text-center select-none font-sans">
-          <div className="max-w-md w-full bg-white p-8 border border-gray-100 rounded-2xl shadow-xl space-y-6">
-            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-              <Lock className="w-8 h-8" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-lg font-display font-black text-gray-950 uppercase tracking-tight">Authentication Required</h3>
-              <p className="text-xs text-gray-400 font-mono">SECURE OPERATIONS ENCLAVE</p>
-            </div>
-            <p className="text-xs text-gray-500 leading-relaxed">
-              Access to the MetaFirm Platform operational console requires active multi-factor cryptographic authentication. Please sign in to verify credentials.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setCurrentView('landing')}
-                className="flex-1 py-2.5 text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors cursor-pointer"
-              >
-                Back to Website
-              </button>
-              <button
-                onClick={() => handleOpenAuth('login')}
-                className="flex-1 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all hover:shadow-md cursor-pointer"
-              >
-                Login to Session
-              </button>
+        <>
+          <AnimatePresence>
+            {isAppLoading && <LoadingScreen />}
+          </AnimatePresence>
+          <div className="min-h-screen bg-[#fafafa] flex flex-col items-center justify-center p-6 text-center select-none font-sans">
+            <div className="max-w-md w-full bg-white p-8 border border-gray-100 rounded-2xl shadow-xl space-y-6">
+              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+                <Lock className="w-8 h-8" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-display font-black text-gray-950 uppercase tracking-tight">Authentication Required</h3>
+                <p className="text-xs text-gray-400 font-mono">SECURE OPERATIONS ENCLAVE</p>
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Access to the MetaFirm Platform operational console requires active multi-factor cryptographic authentication. Please sign in to verify credentials.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setCurrentView('landing')}
+                  className="flex-1 py-2.5 text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-50 border border-gray-200 rounded-xl transition-colors cursor-pointer"
+                >
+                  Back to Website
+                </button>
+                <button
+                  onClick={() => handleOpenAuth('login')}
+                  className="flex-1 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-all hover:shadow-md cursor-pointer"
+                >
+                  Login to Session
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       );
     }
 
     if (!isAuthorized) {
       return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none font-sans">
+        <>
+          <AnimatePresence>
+            {isAppLoading && <LoadingScreen />}
+          </AnimatePresence>
+          <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-6 text-center select-none font-sans">
           <div className="max-w-lg w-full bg-white border border-red-100/80 p-8 rounded-3xl shadow-2xl space-y-6 relative overflow-hidden">
             {/* Danger Warning Strip */}
             <div className="absolute top-0 left-0 right-0 h-1.5 bg-red-600" />
@@ -468,23 +486,60 @@ function MainAppContent() {
             </div>
           </div>
         </div>
-      );
+      </>
+    );
     }
 
     return (
-      <EnterpriseAdminDashboard onBackToLanding={() => setCurrentView('landing')} />
+      <>
+        <AnimatePresence>
+          {isAppLoading && <LoadingScreen />}
+        </AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="min-h-screen bg-navy-950 flex flex-col"
+        >
+          <EnterpriseAdminDashboard onBackToLanding={() => setCurrentView('landing')} />
+        </motion.div>
+      </>
     );
   }
 
   if (currentView === 'dashboard') {
     return (
-      <UserDashboard onBackToLanding={() => setCurrentView('landing')} />
+      <>
+        <AnimatePresence>
+          {isAppLoading && <LoadingScreen />}
+        </AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="min-h-screen bg-navy-950 flex flex-col"
+        >
+          <UserDashboard onBackToLanding={() => setCurrentView('landing')} />
+        </motion.div>
+      </>
     );
   }
 
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-gray-900 font-sans flex flex-col antialiased">
+    <>
+      <AnimatePresence>
+        {isAppLoading && <LoadingScreen />}
+      </AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        className="min-h-screen bg-navy-950 text-white font-sans flex flex-col antialiased"
+      >
       
       {/* 1. Header (Navbar component) */}
       <Navbar 
@@ -504,11 +559,6 @@ function MainAppContent() {
           />
         </div>
 
-        {/* Trust Section */}
-        <div id="trust">
-          <Trust />
-        </div>
-
         {/* About Company Section */}
         <div id="about">
           <About />
@@ -522,11 +572,6 @@ function MainAppContent() {
         {/* How It Works Section */}
         <div id="how-it-works">
           <HowItWorks />
-        </div>
-
-        {/* VIP Preview Tiers Section */}
-        <div id="vip-preview">
-          <VipPreview onOpenAuth={handleOpenAuth} />
         </div>
 
         {/* Platform Statistics Section */}
@@ -576,7 +621,8 @@ function MainAppContent() {
         </div>
       )}
 
-    </div>
+    </motion.div>
+  </>
   );
 }
 
