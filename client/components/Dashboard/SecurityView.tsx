@@ -3,28 +3,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import {
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Globe,
-  Key,
-  Laptop,
-  LogOut,
-  Mail,
-  Phone,
-  RotateCw,
-  ShieldCheck,
-  Smartphone,
-  User,
-  XCircle
-} from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth.ts';
-import { Button } from '../ui/Buttons/index.tsx';
 import { Card } from '../ui/Cards/index.tsx';
-import { Badge } from '../ui/Feedback/index.tsx';
+import { Button } from '../ui/Buttons/index.tsx';
 import { Input, PasswordInput } from '../ui/Inputs/index.tsx';
+import { Badge } from '../ui/Feedback/index.tsx';
+import { 
+  Lock, 
+  ShieldCheck, 
+  Key, 
+  Eye, 
+  HelpCircle, 
+  CheckCircle, 
+  XCircle, 
+  Smartphone, 
+  Laptop, 
+  Globe, 
+  Clock, 
+  User, 
+  Phone, 
+  Mail,
+  AlertTriangle,
+  RotateCw,
+  LogOut
+} from 'lucide-react';
 
 interface UserSession {
   id: string;
@@ -46,7 +49,7 @@ interface SecuritySummary {
 
 export const SecurityView: React.FC = () => {
   const { user, token, syncProfile } = useAuth();
-
+  
   // Tab control
   const [activeSubTab, setActiveSubTab] = useState<'profile' | 'password' | 'email' | 'sessions'>('profile');
 
@@ -284,10 +287,10 @@ export const SecurityView: React.FC = () => {
 
   return (
     <div className="space-y-6 text-left" id="security-view-tab">
-
+      
       {/* 1. Header Banner & Audit Overview Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
+        
         {/* Security Health Card */}
         <Card className="p-4 flex flex-col justify-between">
           <div className="space-y-1">
@@ -307,8 +310,8 @@ export const SecurityView: React.FC = () => {
           <div className="space-y-1">
             <span className="text-[9px] font-mono font-bold text-gray-400 uppercase tracking-widest block">Password Rotation</span>
             <h4 className="text-xs font-bold text-gray-800">
-              {summary?.passwordChangedAt
-                ? new Date(summary.passwordChangedAt).toLocaleString()
+              {summary?.passwordChangedAt 
+                ? new Date(summary.passwordChangedAt).toLocaleString() 
                 : 'Never changed'}
             </h4>
           </div>
@@ -380,10 +383,10 @@ export const SecurityView: React.FC = () => {
 
       {/* 3. Render Sub-view Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
+        
         {/* Main interactive panel left */}
         <div className="lg:col-span-8">
-
+          
           {activeSubTab === 'profile' && (
             <Card hoverEffect={true} className="space-y-6">
               <div className="pb-4 border-b border-gray-100">
@@ -409,15 +412,15 @@ export const SecurityView: React.FC = () => {
 
               <form onSubmit={handleUpdateProfile} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input
-                    label="Display Name / Institution"
+                  <Input 
+                    label="Display Name / Institution" 
                     placeholder="Enter name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     icon={<User className="w-4 h-4 text-gray-400" />}
                   />
-                  <Input
-                    label="Contact Phone Number"
+                  <Input 
+                    label="Contact Phone Number" 
                     placeholder="e.g. +1 555-0199"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
@@ -458,22 +461,22 @@ export const SecurityView: React.FC = () => {
               )}
 
               <form onSubmit={handleChangePassword} className="space-y-4">
-                <PasswordInput
-                  label="Current Password"
+                <PasswordInput 
+                  label="Current Password" 
                   placeholder="••••••••••••"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  required
+                  required 
                 />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-3">
-                    <PasswordInput
-                      label="New Secure Password"
+                    <PasswordInput 
+                      label="New Secure Password" 
                       placeholder="••••••••••••"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      required
+                      required 
                     />
 
                     {/* Live Password Strength Indicator */}
@@ -484,8 +487,8 @@ export const SecurityView: React.FC = () => {
                           <span className={strength.textColor}>{strength.label}</span>
                         </div>
                         <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full transition-all duration-300 ${strength.color}`}
+                          <div 
+                            className={`h-full transition-all duration-300 ${strength.color}`} 
                             style={{ width: `${(strength.score / 5) * 100}%` }}
                           />
                         </div>
@@ -515,12 +518,12 @@ export const SecurityView: React.FC = () => {
                     )}
                   </div>
 
-                  <PasswordInput
-                    label="Confirm New Password"
+                  <PasswordInput 
+                    label="Confirm New Password" 
                     placeholder="••••••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
+                    required 
                   />
                 </div>
 
@@ -558,21 +561,21 @@ export const SecurityView: React.FC = () => {
 
               <form onSubmit={handleChangeEmail} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <PasswordInput
-                    label="Current Password"
+                  <PasswordInput 
+                    label="Current Password" 
                     placeholder="••••••••••••"
                     value={emailPassword}
                     onChange={(e) => setEmailPassword(e.target.value)}
-                    required
+                    required 
                   />
-                  <Input
-                    label="New Email Address"
+                  <Input 
+                    label="New Email Address" 
                     placeholder="operator@domain.com"
                     type="email"
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
                     icon={<Mail className="w-4 h-4 text-gray-400" />}
-                    required
+                    required 
                   />
                 </div>
 
@@ -595,10 +598,10 @@ export const SecurityView: React.FC = () => {
                   </p>
                 </div>
                 {sessions.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
+                  <Button 
+                    type="button" 
+                    variant="secondary" 
+                    size="sm" 
                     className="shrink-0 text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100/70 border-red-100"
                     onClick={handleLogoutOthers}
                     disabled={sessionsLoading}

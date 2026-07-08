@@ -34,6 +34,198 @@ const COUNTRIES = [
   "Zambia", "Zimbabwe"
 ];
 
+const COUNTRY_DATA: Record<string, { flag: string; code: string }> = {
+  "United States": { flag: "🇺🇸", code: "+1" },
+  "Canada": { flag: "🇨🇦", code: "+1" },
+  "United Kingdom": { flag: "🇬🇧", code: "+44" },
+  "Australia": { flag: "🇦🇺", code: "+61" },
+  "India": { flag: "🇮🇳", code: "+91" },
+  "Germany": { flag: "🇩🇪", code: "+49" },
+  "France": { flag: "🇫🇷", code: "+33" },
+  "Japan": { flag: "🇯🇵", code: "+81" },
+  "China": { flag: "🇨🇳", code: "+86" },
+  "Brazil": { flag: "🇧🇷", code: "+55" },
+  "Afghanistan": { flag: "🇦🇫", code: "+93" },
+  "Albania": { flag: "🇦🇱", code: "+355" },
+  "Algeria": { flag: "🇩🇿", code: "+213" },
+  "Andorra": { flag: "🇦🇩", code: "+376" },
+  "Angola": { flag: "🇦🇴", code: "+244" },
+  "Antigua and Barbuda": { flag: "🇦🇬", code: "+1-268" },
+  "Argentina": { flag: "🇦🇷", code: "+54" },
+  "Armenia": { flag: "🇦🇲", code: "+374" },
+  "Austria": { flag: "🇦🇹", code: "+43" },
+  "Azerbaijan": { flag: "🇦🇿", code: "+994" },
+  "Bahamas": { flag: "🇧🇸", code: "+1-242" },
+  "Bahrain": { flag: "🇧🇭", code: "+973" },
+  "Bangladesh": { flag: "🇧🇩", code: "+880" },
+  "Barbados": { flag: "🇧🇧", code: "+1-246" },
+  "Belarus": { flag: "🇧🇾", code: "+375" },
+  "Belgium": { flag: "🇧🇪", code: "+32" },
+  "Belize": { flag: "🇧🇿", code: "+501" },
+  "Benin": { flag: "🇧🇯", code: "+229" },
+  "Bhutan": { flag: "🇧🇹", code: "+975" },
+  "Bolivia": { flag: "🇧🇴", code: "+591" },
+  "Bosnia and Herzegovina": { flag: "🇧🇦", code: "+387" },
+  "Botswana": { flag: "🇧🇼", code: "+267" },
+  "Brunei": { flag: "🇧🇳", code: "+673" },
+  "Bulgaria": { flag: "🇧🇬", code: "+359" },
+  "Burkina Faso": { flag: "🇧🇫", code: "+226" },
+  "Burundi": { flag: "🇧🇮", code: "+257" },
+  "Cabo Verde": { flag: "🇨🇻", code: "+238" },
+  "Cambodia": { flag: "🇰🇭", code: "+855" },
+  "Cameroon": { flag: "🇨🇲", code: "+237" },
+  "Central African Republic": { flag: "🇨🇫", code: "+236" },
+  "Chad": { flag: "🇹🇩", code: "+235" },
+  "Chile": { flag: "🇨🇱", code: "+56" },
+  "Colombia": { flag: "🇨🇴", code: "+57" },
+  "Comoros": { flag: "🇰🇲", code: "+269" },
+  "Congo": { flag: "🇨🇬", code: "+242" },
+  "Costa Rica": { flag: "🇨🇷", code: "+506" },
+  "Croatia": { flag: "🇭🇷", code: "+385" },
+  "Cuba": { flag: "🇨🇺", code: "+53" },
+  "Cyprus": { flag: "🇨🇾", code: "+357" },
+  "Czechia": { flag: "🇨🇿", code: "+420" },
+  "Denmark": { flag: "🇩🇰", code: "+45" },
+  "Djibouti": { flag: "🇩🇯", code: "+253" },
+  "Dominica": { flag: "🇩🇲", code: "+1-767" },
+  "Dominican Republic": { flag: "🇩🇴", code: "+1-809" },
+  "Ecuador": { flag: "🇪🇨", code: "+593" },
+  "Egypt": { flag: "🇪🇬", code: "+20" },
+  "El Salvador": { flag: "🇸🇻", code: "+503" },
+  "Equatorial Guinea": { flag: "🇬🇶", code: "+240" },
+  "Eritrea": { flag: "🇪🇷", code: "+291" },
+  "Estonia": { flag: "🇪🇪", code: "+372" },
+  "Eswatini": { flag: "🇸🇿", code: "+268" },
+  "Ethiopia": { flag: "🇪🇹", code: "+251" },
+  "Fiji": { flag: "🇫🇯", code: "+679" },
+  "Finland": { flag: "🇫🇮", code: "+358" },
+  "Gabon": { flag: "🇬🇦", code: "+241" },
+  "Gambia": { flag: "🇬🇲", code: "+220" },
+  "Georgia": { flag: "🇬🇪", code: "+995" },
+  "Ghana": { flag: "🇬🇭", code: "+233" },
+  "Greece": { flag: "🇬🇷", code: "+30" },
+  "Grenada": { flag: "🇬🇩", code: "+1-473" },
+  "Guatemala": { flag: "🇬🇹", code: "+502" },
+  "Guinea": { flag: "🇬🇳", code: "+224" },
+  "Guyana": { flag: "🇬🇾", code: "+592" },
+  "Haiti": { flag: "🇭🇹", code: "+509" },
+  "Honduras": { flag: "🇭🇳", code: "+504" },
+  "Hungary": { flag: "🇭🇺", code: "+36" },
+  "Iceland": { flag: "🇮🇸", code: "+354" },
+  "Indonesia": { flag: "🇮🇩", code: "+62" },
+  "Iran": { flag: "🇮🇷", code: "+98" },
+  "Iraq": { flag: "🇮🇶", code: "+964" },
+  "Ireland": { flag: "🇮🇪", code: "+353" },
+  "Israel": { flag: "🇮🇱", code: "+972" },
+  "Italy": { flag: "🇮🇹", code: "+39" },
+  "Jamaica": { flag: "🇯🇲", code: "+1-876" },
+  "Jordan": { flag: "🇯🇴", code: "+962" },
+  "Kazakhstan": { flag: "🇰🇿", code: "+7" },
+  "Kenya": { flag: "🇰🇪", code: "+254" },
+  "Kiribati": { flag: "🇰🇮", code: "+686" },
+  "Kuwait": { flag: "🇰🇼", code: "+965" },
+  "Kyrgyzstan": { flag: "🇰🇬", code: "+996" },
+  "Laos": { flag: "🇱🇦", code: "+856" },
+  "Latvia": { flag: "🇱🇻", code: "+371" },
+  "Lebanon": { flag: "🇱🇧", code: "+961" },
+  "Lesotho": { flag: "🇱🇸", code: "+266" },
+  "Liberia": { flag: "🇱🇷", code: "+231" },
+  "Libya": { flag: "🇱🇾", code: "+218" },
+  "Liechtenstein": { flag: "🇱🇮", code: "+423" },
+  "Lithuania": { flag: "🇱🇹", code: "+370" },
+  "Luxembourg": { flag: "🇱🇺", code: "+352" },
+  "Madagascar": { flag: "🇲🇬", code: "+261" },
+  "Malawi": { flag: "🇲🇼", code: "+265" },
+  "Malaysia": { flag: "🇲🇾", code: "+60" },
+  "Maldives": { flag: "🇲🇻", code: "+960" },
+  "Mali": { flag: "🇲🇱", code: "+223" },
+  "Malta": { flag: "🇲🇹", code: "+356" },
+  "Mauritania": { flag: "🇲🇷", code: "+222" },
+  "Mauritius": { flag: "🇲🇺", code: "+230" },
+  "Mexico": { flag: "🇲🇽", code: "+52" },
+  "Micronesia": { flag: "🇫🇲", code: "+691" },
+  "Moldova": { flag: "🇲🇩", code: "+373" },
+  "Monaco": { flag: "🇲🇨", code: "+377" },
+  "Mongolia": { flag: "🇲🇳", code: "+976" },
+  "Montenegro": { flag: "🇲🇪", code: "+382" },
+  "Morocco": { flag: "🇲🇦", code: "+212" },
+  "Mozambique": { flag: "🇲🇿", code: "+258" },
+  "Myanmar": { flag: "🇲🇲", code: "+95" },
+  "Namibia": { flag: "🇳🇦", code: "+264" },
+  "Nauru": { flag: "🇳🇷", code: "+674" },
+  "Nepal": { flag: "🇳🇵", code: "+977" },
+  "Netherlands": { flag: "🇳🇱", code: "+31" },
+  "New Zealand": { flag: "🇳🇿", code: "+64" },
+  "Nicaragua": { flag: "🇳🇮", code: "+505" },
+  "Niger": { flag: "🇳🇪", code: "+227" },
+  "Nigeria": { flag: "🇳🇬", code: "+234" },
+  "North Korea": { flag: "🇰🇵", code: "+850" },
+  "North Macedonia": { flag: "🇲🇰", code: "+389" },
+  "Norway": { flag: "🇳🇴", code: "+47" },
+  "Oman": { flag: "🇴🇲", code: "+968" },
+  "Pakistan": { flag: "🇵🇰", code: "+92" },
+  "Palau": { flag: "🇵🇼", code: "+680" },
+  "Panama": { flag: "🇵🇦", code: "+507" },
+  "Papua New Guinea": { flag: "🇵🇬", code: "+675" },
+  "Paraguay": { flag: "🇵🇾", code: "+595" },
+  "Peru": { flag: "🇵🇪", code: "+51" },
+  "Philippines": { flag: "🇵🇭", code: "+63" },
+  "Poland": { flag: "🇵🇱", code: "+48" },
+  "Portugal": { flag: "🇵🇹", code: "+351" },
+  "Qatar": { flag: "🇶🇦", code: "+974" },
+  "Romania": { flag: "🇷🇴", code: "+40" },
+  "Russia": { flag: "🇷🇺", code: "+7" },
+  "Rwanda": { flag: "🇷🇼", code: "+250" },
+  "Saint Kitts and Nevis": { flag: "🇰🇳", code: "+1-869" },
+  "Saint Lucia": { flag: "🇱🇨", code: "+1-758" },
+  "Samoa": { flag: "🇼🇸", code: "+685" },
+  "San Marino": { flag: "🇸🇲", code: "+378" },
+  "Saudi Arabia": { flag: "🇸🇦", code: "+966" },
+  "Senegal": { flag: "🇸🇳", code: "+221" },
+  "Serbia": { flag: "🇷🇸", code: "+381" },
+  "Seychelles": { flag: "🇸🇨", code: "+248" },
+  "Sierra Leone": { flag: "🇸🇱", code: "+232" },
+  "Singapore": { flag: "🇸🇬", code: "+65" },
+  "Slovakia": { flag: "🇸🇰", code: "+421" },
+  "Slovenia": { flag: "🇸🇮", code: "+386" },
+  "Solomon Islands": { flag: "🇸🇧", code: "+677" },
+  "Somalia": { flag: "🇸🇴", code: "+252" },
+  "South Africa": { flag: "🇿🇦", code: "+27" },
+  "South Korea": { flag: "🇰🇷", code: "+82" },
+  "South Sudan": { flag: "🇸🇸", code: "+211" },
+  "Spain": { flag: "🇪🇸", code: "+34" },
+  "Sri Lanka": { flag: "🇱🇰", code: "+94" },
+  "Sudan": { flag: "🇸🇩", code: "+249" },
+  "Suriname": { flag: "🇸🇷", code: "+597" },
+  "Sweden": { flag: "🇸🇪", code: "+46" },
+  "Switzerland": { flag: "🇨🇭", code: "+41" },
+  "Syria": { flag: "🇸🇾", code: "+963" },
+  "Taiwan": { flag: "🇹🇼", code: "+886" },
+  "Tajikistan": { flag: "🇹🇯", code: "+992" },
+  "Tanzania": { flag: "🇹🇿", code: "+255" },
+  "Thailand": { flag: "🇹🇭", code: "+66" },
+  "Timor-Leste": { flag: "🇹🇱", code: "+670" },
+  "Togo": { flag: "🇹🇬", code: "+228" },
+  "Tonga": { flag: "🇹🇴", code: "+676" },
+  "Trinidad and Tobago": { flag: "🇹🇹", code: "+1-868" },
+  "Tunisia": { flag: "🇹🇳", code: "+216" },
+  "Turkey": { flag: "🇹🇷", code: "+90" },
+  "Turkmenistan": { flag: "🇹🇲", code: "+993" },
+  "Tuvalu": { flag: "🇹🇻", code: "+688" },
+  "Uganda": { flag: "🇺🇬", code: "+256" },
+  "Ukraine": { flag: "🇺🇦", code: "+380" },
+  "United Arab Emirates": { flag: "🇦🇪", code: "+971" },
+  "Uruguay": { flag: "🇺🇾", code: "+598" },
+  "Uzbekistan": { flag: "🇺🇿", code: "+998" },
+  "Vanuatu": { flag: "🇻🇺", code: "+678" },
+  "Vatican City": { flag: "🇻🇦", code: "+39-06" },
+  "Venezuela": { flag: "🇻🇪", code: "+58" },
+  "Vietnam": { flag: "🇻🇳", code: "+84" },
+  "Yemen": { flag: "🇾🇪", code: "+967" },
+  "Zambia": { flag: "🇿🇲", code: "+260" },
+  "Zimbabwe": { flag: "🇿🇼", code: "+263" }
+};
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -56,6 +248,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
   const [mobileNumber, setMobileNumber] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [referralCode, setReferralCode] = useState('');
+
+  const handleCountryChange = (selectedCountry: string) => {
+    setCountry(selectedCountry);
+    const info = COUNTRY_DATA[selectedCountry] || { flag: "🏳️", code: "+1" };
+    setCountryCode(info.code);
+  };
 
   const [validationError, setValidationError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -165,10 +363,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
         <div className="mb-4 space-y-1">
           <div className="inline-flex items-center space-x-1.5 bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>MetaFirm Secure Vault Gateway</span>
+            <span>MetaFirm Secure Gateway</span>
           </div>
           <h2 className="text-xl sm:text-2xl font-display font-extrabold text-gray-950 tracking-tight leading-none pt-1">
-            {isRegister ? 'Begin Your Yield Journey' : 'Secure Vault Authentication'}
+            {isRegister ? 'Create Account' : 'Sign In'}
           </h2>
           <p className="text-xs text-gray-500 leading-relaxed font-sans pt-0.5">
             {isRegister
@@ -195,72 +393,83 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
         )}
 
         {/* Auth Form */}
-        <form onSubmit={handleSubmit} className="space-y-4 max-h-[60vh] overflow-y-auto pr-1" id="auth-modal-form">
+        <form onSubmit={handleSubmit} className="space-y-4" id="auth-modal-form">
           
           {isRegister ? (
             /* Signup Grid Layout */
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0 w-full">
               
-              <Input
-                label="Full Name"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="John Doe"
-                id="auth-name-input"
-                required
-              />
+              <div className="min-w-0">
+                <Input
+                  label="Full Name"
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="John Doe"
+                  id="auth-name-input"
+                  required
+                />
+              </div>
 
-              <Input
-                label="Username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="johndoe"
-                id="auth-username-input"
-                required
-              />
+              <div className="min-w-0">
+                <Input
+                  label="Username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="johndoe"
+                  id="auth-username-input"
+                  required
+                />
+              </div>
 
-              <Input
-                label="Email Address"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="investor@metafirm.io"
-                id="auth-email-input"
-                required
-              />
+              <div className="min-w-0">
+                <Input
+                  label="Email Address"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="investor@metafirm.io"
+                  id="auth-email-input"
+                  required
+                />
+              </div>
 
               {/* Country Selector */}
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <label htmlFor="auth-country-select" className="block text-xs font-semibold text-gray-700 tracking-wide">
                   Country
                 </label>
                 <select
                   id="auth-country-select"
                   value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                  onChange={(e) => handleCountryChange(e.target.value)}
+                  className="w-full max-w-full min-w-0 px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 transition-all duration-150 focus-visible:outline-none"
                 >
-                  {COUNTRIES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
+                  {COUNTRIES.map((c) => {
+                    const info = COUNTRY_DATA[c] || { flag: "🏳️", code: "" };
+                    return (
+                      <option key={c} value={c} className="text-gray-900 bg-white">
+                        {info.flag} {c} ({info.code})
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
               {/* Country Code + Mobile Number */}
-              <div className="space-y-1.5 sm:col-span-2">
+              <div className="space-y-1.5 md:col-span-2 min-w-0">
                 <label htmlFor="auth-mobile-input" className="block text-xs font-semibold text-gray-700 tracking-wide">
                   Mobile Number
                 </label>
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 min-w-0">
                   <input
                     type="text"
                     id="auth-country-code"
                     value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
+                    readOnly
                     placeholder="+1"
-                    className="w-20 px-3 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 text-center transition-all duration-150 focus-visible:outline-none"
+                    className="w-20 flex-shrink-0 px-3 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none bg-gray-50 text-gray-500 text-center transition-all duration-150 focus-visible:outline-none cursor-not-allowed font-medium"
                     required
                   />
                   <input
@@ -269,13 +478,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                     value={mobileNumber}
                     onChange={(e) => setMobileNumber(e.target.value)}
                     placeholder="555-0199"
-                    className="flex-1 px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                    className="flex-1 min-w-0 px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-150 focus-visible:outline-none"
                     required
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <label htmlFor="auth-password-input" className="block text-xs font-semibold text-gray-700 tracking-wide">
                   Password
                 </label>
@@ -285,12 +494,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-150 focus-visible:outline-none"
                   required
                 />
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 min-w-0">
                 <label htmlFor="auth-confirm-password-input" className="block text-xs font-semibold text-gray-700 tracking-wide">
                   Confirm Password
                 </label>
@@ -300,12 +509,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-150 focus-visible:outline-none"
                   required
                 />
               </div>
 
-              <div className="sm:col-span-2">
+              <div className="md:col-span-2 min-w-0">
                 <Input
                   label="Referral Code (Optional)"
                   type="text"
@@ -334,7 +543,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label htmlFor="auth-password-input" className="block text-xs font-semibold text-gray-700 tracking-wide">
-                    Account Password
+                    Password
                   </label>
                   <button
                     type="button"
@@ -351,7 +560,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 focus-visible:outline-none"
+                  className="w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-150 focus-visible:outline-none"
                   required
                 />
               </div>
@@ -368,14 +577,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
             id="auth-submit-btn"
             rightIcon={<ArrowRight className="w-4 h-4" />}
           >
-            {isRegister ? 'Create Verified Ledger' : 'Authorize Secure Session'}
+            {isRegister ? 'Create Account' : 'Sign In'}
           </Button>
         </form>
 
         {/* Bottom Toggle */}
         <div className="mt-4 pt-4 border-t border-gray-100 text-center">
           <p className="text-xs text-gray-500 font-sans">
-            {isRegister ? 'Already have an institutional ledger?' : 'New to our decentralized yield platform?'}
+            {isRegister ? 'Already have an account?' : 'New to MetaFirm?'}
             <button
               onClick={() => setIsRegister(!isRegister)}
               className="ml-1.5 font-bold text-blue-600 hover:underline inline-flex items-center space-x-0.5 cursor-pointer font-mono text-[11px]"
@@ -385,7 +594,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, initialMo
                 <span>Sign In</span>
               ) : (
                 <span className="flex items-center">
-                  <UserPlus className="w-3.5 h-3.5 mr-1" /> Register Now
+                  <UserPlus className="w-3.5 h-3.5 mr-1" /> Create Account
                 </span>
               )}
             </button>

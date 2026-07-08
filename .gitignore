@@ -6,4 +6,7 @@ coverage/
 *.log
 .env*
 !.env.example
-.vercel
+MetaFirm_Business_Logic_Specification.md
+MetaFirm_Development_Roadmap
+MetaFirm_Master_Blueprint.md
+CHANGELOG.md

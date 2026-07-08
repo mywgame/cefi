@@ -33,7 +33,7 @@ export const Input: React.FC<InputProps> = ({
       <input
         id={id}
         type={type}
-        className={`w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 ${
+        className={`w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 placeholder-gray-400 transition-all duration-150 ${
           error ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-blue-600'
         } ${className}`}
         {...props}
@@ -65,7 +65,7 @@ export const PasswordInput: React.FC<InputProps> = ({
         <input
           id={id}
           type={showPassword ? 'text' : 'password'}
-          className={`w-full pl-4 pr-11 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 ${
+          className={`w-full pl-4 pr-11 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 placeholder-gray-400 transition-all duration-150 ${
             error ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-blue-600'
           } ${className}`}
           {...props}
@@ -96,7 +96,7 @@ export const SearchInput: React.FC<InputProps> = ({
       </div>
       <input
         type="text"
-        className={`w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 transition-all duration-150 ${className}`}
+        className={`w-full pl-10 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 placeholder-gray-400 transition-all duration-150 ${className}`}
         {...props}
       />
     </div>
@@ -122,7 +122,7 @@ export const Textarea: React.FC<TextareaProps> = ({
       )}
       <textarea
         id={id}
-        className={`w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 resize-none transition-all duration-150 ${
+        className={`w-full px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 placeholder-gray-400 resize-none transition-all duration-150 ${
           error ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-blue-600'
         } ${className}`}
         {...props}
@@ -248,7 +248,7 @@ export const Select: React.FC<SelectProps> = ({
       <div className="relative">
         <select
           id={id}
-          className={`w-full pl-4 pr-10 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-gray-50/30 appearance-none transition-all duration-150 ${
+          className={`w-full pl-4 pr-10 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 bg-white text-gray-900 appearance-none transition-all duration-150 ${
             error ? 'border-red-500 focus-visible:ring-red-500' : 'focus-visible:ring-blue-600'
           } ${className}`}
           {...props}

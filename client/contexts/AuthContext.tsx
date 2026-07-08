@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Step B: Authenticate the user to retrieve real JWT
-      const loginResponse = await fetch('/api/v1/auth/login', {
+      let loginResponse = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,6 +120,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           password: pwd,
         }),
       });
+
+      // If login failed, and we did not explicitly request registration, AND password was omitted (i.e. developer sync/simulation)
+      if (!loginResponse.ok && !isRegister && !password) {
+        console.log('Sync login failed. Attempting automatic user registration (upsert)...');
+        const registerResponse = await fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: emailOrUsername,
+            username: emailOrUsername.split('@')[0],
+            name: 'Institutional Client',
+            phone: '',
+            country: 'United States',
+            password: pwd,
+          }),
+        });
+
+        if (registerResponse.ok) {
+          // Retry login
+          loginResponse = await fetch('/api/v1/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              emailOrUsername: emailOrUsername,
+              password: pwd,
+            }),
+          });
+        }
+      }
 
       if (!loginResponse.ok) {
         const errData = await loginResponse.json().catch(() => ({}));
