@@ -18,7 +18,7 @@ export const incomeHistory = pgTable(
     walletId: uuid('wallet_id')
       .notNull()
       .references(() => wallets.id),
-    type: text('type').notNull(), // e.g., STAKING_YIELD, DIRECT_BONUS, LEVEL_COMMISSION, DIVIDEND
+    type: text('type').notNull(), // e.g., DAILY_YIELD, REFERRAL_INCOME, TEAM_INCOME, INCENTIVE_INCOME
     amount: numeric('amount', { precision: 20, scale: 8 }).notNull(), // Exact yield/income amount generated
     description: text('description').notNull(), // Clarifying description (e.g. "Level 1 commission from direct downline deposition")
     transactionId: uuid('transaction_id').notNull(), // Linked transaction tracing code

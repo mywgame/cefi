@@ -18,6 +18,7 @@
 
 export * from './users.ts';
 export * from './wallets.ts';
+export * from './deposit_addresses.ts';
 export * from './deposits.ts';
 export * from './withdrawals.ts';
 export * from './transactions.ts';

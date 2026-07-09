@@ -6,6 +6,7 @@
 import { pgTable, uuid, integer, numeric, timestamp, index, uniqueIndex, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { users } from './users.ts';
+import { deposits } from './deposits.ts';
 
 // Structural Referral Tree Relationships (Adjacency List & Path Level)
 export const referralRelationships = pgTable(
@@ -41,6 +42,8 @@ export const referralIncomeHistory = pgTable(
     sourceUserId: uuid('source_user_id')
       .notNull()
       .references(() => users.id), // Downline user whose activity triggered this reward
+    depositId: uuid('deposit_id')
+      .references(() => deposits.id), // The specific first successful deposit that triggered this reward
     amount: numeric('amount', { precision: 20, scale: 8 }).notNull(), // Exact commission amount
     level: integer('level').notNull(), // Level of the downline user relative to the beneficiary
     transactionId: uuid('transaction_id').notNull(), // Direct link to master transactions ledger

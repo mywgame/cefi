@@ -28,7 +28,7 @@ export const transactions = pgTable(
     walletId: uuid('wallet_id')
       .notNull()
       .references(() => wallets.id),
-    type: text('type').notNull(), // DEPOSIT, WITHDRAWAL, CLAIM, REFERRAL_BONUS, SALARY, LEVEL_INCOME, REWARD, ADJUSTMENT, ADMIN_CREDIT, ADMIN_DEBIT
+    type: text('type').notNull(), // DEPOSIT, WITHDRAWAL, DAILY_YIELD, REFERRAL_INCOME, TEAM_INCOME, INCENTIVE_INCOME, TRIAL_FUND, TRIAL_EXPIRY, ADJUSTMENT
     referenceId: text('reference_id').notNull(), // References the source entity uuid or receipt code
     status: text('status').default('COMPLETED').notNull(), // PENDING, COMPLETED, FAILED
     description: text('description').notNull(), // Human readable description (e.g., "Staking Claim Reward for Period X")
@@ -40,6 +40,7 @@ export const transactions = pgTable(
   },
   (table) => [
     index('transactions_user_id_idx').on(table.userId),
+    index('transactions_wallet_id_idx').on(table.walletId),
     index('transactions_type_idx').on(table.type),
     index('transactions_ref_id_idx').on(table.referenceId),
     index('transactions_created_at_idx').on(table.createdAt),

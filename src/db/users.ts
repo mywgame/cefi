@@ -17,7 +17,7 @@ export const users = pgTable(
     role: text('role').default('USER').notNull(), // USER, VIP, ADMIN, SUPERADMIN
     userId: text('user_id').notNull().unique(), // Formatted visible ID (e.g., DS322256)
     referralCode: text('referral_code').notNull().unique(), // Shareable referral code
-    parentReferralId: uuid('parent_referral_id'), // Self-referencing foreign key for referral tracking
+    parentReferralId: uuid('parent_referral_id').references(() => users.id), // Self-referencing foreign key for referral tracking
     failedLoginAttempts: integer('failed_login_attempts').default(0).notNull(), // Lockout tracking
     lockUntil: timestamp('lock_until'), // Account temporary lockout expiration
     name: text('name'), // Profile display name

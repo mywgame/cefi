@@ -30,3 +30,24 @@ export const supportTickets = pgTable(
     index('support_tickets_priority_idx').on(table.priority),
   ]
 );
+
+// Support messages/replies under a ticket to store messaging history
+export const supportMessages = pgTable(
+  'support_messages',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    ticketId: uuid('ticket_id')
+      .notNull()
+      .references(() => supportTickets.id, { onDelete: 'cascade' }),
+    senderId: uuid('sender_id')
+      .references(() => users.id, { onDelete: 'set null' }), // Left null if sender is external system
+    senderType: text('sender_type').notNull(), // USER, ADMIN, SYSTEM
+    message: text('message').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('support_messages_ticket_idx').on(table.ticketId),
+    index('support_messages_sender_idx').on(table.senderId),
+    index('support_messages_created_idx').on(table.createdAt),
+  ]
+);

@@ -6,7 +6,3 @@ coverage/
 *.log
 .env*
 !.env.example
-MetaFirm_Business_Logic_Specification.md
-MetaFirm_Development_Roadmap
-MetaFirm_Master_Blueprint.md
-CHANGELOG.md
