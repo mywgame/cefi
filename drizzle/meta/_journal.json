@@ -29,13 +29,6 @@
       "when": 1782860456969,
       "tag": "0003_furry_banshee",
       "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1783565417277,
-      "tag": "0004_colossal_mathemanic",
-      "breakpoints": true
     }
   ]
 }

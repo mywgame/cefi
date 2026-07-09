@@ -103,7 +103,7 @@ async function main() {
     const referralCode = await generateUniqueReferralCode();
     const passwordHash = await hashPassword(password);
 
-    const result = await db
+    const result: any = await db
       .insert(users)
       .values({
         uid,
