@@ -1,6 +1,6 @@
 {
-  "id": "e69dab93-fa3c-459c-b5fd-fd46b3984a25",
-  "prevId": "1d58a47a-596d-4dda-8adc-3173fa1fb799",
+  "id": "b0d1c4c1-dacb-4a8f-aebb-d920769961a9",
+  "prevId": "e69dab93-fa3c-459c-b5fd-fd46b3984a25",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -3371,6 +3371,168 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.team_commission_history": {
+      "name": "team_commission_history",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "receiver_user_id": {
+          "name": "receiver_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_user_id": {
+          "name": "source_user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "claim_id": {
+          "name": "claim_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "name": "level",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_dpy_amount": {
+          "name": "source_dpy_amount",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "commission_amount": {
+          "name": "commission_amount",
+          "type": "numeric(20, 8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "team_commission_history_receiver_idx": {
+          "name": "team_commission_history_receiver_idx",
+          "columns": [
+            {
+              "expression": "receiver_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "team_commission_history_source_idx": {
+          "name": "team_commission_history_source_idx",
+          "columns": [
+            {
+              "expression": "source_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "team_commission_history_created_idx": {
+          "name": "team_commission_history_created_idx",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "team_commission_history_receiver_user_id_users_id_fk": {
+          "name": "team_commission_history_receiver_user_id_users_id_fk",
+          "tableFrom": "team_commission_history",
+          "tableTo": "users",
+          "columnsFrom": [
+            "receiver_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "team_commission_history_source_user_id_users_id_fk": {
+          "name": "team_commission_history_source_user_id_users_id_fk",
+          "tableFrom": "team_commission_history",
+          "tableTo": "users",
+          "columnsFrom": [
+            "source_user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "team_commission_history_claim_id_claims_id_fk": {
+          "name": "team_commission_history_claim_id_claims_id_fk",
+          "tableFrom": "team_commission_history",
+          "tableTo": "claims",
+          "columnsFrom": [
+            "claim_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "team_commission_level_range": {
+          "name": "team_commission_level_range",
+          "value": "\"team_commission_history\".\"level\" >= 1 AND \"team_commission_history\".\"level\" <= 4"
+        },
+        "team_commission_source_dpy_positive": {
+          "name": "team_commission_source_dpy_positive",
+          "value": "\"team_commission_history\".\"source_dpy_amount\" > 0"
+        },
+        "team_commission_amount_positive": {
+          "name": "team_commission_amount_positive",
+          "value": "\"team_commission_history\".\"commission_amount\" > 0"
+        }
+      },
       "isRLSEnabled": false
     }
   },

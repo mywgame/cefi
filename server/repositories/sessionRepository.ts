@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { eq, and } from 'drizzle-orm';
+import { eq, and, ne, desc } from 'drizzle-orm';
 import { db } from '../../src/db/index.ts';
 import { sessions } from '../../src/db/schema.ts';
 
@@ -70,6 +70,58 @@ export class SessionRepository {
         .where(eq(sessions.id, id));
     } catch (error) {
       console.error('Failed to update session last activity:', error);
+    }
+  }
+
+  /**
+   * Find all active (non-revoked, non-expired) sessions for a user, newest first.
+   * Added so Services never need to query Drizzle/sessions directly (Blueprint Rule #2).
+   */
+  async findActiveSessionsByUserId(userId: string) {
+    try {
+      const result = await db
+        .select()
+        .from(sessions)
+        .where(and(eq(sessions.userId, userId), eq(sessions.revoked, false), ne(sessions.expiresAt, new Date())))
+        .orderBy(desc(sessions.createdAt));
+      return result;
+    } catch (error) {
+      console.error('Database query (findActiveSessionsByUserId) failed:', error);
+      throw new Error('Failed to retrieve active sessions from database.');
+    }
+  }
+
+  /**
+   * Find the most recently active session for a user (used for security summaries).
+   */
+  async findLatestActiveSession(userId: string) {
+    try {
+      const result = await db
+        .select()
+        .from(sessions)
+        .where(and(eq(sessions.userId, userId), eq(sessions.revoked, false)))
+        .orderBy(desc(sessions.lastActivity))
+        .limit(1);
+      return result[0] || null;
+    } catch (error) {
+      console.error('Database query (findLatestActiveSession) failed:', error);
+      throw new Error('Failed to retrieve latest active session from database.');
+    }
+  }
+
+  /**
+   * Revoke every session for a user EXCEPT the one matching the given token hash
+   * (used for "log out all other devices").
+   */
+  async revokeAllExcept(userId: string, keepTokenHash: string) {
+    try {
+      await db
+        .update(sessions)
+        .set({ revoked: true })
+        .where(and(eq(sessions.userId, userId), ne(sessions.tokenHash, keepTokenHash)));
+    } catch (error) {
+      console.error('Failed to revoke other sessions:', error);
+      throw new Error('Failed to terminate other active sessions.');
     }
   }
 

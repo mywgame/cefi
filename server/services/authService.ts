@@ -4,10 +4,8 @@
  */
 
 import crypto from 'crypto';
-import { eq } from 'drizzle-orm';
-import { db } from '../../src/db/index.ts';
-import { users } from '../../src/db/schema.ts';
 import { authRepository } from '../repositories/authRepository.ts';
+import { userRepository } from '../repositories/userRepository.ts';
 import { sessionRepository } from '../repositories/sessionRepository.ts';
 import { hashPassword, comparePassword } from '../utils/password.ts';
 import { SecurityLogger } from '../utils/securityLogger.ts';
@@ -406,8 +404,7 @@ export class AuthService {
     }
 
     // Find user record to obtain user ID for activity logging
-    const user = await db.select().from(users).where(eq(users.uid, tokenRecord.uid));
-    const userRecord = user[0];
+    const userRecord = await userRepository.findByUid(tokenRecord.uid);
 
     // Hash the brand new password
     const newPasswordHash = await hashPassword(data.passwordPlain);

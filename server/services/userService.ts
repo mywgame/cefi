@@ -3,9 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { eq, and, ne, desc } from 'drizzle-orm';
-import { db } from '../../src/db/index.ts';
-import { users, wallets, vipStatus, sessions, activityLogs, auditLogs } from '../../src/db/schema.ts';
+import { userRepository } from '../repositories/userRepository.ts';
+import { authRepository } from '../repositories/authRepository.ts';
+import { walletRepository } from '../repositories/walletRepository.ts';
+import { vipRepository } from '../repositories/vipRepository.ts';
+import { activityRepository } from '../repositories/activityRepository.ts';
+import { sessionRepository } from '../repositories/sessionRepository.ts';
 import { UserRole } from '../../shared/types/index.ts';
 import { hashPassword, comparePassword } from '../utils/password.ts';
 import { SecurityLogger } from '../utils/securityLogger.ts';
@@ -20,33 +23,18 @@ export class UserService {
    * Synchronize or register authenticated user state.
    */
   async syncUserAuthentication(uid: string, email: string) {
-    const existingUser = await db.select().from(users).where(eq(users.uid, uid));
-    if (existingUser[0]) {
+    const existingUser = await userRepository.findByUid(uid);
+    if (existingUser) {
       // Lazy initialize wallet and vipStatus if missing
-      await this.ensureUserResources(existingUser[0].id);
-      return existingUser[0];
+      await this.ensureUserResources(existingUser.id);
+      return existingUser;
     }
 
-    // Generate a visible unique User ID (e.g. DS followed by 6 random digits)
-    const randomDigits = Math.floor(100000 + Math.random() * 900000).toString();
-    const generatedUserId = `DS${randomDigits}`;
-    
-    // Generate a short 8-character unique referral code
-    const generatedReferralCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const createdUser = await userRepository.upsertUser({
+      uid,
+      email: email.toLowerCase().trim(),
+    });
 
-    const result = await db
-      .insert(users)
-      .values({
-        uid,
-        email: email.toLowerCase().trim(),
-        role: UserRole.USER,
-        userId: generatedUserId,
-        referralCode: generatedReferralCode,
-        status: 'ACTIVE',
-      })
-      .returning();
-
-    const createdUser = result[0];
     await this.ensureUserResources(createdUser.id);
     return createdUser;
   }
@@ -56,23 +44,20 @@ export class UserService {
    */
   private async ensureUserResources(userId: string) {
     try {
-      const existingWallet = await db.select().from(wallets).where(eq(wallets.userId, userId));
-      if (!existingWallet[0]) {
-        await db.insert(wallets).values({
+      const existingWallet = await walletRepository.findByUserId(userId);
+      if (!existingWallet) {
+        await walletRepository.createWallet({
           userId,
           availableBalance: '0.00000000',
           lockedBalance: '0.00000000',
-          totalDeposited: '0.00000000',
-          totalWithdrawn: '0.00000000',
-          totalEarned: '0.00000000',
         });
       }
 
-      const existingVip = await db.select().from(vipStatus).where(eq(vipStatus.userId, userId));
-      if (!existingVip[0]) {
-        await db.insert(vipStatus).values({
+      const existingVip = await vipRepository.findByUserId(userId);
+      if (!existingVip) {
+        await vipRepository.createVipStatus({
           userId,
-          tier: 'VIP_0',
+          tier: 'VIP1',
           points: '0.00000000',
         });
       }
@@ -85,12 +70,12 @@ export class UserService {
    * Fetch authenticated user details by UID
    */
   async getUserProfile(uid: string) {
-    const user = await db.select().from(users).where(eq(users.uid, uid));
-    if (!user[0]) {
+    const user = await userRepository.findByUid(uid);
+    if (!user) {
       throw new Error(`Profile not found for user ${uid}`);
     }
-    await this.ensureUserResources(user[0].id);
-    return user[0];
+    await this.ensureUserResources(user.id);
+    return user;
   }
 
   /**
@@ -128,14 +113,10 @@ export class UserService {
 
     // 3. Hash and update
     const hashed = await hashPassword(data.newPlain);
-    await db
-      .update(users)
-      .set({
-        passwordHash: hashed,
-        passwordChangedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(users.uid, uid));
+    await userRepository.updateUserProfile(uid, {
+      passwordHash: hashed,
+      passwordChangedAt: new Date(),
+    } as any);
 
     // 4. Log actions
     await SecurityLogger.logActivity({
@@ -178,19 +159,15 @@ export class UserService {
     const newEmailLower = data.newEmail.trim().toLowerCase();
 
     // 2. Verify duplicate email
-    const duplicate = await db.select().from(users).where(eq(users.email, newEmailLower));
-    if (duplicate[0]) {
+    const duplicate = await authRepository.findByEmail(newEmailLower);
+    if (duplicate) {
       throw new Error('This email address is already registered.');
     }
 
     // 3. Update
-    await db
-      .update(users)
-      .set({
-        email: newEmailLower,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.uid, uid));
+    await userRepository.updateUserProfile(uid, {
+      email: newEmailLower,
+    } as any);
 
     // 4. Log actions
     await SecurityLogger.logActivity({
@@ -221,14 +198,10 @@ export class UserService {
   async updateProfile(uid: string, data: { name?: string; phone?: string }, ipAddress?: string | null, userAgent?: string | null) {
     const user = await this.getUserProfile(uid);
 
-    await db
-      .update(users)
-      .set({
-        name: data.name !== undefined ? data.name.trim() : user.name,
-        phone: data.phone !== undefined ? data.phone.trim() : user.phone,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.uid, uid));
+    await userRepository.updateUserProfile(uid, {
+      name: data.name !== undefined ? data.name.trim() : user.name,
+      phone: data.phone !== undefined ? data.phone.trim() : user.phone,
+    } as any);
 
     // Log activity
     await SecurityLogger.logActivity({
@@ -248,13 +221,7 @@ export class UserService {
    */
   async getSessions(uid: string) {
     const user = await this.getUserProfile(uid);
-    const results = await db
-      .select()
-      .from(sessions)
-      .where(and(eq(sessions.userId, user.id), eq(sessions.revoked, false), ne(sessions.expiresAt, new Date())))
-      .orderBy(desc(sessions.createdAt));
-
-    return results;
+    return sessionRepository.findActiveSessionsByUserId(user.id);
   }
 
   /**
@@ -264,10 +231,7 @@ export class UserService {
     const user = await this.getUserProfile(uid);
     const tokenHash = hashToken(currentRefreshToken);
 
-    await db
-      .update(sessions)
-      .set({ revoked: true })
-      .where(and(eq(sessions.userId, user.id), ne(sessions.tokenHash, tokenHash)));
+    await sessionRepository.revokeAllExcept(user.id, tokenHash);
 
     // Log Audit
     await SecurityLogger.logAudit({
@@ -286,27 +250,26 @@ export class UserService {
    * Admin-level user listing with aggregated resources (wallets, VIP tiers)
    */
   async getAdminUserList() {
-    const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
+    const allUsers = await userRepository.findAll({ limit: 1000, offset: 0 });
     const list = [];
 
     for (const u of allUsers) {
       await this.ensureUserResources(u.id);
 
       // Get wallet available balance
-      const walletRecord = await db.select().from(wallets).where(eq(wallets.userId, u.id));
-      const balance = walletRecord[0] ? walletRecord[0].availableBalance : '0.00000000';
+      const walletRecord = await walletRepository.findByUserId(u.id);
+      const balance = walletRecord ? walletRecord.availableBalance : '0.00000000';
 
       // Get VIP tier
-      const vipRecord = await db.select().from(vipStatus).where(eq(vipStatus.userId, u.id));
-      const vipTier = vipRecord[0] ? vipRecord[0].tier : 'VIP_0';
+      const vipRecord = await vipRepository.findByUserId(u.id);
+      const vipTier = vipRecord ? vipRecord.tier : 'VIP1';
 
       // Get Last Login activity time and IP
-      const lastLoginRecord = await db
-        .select()
-        .from(activityLogs)
-        .where(and(eq(activityLogs.userId, u.id), eq(activityLogs.event, 'LOGIN'), eq(activityLogs.status, 'SUCCESS')))
-        .orderBy(desc(activityLogs.createdAt))
-        .limit(1);
+      const lastLoginRecord = await activityRepository.findByUserId(u.id, {
+        event: 'LOGIN',
+        status: 'SUCCESS',
+        limit: 1,
+      });
 
       const lastLoginTime = lastLoginRecord[0] ? lastLoginRecord[0].createdAt : null;
       const lastLoginIp = lastLoginRecord[0] ? lastLoginRecord[0].ipAddress : null;
@@ -340,19 +303,11 @@ export class UserService {
     const fieldsToUpdate: Partial<{ role: string }> = {};
     if (role) fieldsToUpdate.role = role;
 
-    const updatedUser = await db
-      .update(users)
-      .set({
-        ...fieldsToUpdate,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.uid, uid))
-      .returning();
-
-    if (!updatedUser[0]) {
+    const updatedUser = await userRepository.updateUserProfile(uid, fieldsToUpdate);
+    if (!updatedUser) {
       throw new Error(`Failed to update user. Profile for ${uid} does not exist.`);
     }
-    return updatedUser[0];
+    return updatedUser;
   }
 
   /**
@@ -382,7 +337,7 @@ export class UserService {
         updates.passwordChangedAt = new Date();
 
         // Revoke target user's active sessions for security!
-        await db.update(sessions).set({ revoked: true }).where(eq(sessions.userId, targetUser.id));
+        await sessionRepository.revokeAllUserSessions(targetUser.id);
 
         await SecurityLogger.logAudit({
           actorUid: adminUid,
@@ -398,7 +353,7 @@ export class UserService {
       case 'SUSPEND': {
         updates.status = 'SUSPENDED';
         // Terminate all sessions upon suspension
-        await db.update(sessions).set({ revoked: true }).where(eq(sessions.userId, targetUser.id));
+        await sessionRepository.revokeAllUserSessions(targetUser.id);
 
         await SecurityLogger.logAudit({
           actorUid: adminUid,
@@ -453,13 +408,12 @@ export class UserService {
           throw new Error('VIP tier is required.');
         }
         // Update vip_status table
-        await db
-          .update(vipStatus)
-          .set({
+        const vipRecord = await vipRepository.findByUserId(targetUser.id);
+        if (vipRecord) {
+          await vipRepository.updateVipStatus(vipRecord.id, {
             tier: payload.value,
-            updatedAt: new Date(),
-          })
-          .where(eq(vipStatus.userId, targetUser.id));
+          });
+        }
 
         await SecurityLogger.logAudit({
           actorUid: adminUid,
@@ -477,13 +431,11 @@ export class UserService {
     }
 
     // Apply main user table updates
-    const result = await db
-      .update(users)
-      .set(updates)
-      .where(eq(users.uid, targetUid))
-      .returning();
-
-    return result[0];
+    const result = await userRepository.updateUserProfile(targetUid, updates as any);
+    if (!result) {
+      throw new Error(`Failed to apply updates to target user ${targetUid}`);
+    }
+    return result;
   }
 
   /**
@@ -493,20 +445,13 @@ export class UserService {
     const user = await this.getUserProfile(uid);
 
     // Get current login details from active session
-    const currentSession = await db
-      .select()
-      .from(sessions)
-      .where(and(eq(sessions.userId, user.id), eq(sessions.revoked, false)))
-      .orderBy(desc(sessions.lastActivity))
-      .limit(1);
+    const currentSession = await sessionRepository.findLatestActiveSession(user.id);
 
     // Get last login log
-    const lastLoginLogs = await db
-      .select()
-      .from(activityLogs)
-      .where(and(eq(activityLogs.userId, user.id), eq(activityLogs.event, 'LOGIN')))
-      .orderBy(desc(activityLogs.createdAt))
-      .limit(2);
+    const lastLoginLogs = await activityRepository.findByUserId(user.id, {
+      event: 'LOGIN',
+      limit: 2,
+    });
 
     const prevLogin = lastLoginLogs[1] || lastLoginLogs[0] || null;
 
@@ -515,7 +460,7 @@ export class UserService {
       failedLoginAttempts: user.failedLoginAttempts,
       accountLockStatus: user.lockUntil && user.lockUntil > new Date() ? 'LOCKED' : 'UNLOCKED',
       lockUntil: user.lockUntil,
-      currentLoginDevice: currentSession[0] ? `${currentSession[0].browser || ''} on ${currentSession[0].device || ''}` : null,
+      currentLoginDevice: currentSession ? `${currentSession.browser || ''} on ${currentSession.device || ''}` : null,
       lastLoginTime: prevLogin ? prevLogin.createdAt : null,
       lastLoginIp: prevLogin ? prevLogin.ipAddress : null,
     };

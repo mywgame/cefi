@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { db } from '../../src/db/index.ts';
 import { users } from '../../src/db/schema.ts';
 import { UserRole } from '../../shared/types/index.ts';
@@ -72,6 +72,27 @@ export class UserRepository {
     } catch (error) {
       console.error('Database mutation (upsertUser) failed:', error);
       throw new Error('Failed to synchronize user state in database.', { cause: error });
+    }
+  }
+
+  /**
+   * Retrieve all registered users, paginated, newest first.
+   * Added so Services never need to query Drizzle/users directly (Blueprint Rule #2).
+   */
+  async findAll(options?: { limit?: number; offset?: number }) {
+    try {
+      const limit = options?.limit ?? 50;
+      const offset = options?.offset ?? 0;
+      const result = await db
+        .select()
+        .from(users)
+        .orderBy(desc(users.createdAt))
+        .limit(limit)
+        .offset(offset);
+      return result;
+    } catch (error) {
+      console.error('Database query (findAll) failed:', error);
+      throw new Error('Failed to retrieve registered users from database.');
     }
   }
 

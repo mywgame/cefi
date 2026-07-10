@@ -230,18 +230,47 @@ Promotional Bonuses or Task Rewards) will also be displayed under
 
 # 11. Daily DPY
 
--   Calculated once daily at **00:00 UTC**.
--   Not credited automatically.
--   User must manually claim using the **Claim** button.
--   One claim per day.
--   Unclaimed DPY expires at the next 00:00 UTC reset.
--   A new DPY is then generated.
+- Calculated once daily at **00:00 UTC**.
+- DPY is generated once per eligible user per day.
+- DPY is **not credited automatically**.
+- Users must manually claim DPY using the **Claim** button.
+- Only **one claim** is allowed per daily cycle.
+- Any unclaimed DPY expires automatically at the next **00:00 UTC** reset.
+- After the reset, a new DPY is generated based on the user's current eligibility.
 
-Formula:
+## DPY Formula
 
-**Daily DPY = Current Total Assets × Current VIP DPY %**
+**Daily DPY = Eligible Active Balance × Current VIP DPY Rate**
 
-Total Assets include every balance credited to the Main Wallet.
+### Eligible Active Balance
+
+Eligible Active Balance represents the user's current **active Main Wallet balance** that is eligible to generate Daily DPY.
+
+It includes only balances that are currently available for earning.
+
+It excludes any balance that is not actively participating in the investment system.
+
+### Excluded From DPY Calculation
+
+The following balances never generate Daily DPY:
+
+- Locked Balance (pending withdrawals)
+- Any balance reserved for future platform features
+  (such as Staking, Token Purchases, ICO participation, or similar locked funds)
+- Any inactive, frozen or otherwise non-earning balance
+
+### VIP Rate
+
+The applicable DPY percentage is determined by the user's **currently qualified VIP level**.
+
+Whenever the user's wallet eligibility or team qualification changes, the VIP level is recalculated before the next DPY cycle.
+
+### Business Rules
+
+- Locked funds never generate Daily DPY.
+- Pending withdrawals immediately stop earning Daily DPY.
+- Daily DPY is always calculated using the user's current Eligible Active Balance.
+- All Daily DPY calculations are performed exclusively on the server.
 
 ------------------------------------------------------------------------
 
@@ -291,16 +320,35 @@ Business Rules:
 
 # 14. Audit
 
-Log every financial action:
+The system must create an immutable Audit Log for every financial or administrative action.
 
--   Deposit
--   Withdrawal
--   Referral Reward
--   VIP Change
--   Daily DPY Claim
--   Weekly Leadership Incentive
--   Wallet Adjustment
--   Admin Actions
+Audit Logs are used for:
+
+- Security
+- Financial Traceability
+- Compliance
+- Debugging
+- Administrative Investigation
+
+The following actions MUST always generate an Audit Log:
+
+- Deposit
+- Withdrawal
+- Referral Reward
+- Team Commission
+- VIP Change
+- Daily DPY Claim
+- Weekly Leadership Incentive
+- Wallet Adjustment
+- Admin Actions
+
+## Business Rules
+
+- Audit Logs are generated automatically by the server.
+- Audit Logs are immutable and must never be modified or deleted.
+- Every Audit Log records the action, affected resource, timestamp and relevant metadata.
+- Audit Logs are intended for internal administration, compliance and debugging only.
+- Audit Logs are never displayed to end users.
 
 ------------------------------------------------------------------------
 
@@ -322,9 +370,117 @@ Rules:
 
 ------------------------------------------------------------------------
 
-# 16. Implementation Rule
+# 16.  Team Commission/Level
+
+THIS INCOME COMES FROM TEAM USERS DPY %
+when user claimS their DPY. 
+COMMISSIONS DISTRIBUTES INSTANT TO UPLINES UPTO 4 LEVELS (A,B,C,D)
+
+• VIP1:  ---,  ----,    ----,     ----
+• VIP2: A 10%, B 5%,    C 3%,     D 2%
+• VIP3: A 12%, B 6%,    C 4%,     D 3%
+• VIP4: A 15%, B 8%,    C 5%,     D 4%
+• VIP5: A 17%, B 9%,    C 6%,     D 5%
+• VIP6: A 20%, B 10%,   C 7%,     D 6%
+• VIP7: A 22%, B 11%,   C 8%,     D 7%
+• VIP8: A 24%, B 12%,   C 9%,     D 8%
+
+EXAMPLE 1 :
+ USER (X) IS VIP 3
+ IN THEIR TEAM D1 EARNS DPY = $11.50 (THROUGH DPY CLAIM)
+USER X WILL EARN 3% OF USER D1'S DPY = 11.50×3%= $0.34
+(UNDER LEVEL INCOME)
+ 
+                     USER (x)
+                      │
+         ┌────────────┴────────────┐
+         │                         │
+      A1 (Direct)                 A2 (Direct)   <--- LEVEL A
+      /      \                  /      \
+     B1      B2                B3      B4    <--- LEVEL B
+     │
+     C1                                        <--- LEVEL C
+     │
+     D1                                         <--- LEVEL D
+```
+
+
+
+EXAMPLE 2 :
+
+USER (X) IS VIP2
+IN THEIR TEAM B5 EARNS DPY = $8.30 (THROUGH DPY CLAIM)
+USER X WILL EARN 5% OF USER B5'S DPY = 8.30× 5% = $0.41 (UNDER LEVEL INCOME)
+
+
+
+
+
+                USER (X)
+
+                  │
+
+        ┌─────────┴────────
+        │                  │
+     A1 (Direct)           A2 (Direct)    <--- LEVEL A
+
+     /      \         /    /    \
+    B1      B2        B3   B4   B5        <--- LEVEL B
+
+    │
+
+    C1                                    <--- LEVEL C
+
+    │
+
+    D1                                    <--- LEVEL C
+
+```
+EXAMPLE 3 :
+
+USER (X) IS VIP 5
+IN THEIR TEAM c5 (c level team users) EARNS DPY = $18.70 (THROUGH DPY CLAIM)
+USER X WILL EARN 6% OF USER c5'S DPY = 18.70× 6% = $1.12 (UNDER LEVEL INCOME)
+
+## Business Rule
+
+Team Commission percentage is always determined by the CURRENT VIP level of the receiving upline user.
+
+The downline user's VIP level never affects the commission percentage.
+
+
+## Implementation Rule
 
 Business Logic belongs ONLY inside the Service Layer.
 
 Never place business logic inside: - Frontend - Controllers -
 Repositories
+
+## Business Rule Ownership
+
+Every business rule has exactly one owning Service.
+
+- The owning Service is the single source of truth.
+- Other Services must call the owning Service instead of reimplementing the same logic.
+- Business rules must never be duplicated across multiple Services.
+------------------------------------------------------------------------
+
+# 17. Service Ownership Matrix
+
+| Business Domain             | Owning Service       |
+|-----------------------------|----------------------|
+| Authentication              | AuthService          |
+| User Management             | UserService          |
+| Wallet Management           | WalletService        |
+| VIP Qualification           | VipService           |
+| Deposits                    | DepositService       |
+| Withdrawals                 | WithdrawalService    |
+| Referral Reward             | ReferralService      |
+| Team Commission             | ReferralService      |
+| Daily DPY Claim             | ClaimService         |
+| Weekly Leadership Incentive | SalaryService        |
+| Notifications               | NotificationService  |
+| Support                     | SupportService       |
+| Dashboard Aggregation       | DashboardService     |
+| Administration              | AdminService         |
+| Settings                    | SettingsService      |

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { eq, and, desc, lte, gte } from 'drizzle-orm';
+import { eq, and, desc, lte, gte, lt } from 'drizzle-orm';
 import { db } from '../../src/db/index.ts';
 import { claims } from '../../src/db/schema.ts';
 
@@ -118,6 +118,23 @@ export class ClaimRepository {
     } catch (error) {
       console.error('Database update (updateClaimStatus) failed:', error);
       throw new Error('Failed to update claim state.');
+    }
+  }
+
+  /**
+   * Find all PENDING claims whose claim window has already closed as of the given time
+   * (i.e. unclaimed DPY that must expire at the next 00:00 UTC reset).
+   */
+  async findExpiredPendingClaims(asOf: Date = new Date()) {
+    try {
+      const result = await db
+        .select()
+        .from(claims)
+        .where(and(eq(claims.claimStatus, 'PENDING'), lt(claims.claimWindowCloseTime, asOf)));
+      return result;
+    } catch (error) {
+      console.error('Database query (findExpiredPendingClaims) failed:', error);
+      throw new Error('Failed to look up expired pending claims.');
     }
   }
 
