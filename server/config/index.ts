@@ -23,5 +23,11 @@ export const config = {
     dbName: process.env.SQL_DB_NAME,
     adminUser: process.env.SQL_ADMIN_USER,
     adminPassword: process.env.SQL_ADMIN_PASSWORD,
+  },
+  email: {
+    // No fallback defaults — these are required. EmailService/ResendProvider
+    // fail fast (throw) at construction time if either is missing.
+    resendApiKey: process.env.RESEND_API_KEY,
+    fromAddress: process.env.EMAIL_FROM,
   }
 };

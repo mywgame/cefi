@@ -168,30 +168,62 @@ Rules
 - Financial calculations are server-side only.
 - Never trust client values.
 
-Status
-
-⏳ Pending
+Status = Completed ✅
 
 ---
 
 # Phase 6 — Controller Layer
 
+Objective
+
+Expose the Service Layer through secure, production-ready HTTP endpoints.
+
 Responsibilities
 
 - Request Validation
-- Authentication
+- Authentication & Authorization
 - Call Services
-- Return API Responses
+- Transform Service Results into API Responses
+- Error Mapping
+- HTTP Status Codes
+- Response Serialization
 
 Rules
 
 - No Business Logic
+- No Database Access
+- No Repository Access
+- Never perform financial calculations
+- Never trust client input
+- Controllers must only orchestrate requests and responses
+
+Development Strategy
+
+Implement Controllers feature-by-feature:
+
+- Authentication (Registration OTP, Forgot Password)
+- Dashboard
+- Wallet
+- Deposit
+- Withdrawal
+- Daily DPY & Claim
+- Referral & Team Commission
+- Notifications
+- Support
+- Settings
+- Admin
+
+Deliverables
+
+- Production-ready Controllers
+- Request Validation
+- Standardized API Responses
+- Error Handling
+- Authentication Middleware Integration
 
 Status
 
 ⏳ Pending
-
----
 
 # Phase 7 — API Integration
 
@@ -338,7 +370,7 @@ Database Migration       ✅ 100%
 
 Repository Layer         ✅ 100%
 
-Service Layer            ⏳
+Service Layer            ✅ 100%
 
 Controller Layer         ⏳
 
